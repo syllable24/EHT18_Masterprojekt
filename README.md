@@ -28,5 +28,5 @@ Optionale Ziele (Nice to have):
   definiert werden) beigefügt werden.
   
 Nicht-Ziele:
--Die  Anbindung an ELGA ist nicht vorhergesehen.
+- Die  Anbindung an ELGA ist nicht vorhergesehen.
 - Der Nutzer der App darf die Dauermedikationsliste nicht selbst ändern.
