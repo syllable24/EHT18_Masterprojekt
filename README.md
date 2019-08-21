@@ -2,7 +2,7 @@
 EHT18 Masterprojekt: eRezept
 
 Konzept: Diese Android-App soll es ermöglichen, mittels einer SMS eine Dauermedikationsliste 
-einlesen zu können und basierend auf dieser Liste an die Medikationseinnahme erinnert zu werden.
+einzulesen und basierend auf dieser Liste an die Medikationseinnahme erinnert zu werden.
 
 Ziele: 
 - Bestimmung eines Standards, der zur Übermittelung der Dauermedikationsliste verwendet werden soll.
@@ -10,6 +10,8 @@ Ziele:
 - Die App soll die standardisierte SMS einlesen und deren Inhalte anzeigen können.
 - Die App soll, basierend auf der eingelesenen Dauermedikationsliste, den User zur verordneten Zeit
   (Morgens, Mittags, Abends, Nachts) mittels Push-Nachrichten an die Einnahme der Medikation erinnern.
+- Ein möglicher Freigabeprozess (Notwendige Zertifikate, Überprüfungen, Behüördengänge,...) soll 
+  erstellt werden.
  
 Optionale Ziele (Nice to have):
 - Die Erstellung der Dauermedikationsliste soll mittels einer Web-App erfolgen können.
