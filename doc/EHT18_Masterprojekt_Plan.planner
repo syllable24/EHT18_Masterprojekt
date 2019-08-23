@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<project name="EHT18_Masterprojekt" company="FH Joanneum" manager="Ralph Sandmair" phase="" project-start="20190828T000000Z" mrproject-version="2" calendar="1">
+  <properties/>
+  <phases/>
+  <calendars>
+    <day-types>
+      <day-type id="0" name="Working" description="A default working day"/>
+      <day-type id="1" name="Nonworking" description="A default non working day"/>
+      <day-type id="2" name="Use base" description="Use day from base calendar"/>
+    </day-types>
+    <calendar id="1" name="Default">
+      <default-week mon="1" tue="1" wed="0" thu="0" fri="0" sat="1" sun="1"/>
+      <overridden-day-types>
+        <overridden-day-type id="0">
+          <interval start="1500" end="1700"/>
+        </overridden-day-type>
+      </overridden-day-types>
+      <days/>
+    </calendar>
+  </calendars>
+  <tasks>
+    <task id="1" name="Softwareplanung" note="" work="86400" start="20190828T000000Z" end="20190920T170000Z" work-start="20190828T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="2" name="SP: Nachbearbeitung Konzept" note="" work="21600" start="20190828T000000Z" end="20190830T170000Z" work-start="20190828T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="3" name="SP: Erstellung Klassendiagram" note="" work="43200" start="20190830T170000Z" end="20190913T170000Z" work-start="20190904T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="2" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="4" name="SP: Feedback zu Klassendiagram einbauen" note="" work="21600" start="20190913T170000Z" end="20190920T170000Z" work-start="20190918T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="3" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="5" name="MS: Softwareplanung abgeschlossen" note="" work="0" start="20190920T170000Z" end="20190920T170000Z" work-start="20190920T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="1" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="6" name="User Interface" note="" work="64800" start="20190920T170000Z" end="20191011T170000Z" work-start="20190925T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="5" type="FS"/>
+      </predecessors>
+      <task id="7" name="UI: Erstellung Mockup" note="" work="21600" start="20190920T170000Z" end="20190927T170000Z" work-start="20190925T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="8" name="UI: Erstellung UI" note="" work="43200" start="20190927T170000Z" end="20191011T170000Z" work-start="20191002T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="7" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="9" name="MS: UI abgeschlossen" note="" work="0" start="20191011T170000Z" end="20191011T170000Z" work-start="20191011T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="6" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="10" name="Alarmmanagement" note="" work="86400" start="20191011T170000Z" end="20191108T170000Z" work-start="20191016T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="9" type="FS"/>
+      </predecessors>
+      <task id="11" name="AM: Setzen und Abspielen von Alarmen" note="" work="43200" start="20191011T170000Z" end="20191025T170000Z" work-start="20191016T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="12" name="AM: L&#xF6;schen von gesetzten Alarmen" note="" work="43200" start="20191025T170000Z" end="20191108T170000Z" work-start="20191030T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="11" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="13" name="MS: Managen von Alarmen m&#xF6;glich" note="" work="0" start="20191108T170000Z" end="20191108T170000Z" work-start="20191108T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="10" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="14" name="Importieren von SMS" note="" work="108000" start="20191108T170000Z" end="20191213T170000Z" work-start="20191113T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="13" type="FS"/>
+      </predecessors>
+      <task id="15" name="SMS: Recherche HL7v3 Dauermedikation" note="" work="21600" start="20191108T170000Z" end="20191115T170000Z" work-start="20191113T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="16" name="SMS: Importieren von SMS" note="" work="43200" start="20191115T170000Z" end="20191129T170000Z" work-start="20191120T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="15" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="17" name="SMS: Importieren von SMS m&#xF6;glich" note="" work="0" start="20191129T170000Z" end="20191129T170000Z" work-start="20191129T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="16" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="18" name="SMS: Basierend auf Import Alarme setzen" note="" work="43200" start="20191129T170000Z" end="20191213T170000Z" work-start="20191204T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="17" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="19" name="MS: Import von SMS mit setzen der Alarme m&#xF6;glich" note="" work="0" start="20191213T170000Z" end="20191213T170000Z" work-start="20191213T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="14" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="20" name="Export Einnahmeprotokoll" note="" work="72000" start="20191213T170000Z" end="20200108T170000Z" work-start="20191218T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="19" type="FS"/>
+      </predecessors>
+      <task id="21" name="EE: Planung Funktionsweise" note="" work="14400" start="20191213T170000Z" end="20191219T170000Z" work-start="20191218T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="22" name="EE: Feedback zur Panung einbauen" note="" work="14400" start="20191219T170000Z" end="20191225T170000Z" work-start="20191220T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="21" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="23" name="EE: Implementierung Protokollierung" note="" work="21600" start="20191225T170000Z" end="20200101T170000Z" work-start="20191226T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="22" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="24" name="EE: Implementierung Export" note="" work="21600" start="20200101T170000Z" end="20200108T170000Z" work-start="20200102T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="23" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="25" name="MS: Export Einnahmeprotokolle m&#xF6;glich" note="" work="0" start="20200108T170000Z" end="20200108T170000Z" work-start="20200108T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="20" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="26" name="Freigabeprozess" note="" work="43200" start="20200108T170000Z" end="20200122T170000Z" work-start="20200109T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="25" type="FS"/>
+      </predecessors>
+      <task id="27" name="FR: Recherche" note="" work="21600" start="20200108T170000Z" end="20200115T170000Z" work-start="20200109T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="28" name="FR: Erstellung Dokument" note="" work="21600" start="20200115T170000Z" end="20200122T170000Z" work-start="20200116T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="27" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="29" name="MS: Konzept Freigabeprozess erstellt" note="" work="0" start="20200122T170000Z" end="20200122T170000Z" work-start="20200122T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="26" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="30" name="Webapp" note="" work="86400" start="20200122T170000Z" end="20200219T170000Z" work-start="20200123T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="29" type="FS"/>
+      </predecessors>
+      <task id="31" name="WA: Planung" note="" work="21600" start="20200122T170000Z" end="20200129T170000Z" work-start="20200123T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="32" name="WA: Feedback zur Planung einbauen" note="" work="21600" start="20200129T170000Z" end="20200205T170000Z" work-start="20200130T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="31" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="33" name="WA: Implementierung" note="" work="43200" start="20200205T170000Z" end="20200219T170000Z" work-start="20200206T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="32" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="34" name="MS: Webapp abgeschlossen" note="" work="0" start="20200219T170000Z" end="20200219T170000Z" work-start="20200219T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <predecessors>
+        <predecessor id="1" predecessor-id="30" type="FS"/>
+      </predecessors>
+    </task>
+    <task id="35" name="Projektende" note="" work="0" start="20200221T000000Z" end="20200221T000000Z" work-start="20200221T150000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+      <constraint type="must-start-on" time="20200221T000000Z"/>
+    </task>
+  </tasks>
+  <resource-groups/>
+  <resources>
+    <resource id="1" name="Ralph Sandmair" short-name="RSA" type="1" units="0" email="ralph.sandmair25@gmail.com" note="" std-rate="0"/>
+  </resources>
+  <allocations/>
+</project>
