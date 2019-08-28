@@ -21,7 +21,7 @@
   <tasks>
     <task id="1" name="Softwareplanung" note="" work="86400" start="20190828T000000Z" end="20190920T170000Z" work-start="20190828T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <task id="2" name="SP: Nachbearbeitung Konzept" note="" work="21600" start="20190828T000000Z" end="20190830T170000Z" work-start="20190828T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="3" name="SP: Erstellung Klassendiagram" note="" work="43200" start="20190830T170000Z" end="20190913T170000Z" work-start="20190904T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="3" name="SP: Erstellung Klassendiagram" note="" work="43200" start="20190830T170000Z" end="20190913T170000Z" work-start="20190904T150000Z" percent-complete="10" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
           <predecessor id="1" predecessor-id="2" type="FS"/>
         </predecessors>
