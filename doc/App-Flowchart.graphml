@@ -996,7 +996,7 @@ vorhanden?<y:LabelModel>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="111.642578125" x="26.21382914836255" y="10.720574680511163">Aktive 
 Dauermedikation 
-vorhanden?<y:LabelModel>
+in DB?<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -1060,19 +1060,18 @@ einlesen<y:LabelModel>
     </node>
     <node id="n4" yfiles.foldertype="group">
       <data key="d4"/>
-      <data key="d5"/>
       <data key="d6">
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
             <y:GroupNode>
-              <y:Geometry height="1324.4117233218522" width="873.0866113640567" x="1777.0" y="126.0390625"/>
+              <y:Geometry height="1324.4117233218522" width="873.0866113640568" x="1777.0" y="126.0390625"/>
               <y:Fill color="#F5F5F5" transparent="false"/>
               <y:BorderStyle color="#000000" type="dashed" width="1.0"/>
-              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="873.0866113640567" x="0.0" y="0.0">Öffnen der MedListViewActivity</y:NodeLabel>
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="873.0866113640568" x="0.0" y="0.0">Öffnen der MedListViewActivity</y:NodeLabel>
               <y:Shape type="roundrectangle"/>
               <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
               <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0" top="15" topF="15.0"/>
-              <y:BorderInsets bottom="0" bottomF="0.0" left="58" leftF="58.456059637912745" right="44" rightF="43.630551726144176" top="0" topF="0.0"/>
+              <y:BorderInsets bottom="0" bottomF="0.0" left="58" leftF="58.45605963791263" right="44" rightF="43.630551726144404" top="0" topF="0.0"/>
             </y:GroupNode>
             <y:GroupNode>
               <y:Geometry height="50.0" width="50.0" x="0.0" y="60.0"/>
@@ -1091,7 +1090,7 @@ einlesen<y:LabelModel>
         <node id="n4::n0">
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.process">
-              <y:Geometry height="40.0" width="209.0" x="2382.4560596379124" y="1081.3632963769323"/>
+              <y:Geometry height="40.0" width="209.0" x="2382.4560596379124" y="1058.2249438077624"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="125.39453125" x="41.802734375" y="4.03125">Bestimmung der zu 
@@ -1141,13 +1140,12 @@ Erinnerungen erfolgreich gesetzt<y:LabelModel>
           </data>
         </node>
         <node id="n4::n3">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.start1">
               <y:Geometry height="50.82975420660273" width="159.746371884984" x="2407.082873695421" y="249.44832011714766"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="124.158203125" x="17.794084379992" y="9.44612710330125">MedListViewActivity
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="124.158203125" x="17.794084379992" y="9.446127103301365">MedListViewActivity
 wird geöffnet<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
@@ -1210,13 +1208,12 @@ wird geöffnet<y:LabelModel>
           </data>
         </node>
         <node id="n4::n7">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.decision">
               <y:Geometry height="61.25154419595333" width="159.746371884984" x="2407.082873695421" y="335.41285511365186"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="132.443359375" x="13.651506254992" y="21.64139709797655">MedListe vorhanden?<y:LabelModel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="132.443359375" x="13.651506254992" y="21.641397097976665">MedListe vorhanden?<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -1227,13 +1224,12 @@ wird geöffnet<y:LabelModel>
           </data>
         </node>
         <node id="n4::n8">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.process">
               <y:Geometry height="50.8297542066025" width="128.0447277529288" x="2120.47238798722" y="401.772789341554"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="96.14453125" x="15.950098251464397" y="2.461752103301478">MsgBox: Keine 
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="96.14453125" x="15.950098251464624" y="2.461752103301251">MsgBox: Keine 
 MedListe. SMS
 Import öffnen?<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
@@ -1251,7 +1247,7 @@ Import öffnen?<y:LabelModel>
               <y:Geometry height="61.25154419595333" width="133.0" x="1850.4560596379126" y="489.9538615779743"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.224609375" x="26.3876953125" y="14.65702209797655">Bestätigung 
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.224609375" x="26.3876953125" y="14.657022097976665">Bestätigung 
 durch User<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
@@ -1263,7 +1259,6 @@ durch User<y:LabelModel>
           </data>
         </node>
         <node id="n4::n10">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.terminator">
               <y:Geometry height="40.0" width="209.0" x="2082.4560596379124" y="1395.4507858218522"/>
@@ -1280,13 +1275,12 @@ durch User<y:LabelModel>
           </data>
         </node>
         <node id="n4::n11">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.decision">
               <y:Geometry height="50.8297542066025" width="159.746371884984" x="2407.082873695421" y="676.355106503428"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="101.4296875" x="29.158342192492" y="16.430502103301478">Alarme gesetzt?<y:LabelModel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="101.4296875" x="29.158342192492" y="16.43050210330125">Alarme gesetzt?<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -1297,13 +1291,12 @@ durch User<y:LabelModel>
           </data>
         </node>
         <node id="n4::n12">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.terminator">
               <y:Geometry height="40.0" width="179.43683407880735" x="2094.7763348242806" y="608.4611096823419"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="162.818359375" x="8.309237351903676" y="11.015625">Öffnen: ImportSmsActivity<y:LabelModel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="162.818359375" x="8.309237351903903" y="11.015625">Öffnen: ImportSmsActivity<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -1314,13 +1307,12 @@ durch User<y:LabelModel>
           </data>
         </node>
         <node id="n4::n13">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.flowchart.process">
               <y:Geometry height="50.8297542066025" width="128.0447277529288" x="2120.47238798722" y="887.6191668229189"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="98.875" x="14.584863876464397" y="2.4617521033010235">MsgBox: Keine 
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="98.875" x="14.584863876464624" y="2.461752103301251">MsgBox: Keine 
 Alarme gesetzt.
 Alarme setzen?<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
@@ -1338,7 +1330,7 @@ Alarme setzen?<y:LabelModel>
               <y:Geometry height="61.25154419595333" width="133.0" x="1850.4560596379126" y="967.1586156527578"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.224609375" x="26.3876953125" y="14.65702209797655">Bestätigung 
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.224609375" x="26.3876953125" y="14.657022097976665">Bestätigung 
 durch User<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
@@ -2021,7 +2013,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e2" source="n4::n3" target="n4::n7">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -2032,7 +2023,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e3" source="n4::n7" target="n4::n8">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -2053,7 +2043,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e4" source="n4::n8" target="n4::n9">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -2066,7 +2055,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e5" source="n4::n7" target="n4::n11">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -2085,7 +2073,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e6" source="n4::n9" target="n4::n12">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -2106,7 +2093,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e7" source="n4::n11" target="n4::n13">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -2128,7 +2114,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e8" source="n4::n13" target="n4::n14">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -2141,7 +2126,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e9" source="n4::n9" target="n4::n10">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="1.230653887113931" ty="-4.418047454737007">
@@ -2165,7 +2149,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e10" source="n4::n11" target="n4::n10">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="1.230653887113931" ty="-5.6487013418513925">
@@ -2188,7 +2171,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e11" source="n4::n14" target="n4::n10">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="1.230653887113931" ty="-1.79577015207542">
@@ -2211,7 +2193,6 @@ durch User<y:LabelModel>
       </data>
     </edge>
     <edge id="n4::e12" source="n4::n14" target="n4::n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
