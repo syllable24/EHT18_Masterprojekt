@@ -37,7 +37,6 @@
     </node>
     <node id="n1" yfiles.foldertype="group">
       <data key="d4"/>
-      <data key="d5"/>
       <data key="d6">
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
@@ -67,7 +66,6 @@
       <graph edgedefault="directed" id="n1:">
         <node id="n1::n0">
           <data key="d4"/>
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="68.0" width="171.0" x="624.5" y="64.0"/>
@@ -87,7 +85,6 @@ aus SMS einlesen.<y:LabelModel>
         </node>
         <node id="n1::n1">
           <data key="d4"/>
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="68.0" width="184.0" x="618.0" y="352.0"/>
@@ -107,7 +104,6 @@ erinnert werden<y:LabelModel>
         </node>
         <node id="n1::n2">
           <data key="d4"/>
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="68.0" width="184.0" x="497.0" y="492.0"/>
@@ -126,10 +122,9 @@ erinnert werden<y:LabelModel>
         </node>
         <node id="n1::n3">
           <data key="d4"/>
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="68.0" width="184.0" x="618.0" y="219.0"/>
+              <y:Geometry height="68.0" width="184.0" x="618.0" y="203.0"/>
               <y:Fill color="#99CCFF" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="150.34521484375" x="16.827392578125" y="16.8671875">Dauermedikationsliste
@@ -146,13 +141,13 @@ ansehen<y:LabelModel>
         </node>
         <node id="n1::n4">
           <data key="d4"/>
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="68.0" width="184.0" x="761.0" y="492.0"/>
               <y:Fill color="#99CCFF" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="19.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="123.89453125" x="30.052734375" y="24.43359375">Alarme bestätigen<y:LabelModel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="130.3310546875" x="26.83447265625" y="16.8671875">Ausgelöste Alarme 
+bestätigen<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -166,7 +161,6 @@ ansehen<y:LabelModel>
       </graph>
     </node>
     <edge id="e0" source="n0" target="n1::n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -177,7 +171,6 @@ ansehen<y:LabelModel>
       </data>
     </edge>
     <edge id="e1" source="n0" target="n1::n1">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -189,7 +182,6 @@ ansehen<y:LabelModel>
     </edge>
     <edge id="n1::e0" source="n1::n1" target="n1::n2">
       <data key="d8"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -209,13 +201,12 @@ ansehen<y:LabelModel>
     </edge>
     <edge id="n1::e1" source="n1::n0" target="n1::n3">
       <data key="d8"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="plain"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="53.728515625" x="-56.8642578125" y="34.515625">includes<y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="53.728515625" x="-56.8642578125" y="26.515625">includes<y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -229,7 +220,6 @@ ansehen<y:LabelModel>
     </edge>
     <edge id="n1::e2" source="n1::n1" target="n1::n4">
       <data key="d8"/>
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
