@@ -9,6 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".MedListDisplay"
+            android:label="@string/title_activity_med_list_display"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ImportSms"
+            android:label="@string/title_activity_import_sms"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

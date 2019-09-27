@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">EHT18_Masterprojekt</string>
+    <string name="title_activity_import_sms">ImportSms</string>
+    <string name="title_activity_med_list_display">MedListDisplay</string>
 </resources>
