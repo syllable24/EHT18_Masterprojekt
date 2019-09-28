@@ -3,9 +3,9 @@ package com.example.eht18_masterprojekt;
 public class MainActivityController {
 
     private MainActivityModel model;
-    private MainActivity view;
+    private MainActivityView view;
 
-    public MainActivityController(MainActivityModel m, MainActivity v){
+    public MainActivityController(MainActivityModel m, MainActivityView v){
         model = m;
         view = v;
     }

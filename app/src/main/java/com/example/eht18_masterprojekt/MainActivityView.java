@@ -1,22 +1,14 @@
 package com.example.eht18_masterprojekt;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityView extends AppCompatActivity {
 
     private RecyclerView serviceList;
 
@@ -28,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         serviceList = findViewById(R.id.rvActivityList);
 
         MainActivityModel m = new MainActivityModel(getAppServices());
-        MainActivity v = new MainActivity();
+        MainActivityView v = new MainActivityView();
         MainActivityController c = new MainActivityController(m, v);
 
         c.updateView();
@@ -40,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public void printServiceList(List<String> serviceList){
         /*
-        adapter = new ServiceListRecycleViewAdapter(MainActivity.this, feedsList);
+        adapter = new ServiceListRecycleViewAdapter(MainActivityView.this, feedsList);
         mRecyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(FeedItem item) {
-                Toast.makeText(MainActivity.this, item.getTitle(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivityView.this, item.getTitle(), Toast.LENGTH_LONG).show();
             }
         });
         */

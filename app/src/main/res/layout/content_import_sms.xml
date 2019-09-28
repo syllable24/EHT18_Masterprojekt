@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ImportSms"
+    tools:context=".Feature_SMS_Import.ImportSmsView"
     tools:showIn="@layout/activity_import_sms">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

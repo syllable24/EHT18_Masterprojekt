@@ -1,7 +1,8 @@
-package com.example.eht18_masterprojekt;
+package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 import android.os.Bundle;
 
+import com.example.eht18_masterprojekt.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -10,7 +11,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
 
-public class ImportSms extends AppCompatActivity {
+import java.util.Observable;
+import java.util.Observer;
+
+public class ImportSmsView extends AppCompatActivity implements Observer {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,4 +33,9 @@ public class ImportSms extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        // TODO: set SMS List RecyclerView based on arg
+
+    }
 }

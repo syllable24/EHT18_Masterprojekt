@@ -10,14 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MedListDisplay"
+            android:name=".Feature_Med_List.MedListDisplayView"
             android:label="@string/title_activity_med_list_display"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".ImportSms"
+            android:name=".Feature_SMS_Import.ImportSmsView"
             android:label="@string/title_activity_import_sms"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivityView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
