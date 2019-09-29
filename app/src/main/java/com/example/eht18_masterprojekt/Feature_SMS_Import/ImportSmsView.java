@@ -8,13 +8,16 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ImportSmsView extends AppCompatActivity implements Observer {
+public class ImportSmsView extends AppCompatActivity{
+
+    RecyclerView smsList;
+    CopyOnWriteArrayList<SmsSelectedListener> listeners;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,19 +26,33 @@ public class ImportSmsView extends AppCompatActivity implements Observer {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        smsList = findViewById(R.id.rvSmsList);
+        listeners = new CopyOnWriteArrayList<>();
+        SmsImportController c = new SmsImportController(new SmsImportModel(), this, new SmsImportAndroid());
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // TODO: Implement Refresh SMS List
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        // TODO: set SMS List RecyclerView based on arg
+    public void addSmsSelectedListener(SmsSelectedListener listener){
+        this.listeners.add(listener);
+    }
 
+    public void removeSmsSelectedListener(SmsSelectedListener listener){
+        this.listeners.remove(listener);
+    }
+
+    public void rvSmsList_Click(View view){
+        SmsSelectedEvent event = new SmsSelectedEvent(null); // TODO: get SMS Display from RecyclerView
+        for (SmsSelectedListener l : listeners){
+            l.smsSelectedEventReceived(event);
+        }
     }
 }

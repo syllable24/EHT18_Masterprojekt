@@ -8,4 +8,11 @@
     tools:context=".Feature_SMS_Import.ImportSmsView"
     tools:showIn="@layout/activity_import_sms">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSmsList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:onClick="rvSmsList_Click"
+        tools:layout_editor_absoluteX="4dp"
+        tools:layout_editor_absoluteY="2dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

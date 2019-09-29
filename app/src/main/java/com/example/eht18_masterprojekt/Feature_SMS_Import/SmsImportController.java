@@ -1,37 +1,39 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
-import com.example.eht18_masterprojekt.MainActivityView;
-
 import java.util.List;
 
-public class SmsImportController {
+public class SmsImportController implements SmsSelectedListener {
 
-    SmsImportModel model;
-    ImportSmsView view;
-    SmsDirector smsDirector;
+    private SmsImportModel model;
+    private ImportSmsView view;
+    private SmsDirector smsDirector;
 
-    public SmsImportController(SmsImportModel m, ImportSmsView v){
+    SmsImportController(SmsImportModel m, ImportSmsView v, SmsImporter i){
         view = v;
         model = m;
-        model.addObserver(view);
+        view.addSmsSelectedListener(this);
 
-        checkInbox();
+        checkInbox(i);
     }
 
-    private void checkInbox(){
+    private void checkInbox(SmsImporter i){
         // find importable SMS in Inbox
-        ImportProxy i = new ImportProxy();
-        List<SmsDisplay> lst = i.getSmsDisplay();
+        List<SmsDisplay> lst = i.getSmsDisplays();
         model.setSmsList(lst);
     }
 
-    private SMS importSMS(String smsLocation){
+    private SMS importSMS(SmsDisplay source){
         // determine SMS type
-        smsDirector = new SmsDirector(new SMS.PlainTextSmsBuilder(smsLocation));
+        smsDirector = new SmsDirector(new SMS.PlainTextSmsBuilder(source.location));
         return smsDirector.getSms();
     }
 
     private boolean deleteSMS(){
         throw new UnsupportedOperationException("Feature not implemented yet");
+    }
+
+    @Override
+    public void smsSelectedEventReceived(SmsSelectedEvent event) {
+        importSMS(event.getSmsSource());
     }
 }
