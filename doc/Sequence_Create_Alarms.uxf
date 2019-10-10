@@ -6,17 +6,16 @@
     <coordinates>
       <x>220</x>
       <y>230</y>
-      <w>150</w>
+      <w>180</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Dauermedikationsliste
-</panel_attributes>
+    <panel_attributes>SmsStateBroadCastReceiver</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>760</x>
+      <x>770</x>
       <y>230</y>
       <w>150</w>
       <h>30</h>
@@ -28,7 +27,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1090</x>
+      <x>1100</x>
       <y>230</y>
       <w>150</w>
       <h>30</h>
@@ -40,7 +39,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1320</x>
+      <x>1330</x>
       <y>230</y>
       <w>150</w>
       <h>30</h>
@@ -52,7 +51,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
+      <x>290</x>
       <y>250</y>
       <w>30</w>
       <h>120</h>
@@ -63,7 +62,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>280</x>
+      <x>290</x>
       <y>350</y>
       <w>20</w>
       <h>160</h>
@@ -74,7 +73,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>820</x>
+      <x>830</x>
       <y>250</y>
       <w>30</w>
       <h>130</h>
@@ -85,7 +84,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>820</x>
+      <x>830</x>
       <y>360</y>
       <w>20</w>
       <h>60</h>
@@ -96,7 +95,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>300</x>
       <y>360</y>
       <w>550</w>
       <h>40</h>
@@ -108,7 +107,7 @@ lt=&lt;&lt;-</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>740</x>
+      <x>750</x>
       <y>280</y>
       <w>290</w>
       <h>270</h>
@@ -135,7 +134,7 @@ initialized]
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>300</x>
       <y>390</y>
       <w>550</w>
       <h>40</h>
@@ -147,7 +146,7 @@ lt=&lt;&lt;-</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>820</x>
+      <x>830</x>
       <y>410</y>
       <w>30</w>
       <h>70</h>
@@ -158,63 +157,7 @@ lt=&lt;&lt;-</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>820</x>
-      <y>460</y>
-      <w>20</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1150</x>
-      <y>250</y>
-      <w>30</w>
-      <h>230</h>
-    </coordinates>
-    <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;210.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLGeneric</id>
-    <coordinates>
-      <x>1150</x>
-      <y>460</y>
-      <w>20</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
       <x>830</x>
-      <y>470</y>
-      <w>340</w>
-      <h>40</h>
-    </coordinates>
-    <panel_attributes>createAlarms(medList : List&lt;Medikament&gt;)
-lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>320.0;20.0;10.0;20.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1400</x>
-      <y>250</y>
-      <w>30</w>
-      <h>230</h>
-    </coordinates>
-    <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;210.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLGeneric</id>
-    <coordinates>
-      <x>1400</x>
       <y>460</y>
       <w>20</w>
       <h>60</h>
@@ -226,6 +169,62 @@ lt=&lt;&lt;-</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>1160</x>
+      <y>250</y>
+      <w>30</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;210.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1160</x>
+      <y>460</y>
+      <w>20</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>840</x>
+      <y>470</y>
+      <w>340</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>createAlarms(medList : List&lt;Medikament&gt;)
+lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>320.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1410</x>
+      <y>250</y>
+      <w>30</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;210.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1410</x>
+      <y>460</y>
+      <w>20</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1170</x>
       <y>480</y>
       <w>260</w>
       <h>40</h>
@@ -237,7 +236,7 @@ lt=&lt;&lt;-</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>300</x>
       <y>480</y>
       <w>550</w>
       <h>40</h>
@@ -249,13 +248,13 @@ lt=&lt;&lt;-</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>160</x>
+      <x>0</x>
       <y>340</y>
-      <w>140</w>
+      <w>310</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>&lt;&lt;create&gt;&gt;
+    <panel_attributes>&lt;&lt;medList updated event received&gt;&gt;
 lt=&lt;-</panel_attributes>
-    <additional_attributes>120.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>290.0;20.0;10.0;20.0</additional_attributes>
   </element>
 </diagram>

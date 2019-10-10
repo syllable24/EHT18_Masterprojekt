@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>658</x>
+      <y>259</y>
+      <w>203</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+&lt;&lt;Activity&gt;&gt;
+ImportSmsActivity
+--
+^+ onResume()
+^+ onClick()
+
+- checkInbox(location : String) : List&lt;SMS&gt;
+- importSMS(location : String) : SMS
+- deleteSMS(location : String): bool
+--
+Responsibilities
+* Bestimmen welche SMS importierbar sind.
+* Anzeigen der importierbaren SMS.
+* Individuelle SMS aus Inbox importieren.
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>616</y>
+      <w>175</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+SmsDirector
+--
+builder: SmsBuilder
+inbox : AndroidInboxProxy
+--
++ SmsDirector(builder: SmsBuilder)
++ getSms() : SMS
+--
+Responsibilities
+* SMS nach festgelegtem Prozess
+konstruieren.
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>770</y>
+      <w>175</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+/SmsBuilder/
+--
+product : SMS
+--
++ SmsBuilder(smsText : String)
++ validateSms() : void
++ buildMedikamente() : void
++ buildOrdinationsInformation() : void
++ getSms() : SMS
+--
+Responsibilities
+* Definiert wie eine SMS zu bauen ist.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>749</x>
+      <y>406</y>
+      <w>84</w>
+      <h>224</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>100.0;300.0;100.0;180.0;10.0;180.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>847</x>
+      <y>721</y>
+      <w>21</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>665</x>
+      <y>945</y>
+      <w>175</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+HL7v3SmsBuilder
+--
+product : SMS
+--
+^+ validateSms() : void
+^+ buildMedikamente() : void
+^+ buildOrdinationsInformation() : void
+^+ getSms() : SMS
+--
+Responsibilities
+* SMS basierend auf HL7v3 
+konstruieren</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>875</x>
+      <y>945</y>
+      <w>175</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+PlainTextSmsBuilder
+--
+product : SMS
+--
+^+ validateSms() : void
+^+ buildMedikamente() : void
+^+ buildOrdinationsInformation() : void
+^+ getSms() : SMS
+--
+Responsibilities
+* SMS basierend auf Plain Text
+konstruieren</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>742</x>
+      <y>882</y>
+      <w>84</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>100.0;10.0;100.0;50.0;10.0;50.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>896</x>
+      <y>882</y>
+      <w>77</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;90.0;50.0;90.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>1127</y>
+      <w>189</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+SMS
+--
+dauermedikationsliste : List&lt;Medikament&gt;
+ordiInfors : OrdinationsInformationen
+erhaltenAm : Date
+_sms : SMS_
+--
+- SMS()
++ getInstance() : SMS
+^+ toString() : String
+--
+Responsibilities
+* Container für Dauermedikationsliste
+und Ordinationsinformationen.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>644</x>
+      <y>1316</y>
+      <w>175</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+Medikament
+--
+pharmazentralnummer : long
+bezeichnung : String
+einheit : String
+stueckzahl : long
+dosierung : MedikamentDosierung
+--
+^+ toString() : String
+--
+Responsibilities
+* Beschreibt ein Medikament</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>854</x>
+      <y>1316</y>
+      <w>266</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+OrdinationsInformation
+--
+arztName : String
+adresse : String
+oeffnungszeiten : Map&lt;java.time.DayOfWeek, TimeTuple&gt;
+urlaub : List&lt;DateTuple&gt;
+--
+^+ toString() : String
+--
+Responsibilities
+* Beschriebt Ordinations Informationen</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>812</x>
+      <y>119</y>
+      <w>203</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+&lt;&lt;Activity&gt;&gt;
+MainActivity
+--
+^+ onResume()
+^+ onClick()
+--
+Responsibilities
+* Starten der ausgewählten Funktionalität
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>896</x>
+      <y>259</y>
+      <w>203</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+&lt;&lt;Activity&gt;&gt;
+MedListViewActivity
+--
+^+ onResume()
+^+ onClick()
+
+populateMedList(sms : SMS) : void
+populateMedList() : void
+--
+Responsibilities
+* Anzeigen der aktuell eingelesenen 
+Dauermedikationsliste
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1211</x>
+      <y>294</y>
+      <w>203</w>
+      <h>175</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+DatabaseHelper
+--
+dbCreateStatements : String
+sqliteDb : SQLiteDatabase
+dbName : String
+dbVersion : int
+--
+^+ onCreate()
+^+ onUpgrade()
+
++ persist(sms : SMS)
++ persist(alarmList : List&lt;String&gt;)
+--
+Responsibilities
+* Einlesen einer bereits angelegten 
+Dauermedikationsliste
+* Speichern einer SMS
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>721</x>
+      <y>1260</y>
+      <w>140</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>180.0;10.0;180.0;40.0;10.0;40.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>868</x>
+      <y>1260</y>
+      <w>119</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0;150.0;40.0;150.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>735</x>
+      <y>1057</y>
+      <w>119</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=1
+m2=1
+creates </panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;140.0;50.0;140.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>875</x>
+      <y>1057</y>
+      <w>112</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=1
+m2=1
+creates </panel_attributes>
+    <additional_attributes>130.0;10.0;130.0;50.0;10.0;50.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1022</x>
+      <y>623</y>
+      <w>217</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+AndroidInboxProxy
+--
+inboxLocation : String
+--
++ getImportables() : List&lt;String&gt;
++ retrieveSmsText(smsLocation : String) : String
+--
+Responsibilities
+* Mit Android SMS-Inbox interagieren
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>938</x>
+      <y>665</y>
+      <w>98</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>120.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>756</x>
+      <y>196</y>
+      <w>154</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;starts&gt;&gt;
+lt=&lt;.</panel_attributes>
+    <additional_attributes>10.0;90.0;10.0;50.0;200.0;50.0;200.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>917</x>
+      <y>196</y>
+      <w>105</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;starts&gt;&gt;
+lt=&lt;.</panel_attributes>
+    <additional_attributes>130.0;90.0;130.0;50.0;10.0;50.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1092</x>
+      <y>322</y>
+      <w>133</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>170.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>854</x>
+      <y>392</y>
+      <w>371</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>510.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>357</x>
+      <y>315</y>
+      <w>315</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;updates MedList&gt;&gt;
+lt=&lt;.</panel_attributes>
+    <additional_attributes>10.0;20.0;430.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>238</x>
+      <y>49</y>
+      <w>1085</w>
+      <h>259</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;updates MedList&gt;&gt;
+lt=&lt;.</panel_attributes>
+    <additional_attributes>10.0;330.0;10.0;20.0;1530.0;20.0;1530.0;350.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>896</x>
+      <y>462</y>
+      <w>434</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;220.0;10.0;100.0;600.0;100.0;600.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>245</x>
+      <y>567</y>
+      <w>539</w>
+      <h>630</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>750.0;880.0;10.0;880.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>147</x>
+      <y>280</y>
+      <w>217</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+&lt;&lt;BroadcastReceiver&gt;&gt;
+SmsStateBroadcastReceiver
+--
+^+ onReceive() : void
+--
+Responsibilities
+* Delegieren der Broadcasts, die den SMS
+State betreffen.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>147</x>
+      <y>462</y>
+      <w>217</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+AlarmController
+--
+^+ onReceive() : void
+
+- scheduleAlarms(medList : List&lt;Medikament&gt;)
+- deleteAlarms()
+--
+Responsibilities
+* Prozesse des Setzens und Löschens von 
+Alarmen einleiten.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>238</x>
+      <y>357</y>
+      <w>21</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;150.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>420</x>
+      <y>476</y>
+      <w>217</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+AlarmManagerProxy
+--
++ createAlarms(medList : List&lt;Medikament&gt;)
++ deleteAlarms()
+--
+Responsibilities
+* Interagieren mit Android AlarmManager</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>357</x>
+      <y>504</y>
+      <w>77</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>90.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>98</x>
+      <y>0</y>
+      <w>1274</w>
+      <h>532</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>1800.0;420.0;1800.0;10.0;10.0;10.0;10.0;740.0;70.0;740.0</additional_attributes>
+  </element>
+</diagram>
