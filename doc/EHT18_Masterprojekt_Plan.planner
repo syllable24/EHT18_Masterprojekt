@@ -21,7 +21,7 @@
   <tasks>
     <task id="1" name="Softwareplanung" note="" work="86400" start="20190828T000000Z" end="20190920T170000Z" work-start="20190828T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <task id="2" name="SP: Nachbearbeitung Konzept" note="" work="21600" start="20190828T000000Z" end="20190830T170000Z" work-start="20190828T150000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="3" name="SP: Erstellung Softwareplanung" note="" work="64800" start="20190830T170000Z" end="20190920T170000Z" work-start="20190904T150000Z" percent-complete="75" priority="0" type="normal" scheduling="fixed-work">
+      <task id="3" name="SP: Erstellung Softwareplanung" note="" work="64800" start="20190830T170000Z" end="20190920T170000Z" work-start="20190904T150000Z" percent-complete="80" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
           <predecessor id="1" predecessor-id="2" type="FS"/>
         </predecessors>
@@ -36,7 +36,7 @@
       <predecessors>
         <predecessor id="1" predecessor-id="4" type="FS"/>
       </predecessors>
-      <task id="6" name="UI: Erstellung Android UI" note="" work="64800" start="20190920T170000Z" end="20191011T170000Z" work-start="20190925T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="6" name="UI: Erstellung Android UI" note="" work="64800" start="20190920T170000Z" end="20191011T170000Z" work-start="20190925T150000Z" percent-complete="70" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
     <task id="7" name="MS: UI abgeschlossen" note="" work="0" start="20191011T170000Z" end="20191011T170000Z" work-start="20191011T170000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
       <predecessors>
