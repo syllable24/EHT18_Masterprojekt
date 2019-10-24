@@ -8,4 +8,9 @@
     tools:context=".Feature_Med_List.MedListDisplayView"
     tools:showIn="@layout/activity_med_list_display">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="4dp"
+        tools:layout_editor_absoluteY="2dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

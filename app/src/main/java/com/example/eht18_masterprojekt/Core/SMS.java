@@ -1,4 +1,4 @@
-package com.example.eht18_masterprojekt.Feature_SMS_Import;
+package com.example.eht18_masterprojekt.Core;
 
 import androidx.annotation.NonNull;
 
@@ -18,7 +18,7 @@ class SMS {
         return super.toString();
     }
 
-    static class Hl7v3SmsBuilder implements SmsBuilder {
+    static class Hl7v3SmsBuilder extends SmsBuilder {
 
         SMS hl7v3Sms;
 
@@ -43,7 +43,7 @@ class SMS {
         }
     }
 
-    static class PlainTextSmsBuilder implements SmsBuilder {
+    static class PlainTextSmsBuilder extends SmsBuilder {
 
         private SMS plainTextSms;
         private String smsLocation;

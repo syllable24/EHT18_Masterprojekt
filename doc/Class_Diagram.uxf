@@ -4,7 +4,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>658</x>
+      <x>560</x>
       <y>259</y>
       <w>203</w>
       <h>154</h>
@@ -31,7 +31,7 @@ Responsibilities
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>770</x>
+      <x>672</x>
       <y>616</y>
       <w>175</w>
       <h>112</h>
@@ -55,7 +55,7 @@ konstruieren.
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>770</x>
+      <x>672</x>
       <y>770</y>
       <w>175</w>
       <h>119</h>
@@ -78,7 +78,7 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>749</x>
+      <x>651</x>
       <y>406</y>
       <w>84</w>
       <h>224</h>
@@ -89,7 +89,7 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>847</x>
+      <x>749</x>
       <y>721</y>
       <w>21</w>
       <h>63</h>
@@ -100,7 +100,7 @@ Responsibilities
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>665</x>
+      <x>567</x>
       <y>945</y>
       <w>175</w>
       <h>119</h>
@@ -123,7 +123,7 @@ konstruieren</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>875</x>
+      <x>777</x>
       <y>945</y>
       <w>175</w>
       <h>119</h>
@@ -146,7 +146,7 @@ konstruieren</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>742</x>
+      <x>644</x>
       <y>882</y>
       <w>84</w>
       <h>77</h>
@@ -157,7 +157,7 @@ konstruieren</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>896</x>
+      <x>798</x>
       <y>882</y>
       <w>77</w>
       <h>77</h>
@@ -168,7 +168,7 @@ konstruieren</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>770</x>
+      <x>672</x>
       <y>1127</y>
       <w>189</w>
       <h>140</h>
@@ -193,10 +193,10 @@ und Ordinationsinformationen.</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>644</x>
+      <x>546</x>
       <y>1316</y>
       <w>175</w>
-      <h>119</h>
+      <h>133</h>
     </coordinates>
     <panel_attributes>bg=cyan
 Medikament
@@ -205,6 +205,7 @@ pharmazentralnummer : long
 bezeichnung : String
 einheit : String
 stueckzahl : long
+einnahmeZeiten : MedikamentEinnahmeZeiten
 dosierung : MedikamentDosierung
 --
 ^+ toString() : String
@@ -216,7 +217,7 @@ Responsibilities
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>854</x>
+      <x>756</x>
       <y>1316</y>
       <w>266</w>
       <h>112</h>
@@ -238,7 +239,7 @@ Responsibilities
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>812</x>
+      <x>714</x>
       <y>119</y>
       <w>203</w>
       <h>84</h>
@@ -259,9 +260,9 @@ Responsibilities
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>896</x>
+      <x>798</x>
       <y>259</y>
-      <w>203</w>
+      <w>175</w>
       <h>126</h>
     </coordinates>
     <panel_attributes>bg=cyan
@@ -284,7 +285,7 @@ Dauermedikationsliste
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1211</x>
+      <x>1113</x>
       <y>294</y>
       <w>203</w>
       <h>175</h>
@@ -314,7 +315,7 @@ Dauermedikationsliste
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>721</x>
+      <x>623</x>
       <y>1260</y>
       <w>140</w>
       <h>70</h>
@@ -325,7 +326,7 @@ Dauermedikationsliste
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>868</x>
+      <x>770</x>
       <y>1260</y>
       <w>119</w>
       <h>70</h>
@@ -336,7 +337,7 @@ Dauermedikationsliste
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>735</x>
+      <x>637</x>
       <y>1057</y>
       <w>119</w>
       <h>84</h>
@@ -350,7 +351,7 @@ creates </panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>875</x>
+      <x>777</x>
       <y>1057</y>
       <w>112</w>
       <h>84</h>
@@ -364,7 +365,7 @@ creates </panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1022</x>
+      <x>924</x>
       <y>623</y>
       <w>217</w>
       <h>98</h>
@@ -386,7 +387,7 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>938</x>
+      <x>840</x>
       <y>665</y>
       <w>98</w>
       <h>21</h>
@@ -397,7 +398,7 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>756</x>
+      <x>658</x>
       <y>196</y>
       <w>154</w>
       <h>77</h>
@@ -409,7 +410,7 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>917</x>
+      <x>819</x>
       <y>196</y>
       <w>105</w>
       <h>77</h>
@@ -421,18 +422,18 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1092</x>
+      <x>966</x>
       <y>322</y>
-      <w>133</w>
+      <w>161</w>
       <h>21</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>170.0;10.0;10.0;10.0</additional_attributes>
+    <additional_attributes>210.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>854</x>
+      <x>756</x>
       <y>392</y>
       <w>371</w>
       <h>21</h>
@@ -443,7 +444,7 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>357</x>
+      <x>259</x>
       <y>315</y>
       <w>315</w>
       <h>28</h>
@@ -455,7 +456,7 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>238</x>
+      <x>140</x>
       <y>49</y>
       <w>1085</w>
       <h>259</h>
@@ -467,7 +468,7 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>896</x>
+      <x>798</x>
       <y>462</y>
       <w>434</w>
       <h>168</h>
@@ -478,25 +479,25 @@ lt=&lt;.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>245</x>
-      <y>567</y>
+      <x>147</x>
+      <y>539</y>
       <w>539</w>
-      <h>630</h>
+      <h>658</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>750.0;880.0;10.0;880.0;10.0;10.0</additional_attributes>
+    <additional_attributes>750.0;920.0;10.0;920.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>147</x>
+      <x>49</x>
       <y>280</y>
       <w>217</w>
       <h>84</h>
     </coordinates>
     <panel_attributes>bg=cyan
 &lt;&lt;BroadcastReceiver&gt;&gt;
-SmsStateBroadcastReceiver
+AlarmScheduler
 --
 ^+ onReceive() : void
 --
@@ -508,16 +509,14 @@ State betreffen.</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>147</x>
+      <x>49</x>
       <y>462</y>
       <w>217</w>
-      <h>112</h>
+      <h>84</h>
     </coordinates>
     <panel_attributes>bg=cyan
 AlarmController
 --
-^+ onReceive() : void
-
 - scheduleAlarms(medList : List&lt;Medikament&gt;)
 - deleteAlarms()
 --
@@ -529,7 +528,7 @@ Alarmen einleiten.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>238</x>
+      <x>140</x>
       <y>357</y>
       <w>21</w>
       <h>119</h>
@@ -540,7 +539,7 @@ Alarmen einleiten.</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>420</x>
+      <x>322</x>
       <y>476</y>
       <w>217</w>
       <h>70</h>
@@ -558,7 +557,7 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>357</x>
+      <x>259</x>
       <y>504</y>
       <w>77</w>
       <h>21</h>
@@ -569,12 +568,77 @@ Responsibilities
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>98</x>
+      <x>0</x>
       <y>0</y>
       <w>1274</w>
       <h>532</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>1800.0;420.0;1800.0;10.0;10.0;10.0;10.0;740.0;70.0;740.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>546</x>
+      <y>1505</y>
+      <w>140</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+MedikamentDosierung
+--
+dosisFrueh : String 
+dosisMorgen : String 
+dosisMittag : String 
+dosisAbend : String 
+--
+^+ toString() : String
+--
+Responsibilities
+* Struktur für die Dosierungen 
+eines Medikaments.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>714</x>
+      <y>1505</y>
+      <w>133</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+TimeTuple
+--
+offenAb : OffsetTime
+geschlssenAb : OffsetTime
+--
+^+ toString() : String
+--
+Responsibilities
+* Conatiner für Zeitpaare die 
+ein Intervall darstellen.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>868</x>
+      <y>1505</y>
+      <w>133</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>bg=cyan
+DateTuple
+--
+urlaubStart : Date
+uraubEnde : Date
+--
+^+ toString() : String
+--
+Responsibilities
+* Conatiner für Zeitpaare die 
+ein Intervall darstellen.</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>

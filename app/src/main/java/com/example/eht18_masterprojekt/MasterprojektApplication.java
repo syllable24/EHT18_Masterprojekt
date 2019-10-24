@@ -9,7 +9,6 @@ public class MasterprojektApplication extends Application {
         super.onCreate();
 
         // TODO: Register Application in Manifest
-        // TODO: Initialize MainActivity MVC here.
         // See: https://stackoverflow.com/questions/6775346/android-application-vs-activity
     }
 }

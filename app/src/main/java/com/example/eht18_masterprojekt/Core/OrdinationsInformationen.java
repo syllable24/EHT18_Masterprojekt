@@ -1,9 +1,6 @@
-package com.example.eht18_masterprojekt.Feature_SMS_Import;
+package com.example.eht18_masterprojekt.Core;
 
 import androidx.annotation.NonNull;
-
-import com.example.eht18_masterprojekt.DateTuple;
-import com.example.eht18_masterprojekt.TimeTuple;
 
 import java.util.HashMap;
 import java.util.List;

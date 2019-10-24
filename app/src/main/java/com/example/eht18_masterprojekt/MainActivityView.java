@@ -19,11 +19,6 @@ public class MainActivityView extends AppCompatActivity {
 
         serviceList = findViewById(R.id.rvActivityList);
 
-        MainActivityModel m = new MainActivityModel(getAppServices());
-        MainActivityView v = new MainActivityView();
-        MainActivityController c = new MainActivityController(m, v);
-
-        c.updateView();
     }
 
     /**

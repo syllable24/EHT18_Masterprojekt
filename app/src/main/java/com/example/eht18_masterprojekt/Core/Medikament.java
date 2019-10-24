@@ -1,4 +1,4 @@
-package com.example.eht18_masterprojekt.Feature_SMS_Import;
+package com.example.eht18_masterprojekt.Core;
 
 import androidx.annotation.NonNull;
 
@@ -7,7 +7,9 @@ public class Medikament {
     private String bezeichnung;
     private String einheit;
     private int stueckzahl;
-    private MedikamentDosierung dosierung;
+    private MedikamentEinnahme einnahmeZeiten;
+
+
 
     public int getPharmazentralnummer() {
         return pharmazentralnummer;
@@ -41,12 +43,12 @@ public class Medikament {
         this.stueckzahl = stueckzahl;
     }
 
-    public MedikamentDosierung getDosierung() {
-        return dosierung;
+    public MedikamentEinnahme getEinnahmeZeiten() {
+        return einnahmeZeiten;
     }
 
-    public void setDosierung(MedikamentDosierung dosierung) {
-        this.dosierung = dosierung;
+    public void setEinnahmeZeiten(MedikamentEinnahme einnahmeZeiten) {
+        this.einnahmeZeiten = einnahmeZeiten;
     }
 
     @NonNull

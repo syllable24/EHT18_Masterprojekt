@@ -12,12 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 public class ImportSmsView extends AppCompatActivity{
 
     RecyclerView smsList;
-    CopyOnWriteArrayList<SmsSelectedListener> listeners;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +24,6 @@ public class ImportSmsView extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         smsList = findViewById(R.id.rvSmsList);
-        listeners = new CopyOnWriteArrayList<>();
-        SmsImportController c = new SmsImportController(new SmsImportModel(), this, new SmsImportAndroid());
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -41,18 +36,4 @@ public class ImportSmsView extends AppCompatActivity{
         });
     }
 
-    public void addSmsSelectedListener(SmsSelectedListener listener){
-        this.listeners.add(listener);
-    }
-
-    public void removeSmsSelectedListener(SmsSelectedListener listener){
-        this.listeners.remove(listener);
-    }
-
-    public void rvSmsList_Click(View view){
-        SmsSelectedEvent event = new SmsSelectedEvent(null); // TODO: get SMS Display from RecyclerView
-        for (SmsSelectedListener l : listeners){
-            l.smsSelectedEventReceived(event);
-        }
-    }
 }

@@ -9,10 +9,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver
+            android:name=".Feature_Alarm_Management.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+        <receiver
+            android:name=".Feature_Alarm_Management.AlarmStateManager"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".Feature_Med_List.MedListDisplayView"
             android:label="@string/title_activity_med_list_display"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Feature_SMS_Import.ImportSmsView"
             android:label="@string/title_activity_import_sms"

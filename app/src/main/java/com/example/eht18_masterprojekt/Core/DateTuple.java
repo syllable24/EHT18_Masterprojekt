@@ -1,4 +1,4 @@
-package com.example.eht18_masterprojekt;
+package com.example.eht18_masterprojekt.Core;
 
 import java.util.Date;
 

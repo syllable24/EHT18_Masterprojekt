@@ -4,12 +4,13 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>220</x>
+      <x>210</x>
       <y>230</y>
-      <w>180</w>
+      <w>190</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>SmsStateBroadCastReceiver</panel_attributes>
+    <panel_attributes>AlarmStateManager
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
