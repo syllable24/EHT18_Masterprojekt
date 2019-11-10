@@ -1,4 +1,4 @@
-package com.example.eht18_masterprojekt.Core;
+package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 abstract class SmsBuilder {
     abstract void validateSms();

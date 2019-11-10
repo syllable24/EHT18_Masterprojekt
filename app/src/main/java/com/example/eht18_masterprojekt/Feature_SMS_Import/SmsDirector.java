@@ -1,4 +1,4 @@
-package com.example.eht18_masterprojekt.Core;
+package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 class SmsDirector {
 

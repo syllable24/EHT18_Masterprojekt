@@ -8,6 +8,7 @@ import android.content.Intent;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -46,7 +47,7 @@ class AlarmController {
         for (Medikament med : medList){
             MedikamentEinnahme me = med.getEinnahmeZeiten();
 
-            for (Date dt : me.getEinnahmeZeiten()){
+            for (LocalTime dt : me.toTimeList()){
                 Intent i = new Intent(c, AlarmReceiver.class);
 
                 long alarmTime = toAlarmTime(dt);
@@ -66,14 +67,17 @@ class AlarmController {
      * @param scheduledTime: Time at which a drug must be taken e.g. at 10:00 every day
      * @return
      */
-    private long toAlarmTime(Date scheduledTime){
+    private long toAlarmTime(LocalTime scheduledTime){
         Calendar midnight = new GregorianCalendar();
         midnight.set(Calendar.HOUR_OF_DAY, 0);
         midnight.set(Calendar.MINUTE, 0);
         midnight.set(Calendar.SECOND, 0);
         midnight.set(Calendar.MILLISECOND, 0);
 
-        long scheduleCurrentDay = midnight.getTime().getTime() + scheduledTime.getTime();
+        midnight.add(Calendar.HOUR, scheduledTime.getHour());
+        midnight.add(Calendar.MINUTE, scheduledTime.getMinute());
+
+        long scheduleCurrentDay = midnight.getTime().getTime();
         Date currentTime = new Date();
 
         if (scheduleCurrentDay > currentTime.getTime()){
@@ -83,7 +87,7 @@ class AlarmController {
         else {
             // Alarm must be set for the next day
             midnight.add(Calendar.DAY_OF_MONTH, 1);
-            long scheduleNextDay = midnight.getTime().getTime() + scheduledTime.getTime();
+            long scheduleNextDay = midnight.getTime().getTime();
             return scheduleNextDay;
         }
     }

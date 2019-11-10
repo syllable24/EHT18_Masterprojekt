@@ -129,7 +129,7 @@ konstruieren</panel_attributes>
       <h>119</h>
     </coordinates>
     <panel_attributes>bg=cyan
-PlainTextSmsBuilder
+XMLSmsBuilder
 --
 product : SMS
 --
