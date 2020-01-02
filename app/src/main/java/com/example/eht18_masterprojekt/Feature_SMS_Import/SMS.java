@@ -24,6 +24,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 class SMS {
 
+    String sender;
+    Date receivedAt;
     List<Medikament> medList;
     OrdinationsInformationen ordiInfo;
 
@@ -34,6 +36,22 @@ class SMS {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    private void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public Date getReceivedAt() {
+        return receivedAt;
+    }
+
+    private void setReceivedAt(Date receivedAt) {
+        this.receivedAt = receivedAt;
     }
 
     static class Hl7v3SmsBuilder extends SmsBuilder {
@@ -83,8 +101,11 @@ class SMS {
         private String smsLocation;
         private Document rawSms;
 
-        XmlSmsBuilder(String smsLocation){
+        XmlSmsBuilder(String smsSender, Date smsReceivedAt, String smsLocation){
             this.smsLocation = smsLocation;
+            xmlSms = new SMS();
+            xmlSms.setSender(smsSender);
+            xmlSms.setReceivedAt(smsReceivedAt);
         }
 
         @Override
@@ -94,7 +115,6 @@ class SMS {
                 domFactory.setValidating(true);
                 DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
                 rawSms = domBuilder.parse(smsLocation);
-                xmlSms = new SMS();
 
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();

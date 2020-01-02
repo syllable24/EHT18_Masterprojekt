@@ -139,7 +139,7 @@ product : SMS
 ^+ getSms() : SMS
 --
 Responsibilities
-* SMS basierend auf Plain Text
+* SMS basierend auf XML
 konstruieren</panel_attributes>
     <additional_attributes/>
   </element>

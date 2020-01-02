@@ -47,7 +47,7 @@
       <predecessors>
         <predecessor id="1" predecessor-id="7" type="FS"/>
       </predecessors>
-      <task id="9" name="AM: Setzen und Abspielen von Alarmen" note="" work="43200" start="20191011T170000Z" end="20191025T170000Z" work-start="20191016T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="9" name="AM: Setzen und Abspielen von Alarmen" note="" work="43200" start="20191011T170000Z" end="20191025T170000Z" work-start="20191016T150000Z" percent-complete="20" priority="0" type="normal" scheduling="fixed-work"/>
       <task id="10" name="AM: L&#xF6;schen von gesetzten Alarmen" note="" work="43200" start="20191025T170000Z" end="20191108T170000Z" work-start="20191030T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
           <predecessor id="1" predecessor-id="9" type="FS"/>
@@ -63,7 +63,7 @@
       <predecessors>
         <predecessor id="1" predecessor-id="11" type="FS"/>
       </predecessors>
-      <task id="13" name="SMS: Importieren von SMS" note="" work="64800" start="20191108T170000Z" end="20191129T170000Z" work-start="20191113T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="13" name="SMS: Importieren von SMS" note="" work="64800" start="20191108T170000Z" end="20191129T170000Z" work-start="20191113T150000Z" percent-complete="30" priority="0" type="normal" scheduling="fixed-work"/>
       <task id="14" name="SMS: Basierend auf Import Alarme setzen" note="" work="43200" start="20191129T170000Z" end="20191213T170000Z" work-start="20191204T150000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
           <predecessor id="1" predecessor-id="13" type="FS"/>
