@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SMS">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Medikamente">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Add" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:short" name="PZN"/>
+                    <xs:element type="xs:string" name="Bezeichnung"/>
+                    <xs:element type="xs:string" name="Anzahl"/>
+                    <xs:element type="xs:string" name="Einheit"/>
+                    <xs:element name="Einnahme">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:byte" name="Frueh"/>
+                          <xs:element type="xs:byte" name="Mittag"/>
+                          <xs:element type="xs:byte" name="Abend"/>
+                          <xs:element type="xs:byte" name="Nacht"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OrdinationsInformationen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="Name"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

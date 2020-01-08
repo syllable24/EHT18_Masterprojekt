@@ -1,5 +1,7 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
@@ -10,19 +12,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 class SMS {
+    // Relevante Inhalte einer SMS, die mittels Cursor aus dem SMS-INBOX Content provider ausgelesen wurden.
+    public static final int ADDRESS = 2;
+    public static final int DATE = 4;
+    public static final int DATE_SENT = 5;
+    public static final int SUBJECT = 11;
+    public static final int BODY = 12;
 
     String sender;
     Date receivedAt;
@@ -59,11 +61,6 @@ class SMS {
         SMS hl7v3Sms;
 
         @Override
-        public void validateSms() {
-
-        }
-
-        @Override
         public void buildMedikamente() {
 
         }
@@ -98,76 +95,72 @@ class SMS {
         private final LocalTime ZEIT_NACHT  = LocalTime.of(20,0);
 
         private SMS xmlSms;
-        private String smsLocation;
-        private Document rawSms;
+        private Document smsBody;
 
-        XmlSmsBuilder(String smsSender, Date smsReceivedAt, String smsLocation){
-            this.smsLocation = smsLocation;
+        XmlSmsBuilder(String smsSender, Date smsReceivedAt, Document smsBody){
+            this.smsBody = smsBody;
             xmlSms = new SMS();
             xmlSms.setSender(smsSender);
             xmlSms.setReceivedAt(smsReceivedAt);
         }
 
         @Override
-        public void validateSms() {
-            try {
-                DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-                domFactory.setValidating(true);
-                DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
-                rawSms = domBuilder.parse(smsLocation);
-
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
         public void buildMedikamente() {
-            Element xmlAllMedikamente = rawSms.getElementById("Medikamente");
-            NodeList medList = xmlAllMedikamente.getChildNodes();
-            xmlSms.medList = parseMedList(medList);
+            Log.d("MED-INIT", smsBody.getDocumentElement().getNodeName());
+
+            NodeList xmlAllMedikamente = smsBody.getElementsByTagName("Medikamente");
+
+            for (int i = 0; i < xmlAllMedikamente.getLength(); i++){
+                Log.d("MED-INIT", xmlAllMedikamente.item(i).getNodeName());
+            }
+
+            NodeList meds = xmlAllMedikamente.item(0).getChildNodes();
+            xmlSms.medList = parseMedList(meds);
         }
 
         private List<Medikament> parseMedList(NodeList medList){
             List<Medikament> xmlMedList = new ArrayList<>();
-            for(int i = 0; i < medList.getLength(); i++){
-                Node xmlMedikament = medList.item(i);
-                NodeList xmlMedDetails =  xmlMedikament.getChildNodes();
+            try {
+                for (int i = 0; i < medList.getLength(); i++) {
+                    Node xmlMedikament = medList.item(i);
+                    Log.d("MED-INIT", xmlMedikament.getNodeName());
 
-                Medikament m = new Medikament();
-                m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getNodeValue()));
-                m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getNodeValue());
-                m.setEinheit(xmlMedDetails.item(EINHEIT).getNodeValue());
-                m.setStueckzahl(Integer.parseInt(xmlMedDetails.item(ANZAHL).getNodeValue()));
+                    NodeList xmlMedDetails = xmlMedikament.getChildNodes();
 
-                MedikamentEinnahme me = new MedikamentEinnahme();
-                NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
+                    Medikament m = new Medikament();
+                    m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getNodeValue()));
+                    m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getNodeValue());
+                    m.setEinheit(xmlMedDetails.item(EINHEIT).getNodeValue());
+                    m.setStueckzahl(Integer.parseInt(xmlMedDetails.item(ANZAHL).getNodeValue()));
 
-                if (xmlEinnahmeDetails.item(FRUEH).getNodeValue().equals("1")){
-                    me.add(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
+                    MedikamentEinnahme me = new MedikamentEinnahme();
+                    NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
+
+                    if (xmlEinnahmeDetails.item(FRUEH).getNodeValue().equals("1")) {
+                        me.add(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
+                    }
+                    if (xmlEinnahmeDetails.item(MITTAG).getNodeValue().equals("1")) {
+                        me.add(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
+                    }
+                    if (xmlEinnahmeDetails.item(ABEND).getNodeValue().equals("1")) {
+                        me.add(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
+                    }
+                    if (xmlEinnahmeDetails.item(NACHT).getNodeValue().equals("1")) {
+                        me.add(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
+                    }
+                    m.setEinnahmeZeiten(me);
+                    xmlMedList.add(m);
                 }
-                if (xmlEinnahmeDetails.item(MITTAG).getNodeValue().equals("1")){
-                    me.add(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
-                }
-                if (xmlEinnahmeDetails.item(ABEND).getNodeValue().equals("1")){
-                    me.add(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
-                }
-                if (xmlEinnahmeDetails.item(NACHT).getNodeValue().equals("1")){
-                    me.add(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
-                }
-                m.setEinnahmeZeiten(me);
-                xmlMedList.add(m);
+            }
+            catch(Exception e){
+                Log.e("MED-INIT", e.getMessage());
             }
             return xmlMedList;
         }
 
         @Override
         public void buildOrdinationsInformationen() {
-            Element xmlOrdinationsInformationen = rawSms.getElementById("OrdinationsInformationen");
+            Element xmlOrdinationsInformationen = smsBody.getElementById("OrdinationsInformationen");
         }
 
         @Override
