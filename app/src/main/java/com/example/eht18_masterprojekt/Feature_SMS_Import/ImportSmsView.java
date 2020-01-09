@@ -149,13 +149,13 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         int ignoredSmsCount = 0;
 
         Cursor c = getContentResolver().query(Uri.parse(INBOX), null, null, null);
+        Log.d("SMS-Import", c.getCount() + " SMS in Inbox");
         if (c.moveToFirst()) {
             do {
-                for (int i = 0; i < c.getColumnCount(); i++) {
-                    rawSms.add(c.getString(i));
-                }
-
                 try{
+                    for (int i = 0; i < c.getColumnCount(); i++) {
+                        rawSms.add(c.getString(i));
+                    }
                     SmsDirector sd = new SmsDirector(rawSms, this);
                     SMS result = sd.getSms();
                     inbox.add(result);
@@ -163,9 +163,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                 catch (IllegalArgumentException e){
                     ignoredSmsCount++; // TODO: Display this Value on UI ~ no of SMS Scanned
                 }
-
                 rawSms.clear();
-
             } while (c.moveToNext());
 
             Log.d("SMS-Import", ignoredSmsCount + "SMS ignoriert");

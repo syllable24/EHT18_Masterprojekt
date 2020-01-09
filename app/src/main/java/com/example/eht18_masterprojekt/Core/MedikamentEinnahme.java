@@ -7,9 +7,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MedikamentEinnahme {
     private Map<LocalTime, String> einnahmeProtokoll;
+
+    public MedikamentEinnahme(){
+        einnahmeProtokoll = new TreeMap<>();
+    }
 
     public void add(LocalTime einnahmeZeit, String einnahmeDosis){
         einnahmeProtokoll.put(einnahmeZeit, einnahmeDosis);

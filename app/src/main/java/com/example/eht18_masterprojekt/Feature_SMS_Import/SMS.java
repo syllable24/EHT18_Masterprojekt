@@ -8,15 +8,24 @@ import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Core.OrdinationsInformationen;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import mf.javax.xml.parsers.DocumentBuilder;
+import mf.javax.xml.parsers.DocumentBuilderFactory;
+import mf.javax.xml.parsers.ParserConfigurationException;
+import mf.org.w3c.dom.Document;
+import mf.org.w3c.dom.Element;
+import mf.org.w3c.dom.Node;
+import mf.org.w3c.dom.NodeList;
 
 class SMS {
     // Relevante Inhalte einer SMS, die mittels Cursor aus dem SMS-INBOX Content provider ausgelesen wurden.
@@ -28,6 +37,7 @@ class SMS {
 
     String sender;
     Date receivedAt;
+    Document body;
     List<Medikament> medList;
     OrdinationsInformationen ordiInfo;
 
@@ -54,6 +64,14 @@ class SMS {
 
     private void setReceivedAt(Date receivedAt) {
         this.receivedAt = receivedAt;
+    }
+
+    public Document getBody() {
+        return body;
+    }
+
+    private void setBody(Document body) {
+        this.body = body;
     }
 
     static class Hl7v3SmsBuilder extends SmsBuilder {
@@ -97,59 +115,68 @@ class SMS {
         private SMS xmlSms;
         private Document smsBody;
 
-        XmlSmsBuilder(String smsSender, Date smsReceivedAt, Document smsBody){
-            this.smsBody = smsBody;
-            xmlSms = new SMS();
-            xmlSms.setSender(smsSender);
-            xmlSms.setReceivedAt(smsReceivedAt);
+        XmlSmsBuilder(String smsSender, Date smsReceivedAt, String smsBody) {
+            try {
+                xmlSms = new SMS();
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document xmlDocument = dBuilder.parse(new InputSource(new StringReader(smsBody)));
+
+                xmlSms.setBody(xmlDocument);
+                xmlSms.setSender(smsSender);
+                xmlSms.setReceivedAt(smsReceivedAt);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (SAXException e) {
+                e.printStackTrace();
+            }
+            catch (ParserConfigurationException e){
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void buildMedikamente() {
-            Log.d("MED-INIT", smsBody.getDocumentElement().getNodeName());
-
-            NodeList xmlAllMedikamente = smsBody.getElementsByTagName("Medikamente");
-
-            for (int i = 0; i < xmlAllMedikamente.getLength(); i++){
-                Log.d("MED-INIT", xmlAllMedikamente.item(i).getNodeName());
-            }
-
-            NodeList meds = xmlAllMedikamente.item(0).getChildNodes();
-            xmlSms.medList = parseMedList(meds);
+            NodeList xmlAllMedikamente = smsBody.getElementsByTagName("Medikamente"); // Darf nur einen Node retournieren
+            NodeList adds = xmlAllMedikamente.item(0).getChildNodes();
+            Log.d("MED-INIT", adds.getLength() + " Medikamente in SMS");
+            xmlSms.medList = parseMedList(adds);
         }
 
         private List<Medikament> parseMedList(NodeList medList){
             List<Medikament> xmlMedList = new ArrayList<>();
             try {
                 for (int i = 0; i < medList.getLength(); i++) {
+                    Log.d("MED-INIT", "Starte einlesen von Med " + i + "...");
                     Node xmlMedikament = medList.item(i);
-                    Log.d("MED-INIT", xmlMedikament.getNodeName());
-
                     NodeList xmlMedDetails = xmlMedikament.getChildNodes();
 
                     Medikament m = new Medikament();
-                    m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getNodeValue()));
-                    m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getNodeValue());
-                    m.setEinheit(xmlMedDetails.item(EINHEIT).getNodeValue());
-                    m.setStueckzahl(Integer.parseInt(xmlMedDetails.item(ANZAHL).getNodeValue()));
+                    m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getTextContent()));
+                    m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getTextContent());
+                    m.setEinheit(xmlMedDetails.item(EINHEIT).getTextContent());
+                    m.setStueckzahl(Integer.parseInt(xmlMedDetails.item(ANZAHL).getTextContent()));
 
                     MedikamentEinnahme me = new MedikamentEinnahme();
                     NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
 
-                    if (xmlEinnahmeDetails.item(FRUEH).getNodeValue().equals("1")) {
+                    if (xmlEinnahmeDetails.item(FRUEH).getTextContent().equals("1")) {
                         me.add(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
                     }
-                    if (xmlEinnahmeDetails.item(MITTAG).getNodeValue().equals("1")) {
+                    if (xmlEinnahmeDetails.item(MITTAG).getTextContent().equals("1")) {
                         me.add(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
                     }
-                    if (xmlEinnahmeDetails.item(ABEND).getNodeValue().equals("1")) {
+                    if (xmlEinnahmeDetails.item(ABEND).getTextContent().equals("1")) {
                         me.add(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
                     }
-                    if (xmlEinnahmeDetails.item(NACHT).getNodeValue().equals("1")) {
+                    if (xmlEinnahmeDetails.item(NACHT).getTextContent().equals("1")) {
                         me.add(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
                     }
                     m.setEinnahmeZeiten(me);
                     xmlMedList.add(m);
+                    Log.d("MED-INIT", "Med " + m.getBezeichnung() + " eingelesen!");
                 }
             }
             catch(Exception e){

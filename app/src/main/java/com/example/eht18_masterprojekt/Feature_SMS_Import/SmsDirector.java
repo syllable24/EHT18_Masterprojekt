@@ -1,6 +1,7 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.eht18_masterprojekt.R;
 
@@ -30,17 +31,16 @@ import static com.example.eht18_masterprojekt.Feature_SMS_Import.SmsType.XML;
 class SmsDirector {
 
     SmsBuilder builder;
-    SmsType s;
     Context context;
 
     public SmsDirector(List<String> rawSMS, Context ctx) {
         context = ctx;
-        String cleanedRawSms = removeControlSymbols(rawSMS.get(SMS.BODY));
-        Object smsContent = querySmsTypeAndContent(cleanedRawSms);
+        String cleanedRawSms = cleanSms(rawSMS.get(SMS.BODY));
+        SmsType s = querySmsType(cleanedRawSms);
         if (s == XML){
             Date receivedAt = new Date(Long.parseLong(rawSMS.get(SMS.DATE)));
             String address = rawSMS.get(SMS.ADDRESS);
-            this.builder = new SMS.XmlSmsBuilder(address,receivedAt ,(Document) smsContent);
+            this.builder = new SMS.XmlSmsBuilder(address,receivedAt, cleanedRawSms);
         }
         else if(s == HL7v3){
             //this.builder = new SMS.Hl7v3SmsBuilder(qSMS);
@@ -51,12 +51,10 @@ class SmsDirector {
     }
 
     public SMS getSms() {
-        builder.buildMedikamente();
-        //builder.buildOrdinationsInformationen();
         return builder.getSMS();
     }
 
-    public Object querySmsTypeAndContent(String rawSMS) {
+    public SmsType querySmsType(String rawSMS) {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             dbFactory.setIgnoringElementContentWhitespace(true);
@@ -69,18 +67,11 @@ class SmsDirector {
             Validator v = xmlSchema.newValidator();
             v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
 
-            s = SmsType.XML;
-
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document xmlDocument = dBuilder.parse(new InputSource(new StringReader(rawSMS)));
-
-            return xmlDocument;
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            return SmsType.XML;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
-            e.printStackTrace();
+            Log.d("SMS-Import","SMS nicht im XML Format!");
         }
 
         //TODO: Add Query for HL7v3
@@ -89,12 +80,13 @@ class SmsDirector {
     }
 
     /**
-     * Entfernen von Steuerzeichen aus einem String.
+     * Entfernen von Steuerzeichen und Whitespace Nodes aus einer XML-SMS.
      * @param input
      * @return Bereinigten String
      */
-    private String removeControlSymbols(String input){
-        return input.replaceAll("\\p{Cntrl}", "");
+    private String cleanSms(String input){
+        // TODO: Umlaute bereinigen
+        return input.replaceAll("\\p{Cntrl}", "").replaceAll(">\\s*<", "><");
     }
 
 }

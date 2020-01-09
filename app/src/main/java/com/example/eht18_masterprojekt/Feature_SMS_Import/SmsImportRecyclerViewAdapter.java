@@ -51,7 +51,7 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
 
         public ViewHolder(View v) {
             super(v);
-            // Define click listener for the ViewHolder's View.
+            // Define click listener for the ViewHolder'smsType View.
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
