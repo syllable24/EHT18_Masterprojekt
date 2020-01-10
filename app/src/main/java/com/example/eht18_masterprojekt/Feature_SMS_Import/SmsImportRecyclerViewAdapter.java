@@ -22,7 +22,7 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
         return smsList;
     }
 
-    public void setSmsList(List<SMS> smsList) {
+    SmsImportRecyclerViewAdapter(List<SMS> smsList){
         this.smsList = smsList;
     }
 
@@ -58,8 +58,8 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
                     return;
                 }
             });
-            smsImportReceivedAt   = v.findViewById(R.id.tvMedikament);
-            smsImportReceivedFrom = v.findViewById(R.id.tvMedikament);
+            smsImportReceivedAt   = v.findViewById(R.id.smsReceivedAt);
+            smsImportReceivedFrom = v.findViewById(R.id.smsFrom);
         }
 
         public TextView getTvReceivedAt() {

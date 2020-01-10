@@ -113,7 +113,6 @@ class SMS {
         private final LocalTime ZEIT_NACHT  = LocalTime.of(20,0);
 
         private SMS xmlSms;
-        private Document smsBody;
 
         XmlSmsBuilder(String smsSender, Date smsReceivedAt, String smsBody) {
             try {
@@ -139,7 +138,7 @@ class SMS {
 
         @Override
         public void buildMedikamente() {
-            NodeList xmlAllMedikamente = smsBody.getElementsByTagName("Medikamente"); // Darf nur einen Node retournieren
+            NodeList xmlAllMedikamente = xmlSms.getBody().getElementsByTagName("Medikamente"); // Darf nur einen Node retournieren
             NodeList adds = xmlAllMedikamente.item(0).getChildNodes();
             Log.d("MED-INIT", adds.getLength() + " Medikamente in SMS");
             xmlSms.medList = parseMedList(adds);
@@ -187,7 +186,7 @@ class SMS {
 
         @Override
         public void buildOrdinationsInformationen() {
-            Element xmlOrdinationsInformationen = smsBody.getElementById("OrdinationsInformationen");
+            Element xmlOrdinationsInformationen = xmlSms.getBody().getElementById("OrdinationsInformationen");
         }
 
         @Override

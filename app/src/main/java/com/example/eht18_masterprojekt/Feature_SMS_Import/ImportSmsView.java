@@ -3,10 +3,12 @@ package com.example.eht18_masterprojekt.Feature_SMS_Import;
 import android.Manifest;
 import android.app.Application;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
@@ -94,10 +96,10 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
      * Ausführen des SMS-Initialisierungsprozesses
      */
     private void startSmsInit() throws EmptyInboxException{
-        smsList = initSmsList();
+        ScanInboxTask task = new ScanInboxTask(this);
+        task.execute();
         if (smsList.size() > 0) {
-            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter();
-            srav.setSmsList(smsList);
+            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsList);
             rvSmsList.setAdapter(srav);
         }
     }
@@ -123,55 +125,6 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                 }
             }
         });
-    }
-
-    /**
-     * Einlesen importierbarer roher SMS aus Inbox.
-     *
-     * SMS-Struktur:
-     * 0 _id                 11 subject
-     * 1 thread_id           12 body
-     * 2 address             13 service_center
-     * 3 person              14 locked
-     * 4 date                15 sub_id
-     * 5 date_sent           16 error_code
-     * 6 protocol            17 creator
-     * 7 read                18 seen
-     * 8 status              19 priority
-     * 9 type
-     * 10 reply_path_present
-     *
-     * @return Liste von importierbaren SMS.
-     */
-    private List<SMS> initSmsList() throws EmptyInboxException{
-        List<SMS> inbox = new ArrayList<>();
-        List<String> rawSms = new ArrayList<>();
-        int ignoredSmsCount = 0;
-
-        Cursor c = getContentResolver().query(Uri.parse(INBOX), null, null, null);
-        Log.d("SMS-Import", c.getCount() + " SMS in Inbox");
-        if (c.moveToFirst()) {
-            do {
-                try{
-                    for (int i = 0; i < c.getColumnCount(); i++) {
-                        rawSms.add(c.getString(i));
-                    }
-                    SmsDirector sd = new SmsDirector(rawSms, this);
-                    SMS result = sd.getSms();
-                    inbox.add(result);
-                }
-                catch (IllegalArgumentException e){
-                    ignoredSmsCount++; // TODO: Display this Value on UI ~ no of SMS Scanned
-                }
-                rawSms.clear();
-            } while (c.moveToNext());
-
-            Log.d("SMS-Import", ignoredSmsCount + "SMS ignoriert");
-        } else {
-            throw new EmptyInboxException("Keine gültige SMS gefunden!");
-        }
-        c.close();
-        return inbox;
     }
 
     /**
@@ -251,5 +204,79 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         }
     }
 
+    private class ScanInboxTask extends AsyncTask<Void, Integer, List<SMS>> {
+        Context ctx;
+        List<SMS> inbox = new ArrayList<>();
+        List<String> rawSms = new ArrayList<>();
+        Integer ignoredSmsCount;
+        Integer addedSmsCount;
 
+        public ScanInboxTask(Context ctx){
+            super();
+            this.ctx = ctx;
+        }
+
+        /**
+         * Einlesen importierbarer roher SMS aus Inbox.
+         *
+         * SMS-Struktur:
+         * 0 _id                 11 subject
+         * 1 thread_id           12 body
+         * 2 address             13 service_center
+         * 3 person              14 locked
+         * 4 date                15 sub_id
+         * 5 date_sent           16 error_code
+         * 6 protocol            17 creator
+         * 7 read                18 seen
+         * 8 status              19 priority
+         * 9 type
+         * 10 reply_path_present
+         *
+         * @return Liste von importierbaren SMS.
+         */
+        @Override
+        protected List<SMS> doInBackground(Void ... voids) {
+            Cursor c = ctx.getContentResolver().query(Uri.parse(INBOX), null, null, null);
+            Log.d("SMS-Import", c.getCount() + " SMS in Inbox");
+
+            // TODO: Add show progress bar on UI.
+            // TODO: Initialize progress bar with amount of SMS in Inbox
+
+            if (c.moveToFirst()) {
+                do {
+                    try{
+                        for (int i = 0; i < c.getColumnCount(); i++) {
+                            rawSms.add(c.getString(i));
+                        }
+                        SmsDirector sd = new SmsDirector(rawSms, ctx);
+                        SMS result = sd.getSms();
+                        inbox.add(result);
+                        addedSmsCount++;
+                    }
+                    catch (IllegalArgumentException e){
+                        ignoredSmsCount++;
+                    }
+                    publishProgress(addedSmsCount, ignoredSmsCount);
+                    rawSms.clear();
+                } while (c.moveToNext());
+            }
+            c.close();
+            return inbox;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+            // TODO: Update progress bar with amount of SMS scanned
+
+            Log.d("Inbox-Scan", "No of valid SMS found: " + values[0] + " No of invalid SMS found: " + values[1]);
+        }
+
+        @Override
+        protected void onPostExecute(List<SMS> sms) {
+            super.onPostExecute(sms);
+
+        }
+    }
 }

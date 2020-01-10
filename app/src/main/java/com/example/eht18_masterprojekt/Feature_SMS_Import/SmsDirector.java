@@ -56,9 +56,6 @@ class SmsDirector {
 
     public SmsType querySmsType(String rawSMS) {
         try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            dbFactory.setIgnoringElementContentWhitespace(true);
-
             Source xmlSource = new StreamSource(new StringReader(rawSMS));
             Source schemaSource = new StreamSource(context.getResources().openRawResource(R.raw.xml_sms_schema));
             SchemaFactory sf = new XMLSchemaFactory();
@@ -68,13 +65,14 @@ class SmsDirector {
             v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
 
             return SmsType.XML;
+
+            // TODO: Add query for HL7v3
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
             Log.d("SMS-Import","SMS nicht im XML Format!");
         }
-
-        //TODO: Add Query for HL7v3
 
         return null;
     }
