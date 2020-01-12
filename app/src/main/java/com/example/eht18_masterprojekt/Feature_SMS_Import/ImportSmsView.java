@@ -20,11 +20,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -34,10 +36,14 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
 
     public static final String INBOX = "content://sms/inbox";
 
-    List<SMS> smsList;
+    List<String> smsList = new ArrayList<>();
     RecyclerView rvSmsList;
     FloatingActionButton fabRefresh;
+    ProgressBar pbCheckedSms;
     Toolbar toolbar;
+
+    List<String> inbox = new ArrayList<>();
+    List<String> rawSms = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +53,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             boolean permission = initPermission();
 
             if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
-                startSmsInit(); // TODO: Put in ASynchTask
+                startSmsInit();
             }
 
             //sendSms();
@@ -61,16 +67,26 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        try {
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                startSmsInit();
-            }
-            else{
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-        } catch (EmptyInboxException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            startSmsInit();
+        }
+        else{
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Darstellen der importierten SMS in RecyclerView
+     */
+    private void initSmsListView(){
+        if (smsList.size() > 0) {
+            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsList);
+            rvSmsList.setLayoutManager(new LinearLayoutManager(this));
+            rvSmsList.setAdapter(srav);
+        }
+        else{
+            Toast.makeText(this, "Keine  gültige SMS gefunden!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -95,13 +111,23 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     /**
      * Ausführen des SMS-Initialisierungsprozesses
      */
-    private void startSmsInit() throws EmptyInboxException{
+    private void startSmsInit(){
         ScanInboxTask task = new ScanInboxTask(this);
         task.execute();
-        if (smsList.size() > 0) {
-            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsList);
-            rvSmsList.setAdapter(srav);
+    }
+
+    /**
+     *
+     * @param addedSms
+     * @param maxSms
+     */
+    private void updateProgressBar(Integer addedSms, int maxSms){
+        Log.d("Inbox-Scan", "No of SMS found: " + addedSms + " Total SMS found: " + maxSms);
+
+        if (pbCheckedSms.getMax() != maxSms) {
+            pbCheckedSms.setMax(maxSms);
         }
+        pbCheckedSms.setProgress(addedSms);
     }
 
     /**
@@ -113,16 +139,12 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         setSupportActionBar(toolbar);
         rvSmsList = findViewById(R.id.rvSmsList);
         fabRefresh = findViewById(R.id.fab);
+        pbCheckedSms = findViewById(R.id.pb_checkedSms);
 
         fabRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    startSmsInit();
-                }
-                catch (EmptyInboxException e){
-                    Toast.makeText(ImportSmsView.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                startSmsInit();
             }
         });
     }
@@ -204,12 +226,11 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         }
     }
 
-    private class ScanInboxTask extends AsyncTask<Void, Integer, List<SMS>> {
+    private class ScanInboxTask extends AsyncTask<Void, Integer, List<String>> {
         Context ctx;
-        List<SMS> inbox = new ArrayList<>();
+        List<String> inbox = new ArrayList<>();
         List<String> rawSms = new ArrayList<>();
-        Integer ignoredSmsCount;
-        Integer addedSmsCount;
+        Integer addedSmsCount = new Integer(0);
 
         public ScanInboxTask(Context ctx){
             super();
@@ -235,28 +256,24 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
          * @return Liste von importierbaren SMS.
          */
         @Override
-        protected List<SMS> doInBackground(Void ... voids) {
+        protected List<String> doInBackground(Void ... voids) {
             Cursor c = ctx.getContentResolver().query(Uri.parse(INBOX), null, null, null);
             Log.d("SMS-Import", c.getCount() + " SMS in Inbox");
 
-            // TODO: Add show progress bar on UI.
-            // TODO: Initialize progress bar with amount of SMS in Inbox
-
             if (c.moveToFirst()) {
                 do {
-                    try{
-                        for (int i = 0; i < c.getColumnCount(); i++) {
-                            rawSms.add(c.getString(i));
-                        }
-                        SmsDirector sd = new SmsDirector(rawSms, ctx);
-                        SMS result = sd.getSms();
-                        inbox.add(result);
-                        addedSmsCount++;
+                    for (int i = 0; i < c.getColumnCount(); i++) {
+                        rawSms.add(c.getString(i));
                     }
-                    catch (IllegalArgumentException e){
-                        ignoredSmsCount++;
+
+                    String receivedFrom = rawSms.get(SMS.ADDRESS);  //Für die Anzeige des Kontaktnamens: (rawSms.get(SMS.PERSON) == null) ? rawSms.get(SMS.ADDRESS) : rawSms.get(SMS.PERSON);
+                    inbox.add(receivedFrom + " " + rawSms.get(SMS.DATE));
+                    Log.d("SMS-Import", "Added: " + inbox.get(addedSmsCount) + " to smsList");
+                    addedSmsCount++;
+
+                    if ((addedSmsCount % 10 == 0) || (addedSmsCount == c.getCount())){
+                        publishProgress(addedSmsCount, c.getCount());
                     }
-                    publishProgress(addedSmsCount, ignoredSmsCount);
                     rawSms.clear();
                 } while (c.moveToNext());
             }
@@ -268,15 +285,19 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
 
-            // TODO: Update progress bar with amount of SMS scanned
+            Log.d("Inbox-Scan", "No of valid SMS found: " + values[0] + " Total SMS found: " + values[1]);
 
-            Log.d("Inbox-Scan", "No of valid SMS found: " + values[0] + " No of invalid SMS found: " + values[1]);
+            if (pbCheckedSms.getMax() != values[1]) {
+                pbCheckedSms.setMax(values[1]);
+            }
+            pbCheckedSms.setProgress(addedSmsCount);
         }
 
         @Override
-        protected void onPostExecute(List<SMS> sms) {
+        protected void onPostExecute(List<String> sms) {
             super.onPostExecute(sms);
-
+            smsList = sms;
+            initSmsListView();
         }
     }
 }

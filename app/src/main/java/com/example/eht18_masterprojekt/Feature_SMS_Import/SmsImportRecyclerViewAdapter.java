@@ -12,17 +12,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.eht18_masterprojekt.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImportRecyclerViewAdapter.ViewHolder> {
 
-    private List<SMS> smsList;
+    private List<String> smsList;
 
-    public List<SMS> getSmsList() {
+    public List<String> getSmsList() {
         return smsList;
     }
 
-    SmsImportRecyclerViewAdapter(List<SMS> smsList){
+    SmsImportRecyclerViewAdapter(List<String> smsList){
         this.smsList = smsList;
     }
 
@@ -35,9 +36,13 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        holder.smsImportReceivedFrom.setText(smsList.get(position).getSender());
-        holder.smsImportReceivedAt.setText(sdf.format(smsList.get(position).getReceivedAt()));
+        String[] input = smsList.get(position).split(" ");
+        String receviedFrom = input[0];
+        String receviedAt = input[1];
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy HH:mm");
+        holder.smsImportReceivedFrom.setText("From: " + receviedFrom);
+        holder.smsImportReceivedAt.setText("At: " + sdf.format(new Date(Long.parseLong(receviedAt))));
     }
 
     @Override
@@ -55,6 +60,8 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // TODO: Init SMS-Import / MedList Construction
+
                     return;
                 }
             });

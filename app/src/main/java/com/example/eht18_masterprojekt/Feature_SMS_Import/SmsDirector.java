@@ -36,7 +36,7 @@ class SmsDirector {
     public SmsDirector(List<String> rawSMS, Context ctx) {
         context = ctx;
         String cleanedRawSms = cleanSms(rawSMS.get(SMS.BODY));
-        SmsType s = querySmsType(cleanedRawSms);
+        SmsType s = SMS.querySmsType(context, cleanedRawSms);
         if (s == XML){
             Date receivedAt = new Date(Long.parseLong(rawSMS.get(SMS.DATE)));
             String address = rawSMS.get(SMS.ADDRESS);
@@ -52,29 +52,6 @@ class SmsDirector {
 
     public SMS getSms() {
         return builder.getSMS();
-    }
-
-    public SmsType querySmsType(String rawSMS) {
-        try {
-            Source xmlSource = new StreamSource(new StringReader(rawSMS));
-            Source schemaSource = new StreamSource(context.getResources().openRawResource(R.raw.xml_sms_schema));
-            SchemaFactory sf = new XMLSchemaFactory();
-            Schema xmlSchema = sf.newSchema(schemaSource);
-
-            Validator v = xmlSchema.newValidator();
-            v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
-
-            return SmsType.XML;
-
-            // TODO: Add query for HL7v3
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            Log.d("SMS-Import","SMS nicht im XML Format!");
-        }
-
-        return null;
     }
 
     /**

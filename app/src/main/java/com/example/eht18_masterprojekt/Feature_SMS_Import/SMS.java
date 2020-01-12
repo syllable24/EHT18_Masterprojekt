@@ -1,5 +1,6 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -7,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Core.OrdinationsInformationen;
+import com.example.eht18_masterprojekt.R;
 
 
 import org.xml.sax.InputSource;
@@ -22,6 +24,12 @@ import java.util.List;
 import mf.javax.xml.parsers.DocumentBuilder;
 import mf.javax.xml.parsers.DocumentBuilderFactory;
 import mf.javax.xml.parsers.ParserConfigurationException;
+import mf.javax.xml.transform.Source;
+import mf.javax.xml.transform.stream.StreamSource;
+import mf.javax.xml.validation.Schema;
+import mf.javax.xml.validation.SchemaFactory;
+import mf.javax.xml.validation.Validator;
+import mf.org.apache.xerces.jaxp.validation.XMLSchemaFactory;
 import mf.org.w3c.dom.Document;
 import mf.org.w3c.dom.Element;
 import mf.org.w3c.dom.Node;
@@ -30,6 +38,7 @@ import mf.org.w3c.dom.NodeList;
 class SMS {
     // Relevante Inhalte einer SMS, die mittels Cursor aus dem SMS-INBOX Content provider ausgelesen wurden.
     public static final int ADDRESS = 2;
+    public static final int PERSON = 3;
     public static final int DATE = 4;
     public static final int DATE_SENT = 5;
     public static final int SUBJECT = 11;
@@ -72,6 +81,28 @@ class SMS {
 
     private void setBody(Document body) {
         this.body = body;
+    }
+
+    public static SmsType querySmsType(Context context, String rawSms){
+        try {
+            Source xmlSource = new StreamSource(new StringReader(rawSms));
+            Source schemaSource = new StreamSource(context.getResources().openRawResource(R.raw.xml_sms_schema));
+            SchemaFactory sf = new XMLSchemaFactory();
+            Schema xmlSchema = sf.newSchema(schemaSource);
+
+            Validator v = xmlSchema.newValidator();
+            v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
+
+            return SmsType.XML;
+
+            // TODO: Add query for HL7v3
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            Log.d("SMS-Import","SMS nicht im XML Format!");
+        }
+        return null;
     }
 
     static class Hl7v3SmsBuilder extends SmsBuilder {
