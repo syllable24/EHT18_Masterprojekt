@@ -1,7 +1,6 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 import android.Manifest;
-import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -30,20 +29,23 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImportSmsView extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String INBOX = "content://sms/inbox";
 
+    Map<String, String> smsMap;
     List<String> smsList = new ArrayList<>();
     RecyclerView rvSmsList;
     FloatingActionButton fabRefresh;
     ProgressBar pbCheckedSms;
     Toolbar toolbar;
 
-    List<String> inbox = new ArrayList<>();
-    List<String> rawSms = new ArrayList<>();
+    List<String> rawSmsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +82,8 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
      * Darstellen der importierten SMS in RecyclerView
      */
     private void initSmsListView(){
-        if (smsList.size() > 0) {
-            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsList);
+        if (smsMap.size() > 0) {
+            SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsMap, this);
             rvSmsList.setLayoutManager(new LinearLayoutManager(this));
             rvSmsList.setAdapter(srav);
         }
@@ -226,10 +228,11 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         }
     }
 
-    private class ScanInboxTask extends AsyncTask<Void, Integer, List<String>> {
+    private class ScanInboxTask extends AsyncTask<Void, Integer, Map<String, String>> {
         Context ctx;
-        List<String> inbox = new ArrayList<>();
         List<String> rawSms = new ArrayList<>();
+
+        Map<String, String> tempSmsMap = new LinkedHashMap<String, String>();
         Integer addedSmsCount = new Integer(0);
 
         public ScanInboxTask(Context ctx){
@@ -256,7 +259,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
          * @return Liste von importierbaren SMS.
          */
         @Override
-        protected List<String> doInBackground(Void ... voids) {
+        protected Map<String, String> doInBackground(Void ... voids) {
             Cursor c = ctx.getContentResolver().query(Uri.parse(INBOX), null, null, null);
             Log.d("SMS-Import", c.getCount() + " SMS in Inbox");
 
@@ -267,9 +270,12 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                     }
 
                     String receivedFrom = rawSms.get(SMS.ADDRESS);  //Für die Anzeige des Kontaktnamens: (rawSms.get(SMS.PERSON) == null) ? rawSms.get(SMS.ADDRESS) : rawSms.get(SMS.PERSON);
-                    inbox.add(receivedFrom + " " + rawSms.get(SMS.DATE));
-                    Log.d("SMS-Import", "Added: " + inbox.get(addedSmsCount) + " to smsList");
+                    String receivedAt = rawSms.get(SMS.DATE);
+                    String smsBody = rawSms.get(SMS.BODY);
+
+                    tempSmsMap.put(receivedFrom + " " + receivedAt, smsBody);
                     addedSmsCount++;
+                    Log.d("SMS-Import", "SmsCount : " + addedSmsCount);
 
                     if ((addedSmsCount % 10 == 0) || (addedSmsCount == c.getCount())){
                         publishProgress(addedSmsCount, c.getCount());
@@ -278,7 +284,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                 } while (c.moveToNext());
             }
             c.close();
-            return inbox;
+            return tempSmsMap;
         }
 
         @Override
@@ -294,9 +300,9 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         }
 
         @Override
-        protected void onPostExecute(List<String> sms) {
-            super.onPostExecute(sms);
-            smsList = sms;
+        protected void onPostExecute(Map<String, String> result) {
+            super.onPostExecute(result);
+            smsMap = result;
             initSmsListView();
         }
     }

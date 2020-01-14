@@ -1,29 +1,8 @@
 package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.example.eht18_masterprojekt.R;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.sql.Date;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import mf.javax.xml.transform.Source;
-import mf.javax.xml.transform.stream.StreamSource;
-import mf.javax.xml.validation.Schema;
-import mf.javax.xml.validation.SchemaFactory;
-import mf.javax.xml.validation.Validator;
-import mf.org.apache.xerces.jaxp.validation.XMLSchemaFactory;
+import java.util.Date;
 
 import static com.example.eht18_masterprojekt.Feature_SMS_Import.SmsType.HL7v3;
 import static com.example.eht18_masterprojekt.Feature_SMS_Import.SmsType.XML;
@@ -33,13 +12,13 @@ class SmsDirector {
     SmsBuilder builder;
     Context context;
 
-    public SmsDirector(List<String> rawSMS, Context ctx) {
+    public SmsDirector(String smsBody, String smsReceivedFrom, java.util.Date smsReceivedAt, Context ctx) {
         context = ctx;
-        String cleanedRawSms = cleanSms(rawSMS.get(SMS.BODY));
+        String cleanedRawSms = cleanSms(smsBody);
         SmsType s = SMS.querySmsType(context, cleanedRawSms);
         if (s == XML){
-            Date receivedAt = new Date(Long.parseLong(rawSMS.get(SMS.DATE)));
-            String address = rawSMS.get(SMS.ADDRESS);
+            Date receivedAt = smsReceivedAt;
+            String address = smsReceivedFrom;
             this.builder = new SMS.XmlSmsBuilder(address,receivedAt, cleanedRawSms);
         }
         else if(s == HL7v3){
@@ -48,6 +27,16 @@ class SmsDirector {
         else if (s == null){
             throw new IllegalArgumentException("Unknown SMS Format");
         }
+    }
+
+    public SmsDirector buildMedikamente(){
+        builder.buildMedikamente();
+        return this;
+    }
+
+    public SmsDirector buildOrdinationsInformationen(){
+        builder.buildOrdinationsInformationen();
+        return this;
     }
 
     public SMS getSms() {

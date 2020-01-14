@@ -50,6 +50,14 @@ class SMS {
     List<Medikament> medList;
     OrdinationsInformationen ordiInfo;
 
+    public List<Medikament> getMedList() {
+        return medList;
+    }
+
+    public OrdinationsInformationen getOrdiInfo() {
+        return ordiInfo;
+    }
+
     private SMS() {
     }
 

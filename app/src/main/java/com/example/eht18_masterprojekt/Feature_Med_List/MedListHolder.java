@@ -6,13 +6,13 @@ import java.util.List;
 
 public class MedListHolder {
 
-    private static List<Medikament> medList;
+    private static List<Medikament> globalMedList;
 
     public static List<Medikament> getMedList() {
-        return medList;
+        return globalMedList;
     }
 
     public static void setMedList(List<Medikament> medList) {
-        medList = medList;
+        globalMedList = medList;
     }
 }

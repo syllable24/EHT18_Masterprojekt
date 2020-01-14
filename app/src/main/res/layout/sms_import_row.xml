@@ -10,7 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:text="SmsFrom"
-        android:textSize="20dp"></TextView>
+        android:textSize="20dp">
+    </TextView>
 
     <TextView
         android:layout_weight="1"
@@ -18,7 +19,20 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:text="smsReceivedAt"
-        android:textSize="20dp"></TextView>
+        android:textSize="20dp">
+    </TextView>
+
+    <TextView
+        android:id="@+id/smsBody"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="smsBody"
+        android:textSize="20dp"
+        android:maxLength="20"
+        android:singleLine="true"
+        android:ellipsize="marquee">
+    </TextView>
 
     <Space
         android:layout_width="match_parent"
