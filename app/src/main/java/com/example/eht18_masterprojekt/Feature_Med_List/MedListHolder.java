@@ -13,6 +13,9 @@ public class MedListHolder {
     }
 
     public static void setMedList(List<Medikament> medList) {
-        globalMedList = medList;
+        if (globalMedList == null){
+            globalMedList = medList;
+        }
+        else throw new RuntimeException("Tried to overwrite existing MedList");
     }
 }

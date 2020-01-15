@@ -11,6 +11,10 @@ import com.example.eht18_masterprojekt.Core.OrdinationsInformationen;
 import com.example.eht18_masterprojekt.R;
 
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -21,8 +25,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import mf.javax.xml.parsers.DocumentBuilder;
-import mf.javax.xml.parsers.DocumentBuilderFactory;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import mf.javax.xml.parsers.ParserConfigurationException;
 import mf.javax.xml.transform.Source;
 import mf.javax.xml.transform.stream.StreamSource;
@@ -30,10 +36,7 @@ import mf.javax.xml.validation.Schema;
 import mf.javax.xml.validation.SchemaFactory;
 import mf.javax.xml.validation.Validator;
 import mf.org.apache.xerces.jaxp.validation.XMLSchemaFactory;
-import mf.org.w3c.dom.Document;
-import mf.org.w3c.dom.Element;
-import mf.org.w3c.dom.Node;
-import mf.org.w3c.dom.NodeList;
+
 
 class SMS {
     // Relevante Inhalte einer SMS, die mittels Cursor aus dem SMS-INBOX Content provider ausgelesen wurden.
@@ -164,13 +167,14 @@ class SMS {
                 xmlSms.setSender(smsSender);
                 xmlSms.setReceivedAt(smsReceivedAt);
             }
+
             catch (IOException e) {
                 e.printStackTrace();
             }
             catch (SAXException e) {
                 e.printStackTrace();
             }
-            catch (ParserConfigurationException e){
+            catch (javax.xml.parsers.ParserConfigurationException e) {
                 e.printStackTrace();
             }
         }

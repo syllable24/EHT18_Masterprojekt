@@ -3,24 +3,32 @@ package com.example.eht18_masterprojekt.Feature_Med_List;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
-import com.example.eht18_masterprojekt.Feature_Med_List.MedListHolder;
-import com.example.eht18_masterprojekt.Feature_Med_List.MedListRecyclerViewAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityView extends AppCompatActivity {
 
     private RecyclerView rv_medList;
+    private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
+    private boolean regBroadcastReceiver = false;
+    private BroadcastReceiver br = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            displayMedList(MedListHolder.getMedList());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +41,38 @@ public class MainActivityView extends AppCompatActivity {
         List<Medikament> medList = queryMedList();
 
         if (medList.size() == 0){
-            Intent smsImportStarter = new Intent(this, ImportSmsView.class);
-            startActivity(smsImportStarter);
+            regBroadcastReceiver = true;
+            registerReceiver(br, medListInitFilter);
+            userInteractStartSmsImport();
         }
         else{
-            MedListRecyclerViewAdapter mra = new MedListRecyclerViewAdapter();
-            mra.setMedList(medList);
-            rv_medList.setAdapter(mra);
+            MedListHolder.setMedList(medList);
+            displayMedList(medList);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(br);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (regBroadcastReceiver){
+            registerReceiver(br, medListInitFilter);
+        }
+    }
+
+    /**
+     * Anzeigen der MedList in RecyclerView
+     * @param medList
+     */
+    private void displayMedList(List<Medikament> medList){
+        MedListRecyclerViewAdapter mra = new MedListRecyclerViewAdapter();
+        mra.setMedList(medList);
+        rv_medList.setAdapter(mra);
     }
 
     /**
@@ -51,5 +83,28 @@ public class MainActivityView extends AppCompatActivity {
         DatabaseAdapter da = new DatabaseAdapter(this);
         da.open();
         return da.retrieveMedList();
+    }
+
+    /**
+     * Anzeigen eines Dialogs, der den User Informiert, dass der SMS Import gestartet wird.
+     */
+    private void userInteractStartSmsImport() {
+
+        DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        Intent smsImportStarter = new Intent(MainActivityView.this, ImportSmsView.class);
+                        startActivity(smsImportStarter);
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setMessage("Keine Med Liste vorhanden, der SMS Import wird gestartet.")
+                .setPositiveButton("OK", d)
+                .show();
     }
 }

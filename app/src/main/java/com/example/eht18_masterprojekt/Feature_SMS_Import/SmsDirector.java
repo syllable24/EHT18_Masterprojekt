@@ -44,13 +44,20 @@ class SmsDirector {
     }
 
     /**
-     * Entfernen von Steuerzeichen und Whitespace Nodes aus einer XML-SMS.
+     * Entfernen von Steuerzeichen, Whitespace Nodes und Umlauten aus einer XML-SMS.
      * @param input
      * @return Bereinigten String
      */
     private String cleanSms(String input){
-        // TODO: Umlaute bereinigen
-        return input.replaceAll("\\p{Cntrl}", "").replaceAll(">\\s*<", "><");
+        String t = input.replaceAll("\\p{Cntrl}", "").replaceAll(">\\s*<", "><");;
+        t = t.replace( "ä", "ae" );
+        t = t.replace( "ö", "oe" );
+        t = t.replace( "ü", "ue" );
+        t = t.replace( "Ä", "Ae" );
+        t = t.replace( "Ö", "Oe" );
+        t = t.replace( "Ü", "Ue" );
+        t = t.replace( "ß", "ss" );
+        return t;
     }
 
 }

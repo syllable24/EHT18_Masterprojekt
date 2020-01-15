@@ -2,8 +2,10 @@ package com.example.eht18_masterprojekt.Feature_SMS_Import;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -45,6 +47,14 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     ProgressBar pbCheckedSms;
     Toolbar toolbar;
 
+    private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
+    private BroadcastReceiver br = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ImportSmsView.this.finish();
+        }
+    };
+
     List<String> rawSmsList = new ArrayList<>();
 
     @Override
@@ -53,6 +63,8 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         try{
             initActivity();
             boolean permission = initPermission();
+
+            registerReceiver(br, medListInitFilter);
 
             if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
                 startSmsInit();
@@ -63,6 +75,18 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         catch (EmptyInboxException e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(br);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        registerReceiver(br, medListInitFilter);
     }
 
     @Override
@@ -119,7 +143,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     }
 
     /**
-     *
+     * Aktualisieren der Progress Bar des SMS Import.
      * @param addedSms
      * @param maxSms
      */
@@ -292,11 +316,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             super.onProgressUpdate(values);
 
             Log.d("Inbox-Scan", "No of valid SMS found: " + values[0] + " Total SMS found: " + values[1]);
-
-            if (pbCheckedSms.getMax() != values[1]) {
-                pbCheckedSms.setMax(values[1]);
-            }
-            pbCheckedSms.setProgress(addedSmsCount);
+            updateProgressBar(addedSmsCount, values[1]);
         }
 
         @Override

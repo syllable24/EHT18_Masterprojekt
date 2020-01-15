@@ -3,6 +3,7 @@ package com.example.eht18_masterprojekt.Feature_SMS_Import;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,27 +73,35 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
                 @Override
                 public void onClick(View v) {
 
-                    final String key = (String) keySet[getAdapterPosition()];
-                    final String[] splitKey = key.split(" ");
-
                     DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
-                                    // TODO: Test me
+                                    String key = (String) keySet[getAdapterPosition()];
+                                    String[] splitKey = key.split(" ");
+
                                     SmsDirector sd = new SmsDirector(smsMap.get(key), splitKey[0], new Date(Long.parseLong(splitKey[1])),ctx);
                                     SMS result = sd.buildMedikamente()
                                             .buildOrdinationsInformationen()
                                             .getSms();
 
                                     MedListHolder.setMedList(result.getMedList());
-                                    break;
 
-                                case DialogInterface.BUTTON_NEGATIVE: break;
+                                    // TODO: Test me
+                                    // Es sollte die ImportSMS View geschlossen werden
+                                    // und die MainActivityView die importierte MedListe
+                                    // anzeigen -> Review med_list_view_row.xml
+                                    Intent intent = new Intent();
+                                    intent.setAction("MedList_Init_Successful");
+                                    ctx.sendBroadcast(intent);
+                                    break;
                             }
                         }
                     };
+
+                    String key = (String) keySet[getAdapterPosition()];
+                    String[] splitKey = key.split(" ");
 
                     AlertDialog.Builder b = new AlertDialog.Builder(ctx);
                     b.setMessage("SMS von: " + splitKey[0] + " wirklich importieren?")
