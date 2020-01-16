@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -42,7 +43,6 @@ public class MainActivityView extends AppCompatActivity {
 
         if (medList.size() == 0){
             regBroadcastReceiver = true;
-            registerReceiver(br, medListInitFilter);
             userInteractStartSmsImport();
         }
         else{
@@ -52,9 +52,11 @@ public class MainActivityView extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(br);
+    public void onDestroy() {
+        super.onDestroy();
+        if (regBroadcastReceiver) {
+            unregisterReceiver(br);
+        }
     }
 
     @Override
@@ -70,7 +72,8 @@ public class MainActivityView extends AppCompatActivity {
      * @param medList
      */
     private void displayMedList(List<Medikament> medList){
-        MedListRecyclerViewAdapter mra = new MedListRecyclerViewAdapter();
+        Log.d("MedList", "Display Init. MedCount: " + medList.size());
+        MedListRecyclerViewAdapter mra = new MedListRecyclerViewAdapter(this);
         mra.setMedList(medList);
         rv_medList.setAdapter(mra);
     }

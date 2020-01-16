@@ -88,10 +88,6 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
 
                                     MedListHolder.setMedList(result.getMedList());
 
-                                    // TODO: Test me
-                                    // Es sollte die ImportSMS View geschlossen werden
-                                    // und die MainActivityView die importierte MedListe
-                                    // anzeigen -> Review med_list_view_row.xml
                                     Intent intent = new Intent();
                                     intent.setAction("MedList_Init_Successful");
                                     ctx.sendBroadcast(intent);

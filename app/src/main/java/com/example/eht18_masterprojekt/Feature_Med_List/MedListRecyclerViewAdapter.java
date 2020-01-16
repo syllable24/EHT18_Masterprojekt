@@ -1,21 +1,35 @@
 package com.example.eht18_masterprojekt.Feature_Med_List;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
+import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.R;
 
+import org.w3c.dom.Text;
+
+import java.time.LocalTime;
 import java.util.List;
 
 public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecyclerViewAdapter.ViewHolder> {
 
     private List<Medikament> medList;
+    private Context context;
+
+    public MedListRecyclerViewAdapter(Context ctx){
+        super();
+        context = ctx;
+    }
 
     public List<Medikament> getMedList() {
         return medList;
@@ -30,6 +44,7 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     // spezifiziert deren onClickListener.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView medikamentTextView;
+        private final LinearLayout layoutMedList;
 
         public ViewHolder(View v) {
             super(v);
@@ -41,10 +56,7 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
                 }
             });
             medikamentTextView = v.findViewById(R.id.tvMedikament);
-        }
-
-        public TextView getTextView() {
-            return medikamentTextView;
+            layoutMedList = v.findViewById(R.id.layout_medList);
         }
     }
 
@@ -70,7 +82,38 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
      */
     @Override
     public void onBindViewHolder(@NonNull MedListRecyclerViewAdapter.ViewHolder holder, int position) {
-        holder.medikamentTextView.setText(medList.get(position).getBezeichnung());
+        Medikament med = medList.get(position);
+        String bezeichnung = med.getBezeichnung();
+        MedikamentEinnahme ez = med.getEinnahmeZeiten();
+
+        holder.medikamentTextView.setText(bezeichnung);
+
+        for (EinnahmeTuple e : ez){
+            LocalTime einnahmeZeit = e.getEinnahmeZeit();
+            ImageView ivEinnahmeIcon = new ImageView(context);
+            TextView tvEinnahmeBeschreibung = new TextView(context);
+
+            if (einnahmeZeit.compareTo(LocalTime.of(8,0)) < 0){
+                // TODO: Add early morning Icon
+            }
+            else if (einnahmeZeit.compareTo(LocalTime.of(12,0)) < 0){
+                // TODO: Add Midday Icon
+            }
+            else if (einnahmeZeit.compareTo(LocalTime.of(16,0)) < 0){
+                // TODO: Add afternoon Icon
+            }
+            else if (einnahmeZeit.compareTo(LocalTime.of(20,0)) < 0){
+                // TODO Add Evening Icon
+            }
+            else if (einnahmeZeit.compareTo(LocalTime.of(24,0)) < 0){
+                // TODO Add Night Icon
+            }
+
+            tvEinnahmeBeschreibung.setText(e.toString() + " " + med.getEinheit());
+
+            holder.layoutMedList.addView(ivEinnahmeIcon);
+            holder.layoutMedList.addView(tvEinnahmeBeschreibung);
+        }
     }
 
     @Override

@@ -148,7 +148,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
      * @param maxSms
      */
     private void updateProgressBar(Integer addedSms, int maxSms){
-        Log.d("Inbox-Scan", "No of SMS found: " + addedSms + " Total SMS found: " + maxSms);
+        Log.d("Inbox-Scan", "Number of SMS found: " + addedSms + " Total SMS found: " + maxSms);
 
         if (pbCheckedSms.getMax() != maxSms) {
             pbCheckedSms.setMax(maxSms);
@@ -315,7 +315,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
 
-            Log.d("Inbox-Scan", "No of valid SMS found: " + values[0] + " Total SMS found: " + values[1]);
+            Log.d("Inbox-Scan", "Number of valid SMS found: " + values[0] + " Total SMS found: " + values[1]);
             updateProgressBar(addedSmsCount, values[1]);
         }
 

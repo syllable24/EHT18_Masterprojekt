@@ -6,26 +6,43 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-public class MedikamentEinnahme {
-    private Map<LocalTime, String> einnahmeProtokoll;
+public class MedikamentEinnahme implements Iterable<EinnahmeTuple>{
+    private List<EinnahmeTuple> einnahmeProtokoll;
 
     public MedikamentEinnahme(){
-        einnahmeProtokoll = new TreeMap<>();
+        einnahmeProtokoll = new ArrayList<>();
+    }
+
+    @NonNull
+    @Override
+    public Iterator<EinnahmeTuple> iterator() {
+        return new Iterator<EinnahmeTuple>() {
+            private int iteratorPos = 0;
+
+            @Override
+            public boolean hasNext() {
+                return iteratorPos < einnahmeProtokoll.size();
+            }
+
+            @Override
+            public EinnahmeTuple next() {
+                // TODO: Test me
+                return einnahmeProtokoll.get(iteratorPos++);
+            }
+        };
     }
 
     public void add(LocalTime einnahmeZeit, String einnahmeDosis){
-        einnahmeProtokoll.put(einnahmeZeit, einnahmeDosis);
+        einnahmeProtokoll.add(new EinnahmeTuple(einnahmeZeit, einnahmeDosis));
     }
 
     public List<LocalTime> toTimeList(){
         List<LocalTime> einnahmeZeiten = new ArrayList<>();
-        Iterator i = einnahmeProtokoll.keySet().iterator();
+        Iterator i = einnahmeProtokoll.iterator();
 
-        while (i.hasNext()){
-            LocalTime einnahmeZeit = (LocalTime) i.next();
+        for(EinnahmeTuple e : einnahmeProtokoll){
+            LocalTime einnahmeZeit = e.getEinnahmeZeit();
             einnahmeZeiten.add(einnahmeZeit);
         }
         return einnahmeZeiten;
@@ -35,13 +52,13 @@ public class MedikamentEinnahme {
     @Override
     public String toString() {
         String result = "";
-        Iterator i = einnahmeProtokoll.keySet().iterator();
 
-        while(i.hasNext()){
-            LocalTime einnahmeZeit = (LocalTime) i.next();
-            String dosis = einnahmeProtokoll.get(einnahmeZeit);
+        for(EinnahmeTuple e : einnahmeProtokoll){
+            LocalTime einnahmeZeit = e.getEinnahmeZeit();
+            String dosis = e.getEinnahmeDosis();
             result += "Um " + einnahmeZeit.toString() + "Uhr: " + dosis + System.getProperty("line.separator");
         }
         return result;
     }
+
 }
