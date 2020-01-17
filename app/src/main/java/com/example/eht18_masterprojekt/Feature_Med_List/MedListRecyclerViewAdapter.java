@@ -63,7 +63,6 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     /**
      * Spezifiziert, welches Layout xml File für die Reihen der RecyclerView verwendet werden soll
      * und baut den passenden ViewHolder dafür.
-     *
      * @param parent
      * @param viewType
      * @return
@@ -93,24 +92,21 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
             ImageView ivEinnahmeIcon = new ImageView(context);
             TextView tvEinnahmeBeschreibung = new TextView(context);
 
-            if (einnahmeZeit.compareTo(LocalTime.of(8,0)) < 0){
-                // TODO: Add early morning Icon
+            //TODO: Images are huge, find way to scale them
+            if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
+                ivEinnahmeIcon.setImageResource(R.drawable.icon_morning);
             }
-            else if (einnahmeZeit.compareTo(LocalTime.of(12,0)) < 0){
-                // TODO: Add Midday Icon
+            else if (einnahmeZeit.compareTo(LocalTime.of(14,0)) < 0){
+                ivEinnahmeIcon.setImageResource(R.drawable.icon_midday);
             }
-            else if (einnahmeZeit.compareTo(LocalTime.of(16,0)) < 0){
-                // TODO: Add afternoon Icon
+            else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
+                ivEinnahmeIcon.setImageResource(R.drawable.icon_evening);
             }
-            else if (einnahmeZeit.compareTo(LocalTime.of(20,0)) < 0){
-                // TODO Add Evening Icon
-            }
-            else if (einnahmeZeit.compareTo(LocalTime.of(24,0)) < 0){
-                // TODO Add Night Icon
+            else if (einnahmeZeit.compareTo(LocalTime.of(23,59)) < 0){
+                ivEinnahmeIcon.setImageResource(R.drawable.icon_night);
             }
 
             tvEinnahmeBeschreibung.setText(e.toString() + " " + med.getEinheit());
-
             holder.layoutMedList.addView(ivEinnahmeIcon);
             holder.layoutMedList.addView(tvEinnahmeBeschreibung);
         }

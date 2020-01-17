@@ -1,6 +1,7 @@
 package com.example.eht18_masterprojekt.Feature_Med_List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
@@ -17,6 +18,7 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityView extends AppCompatActivity {
@@ -24,10 +26,11 @@ public class MainActivityView extends AppCompatActivity {
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
     private boolean regBroadcastReceiver = false;
+    private MedListRecyclerViewAdapter adapter;
     private BroadcastReceiver br = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            displayMedList(MedListHolder.getMedList());
+            updateMedListDisplay(MedListHolder.getMedList());
         }
     };
 
@@ -42,12 +45,16 @@ public class MainActivityView extends AppCompatActivity {
         List<Medikament> medList = queryMedList();
 
         if (medList.size() == 0){
+            // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
+            // Broadcast von "MedList_Init_Successful" aktualisiert werden kann.
             regBroadcastReceiver = true;
             userInteractStartSmsImport();
+            initMedListDisplay(new ArrayList<Medikament>());
         }
         else{
+            // Recyclerview gleich mit Daten befüllen.
             MedListHolder.setMedList(medList);
-            displayMedList(medList);
+            initMedListDisplay(medList);
         }
     }
 
@@ -71,11 +78,17 @@ public class MainActivityView extends AppCompatActivity {
      * Anzeigen der MedList in RecyclerView
      * @param medList
      */
-    private void displayMedList(List<Medikament> medList){
+    private void initMedListDisplay(List<Medikament> medList){
         Log.d("MedList", "Display Init. MedCount: " + medList.size());
-        MedListRecyclerViewAdapter mra = new MedListRecyclerViewAdapter(this);
-        mra.setMedList(medList);
-        rv_medList.setAdapter(mra);
+        adapter = new MedListRecyclerViewAdapter(this);
+        adapter.setMedList(medList);
+        rv_medList.setLayoutManager(new LinearLayoutManager(this));
+        rv_medList.setAdapter(adapter);
+    }
+
+    private void updateMedListDisplay(List<Medikament> newList){
+        adapter.setMedList(newList);
+        adapter.notifyDataSetChanged();
     }
 
     /**
@@ -93,6 +106,7 @@ public class MainActivityView extends AppCompatActivity {
      */
     private void userInteractStartSmsImport() {
 
+        // TODO: Modal machen
         DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

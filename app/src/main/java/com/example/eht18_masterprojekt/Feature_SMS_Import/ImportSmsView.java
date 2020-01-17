@@ -63,7 +63,6 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         try{
             initActivity();
             boolean permission = initPermission();
-
             registerReceiver(br, medListInitFilter);
 
             if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
