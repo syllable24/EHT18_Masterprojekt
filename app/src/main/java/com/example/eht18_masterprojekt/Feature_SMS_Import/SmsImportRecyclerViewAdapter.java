@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AlertDialogLayout;
@@ -81,16 +82,24 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
                                     String key = (String) keySet[getAdapterPosition()];
                                     String[] splitKey = key.split(" ");
 
-                                    SmsDirector sd = new SmsDirector(smsMap.get(key), splitKey[0], new Date(Long.parseLong(splitKey[1])),ctx);
-                                    SMS result = sd.buildMedikamente()
-                                            .buildOrdinationsInformationen()
-                                            .getSms();
+                                    SmsDirector sd = null;
 
-                                    MedListHolder.setMedList(result.getMedList());
+                                    try {
+                                        sd = new SmsDirector(smsMap.get(key), splitKey[0], new Date(Long.parseLong(splitKey[1])),ctx);
 
-                                    Intent intent = new Intent();
-                                    intent.setAction("MedList_Init_Successful");
-                                    ctx.sendBroadcast(intent);
+                                        SMS result = sd.buildMedikamente()
+                                                .buildOrdinationsInformationen()
+                                                .getSms();
+
+                                        MedListHolder.setMedList(result.getMedList());
+
+                                        Intent intent = new Intent();
+                                        intent.setAction("MedList_Init_Successful");
+                                        ctx.sendBroadcast(intent);
+
+                                    } catch (SmsFormatException e) {
+                                        Toast.makeText(ctx, "Ungültiges SMS Format!", Toast.LENGTH_SHORT).show();
+                                    }
                                     break;
                             }
                         }

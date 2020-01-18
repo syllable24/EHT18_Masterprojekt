@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -85,14 +86,32 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
         String bezeichnung = med.getBezeichnung();
         MedikamentEinnahme ez = med.getEinnahmeZeiten();
 
+
+        /*
+        <LinearLayout
+            android:id="@+id/layout_medList_single_einnahme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+         >
+         */
+        LinearLayout layoutSingleMed = new LinearLayout(context);
+        layoutSingleMed.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                )
+        );
+        layoutSingleMed.setOrientation(LinearLayout.HORIZONTAL);
+
+        ImageView ivEinnahmeIcon = new ImageView(context);
+        TextView tvEinnahmeBeschreibung = new TextView(context);
+
         holder.medikamentTextView.setText(bezeichnung);
 
         for (EinnahmeTuple e : ez){
             LocalTime einnahmeZeit = e.getEinnahmeZeit();
-            ImageView ivEinnahmeIcon = new ImageView(context);
-            TextView tvEinnahmeBeschreibung = new TextView(context);
 
-            //TODO: Images are huge, find way to scale them
             if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
                 ivEinnahmeIcon.setImageResource(R.drawable.icon_morning);
             }
@@ -102,13 +121,18 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
             else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
                 ivEinnahmeIcon.setImageResource(R.drawable.icon_evening);
             }
-            else if (einnahmeZeit.compareTo(LocalTime.of(23,59)) < 0){
+            else if (einnahmeZeit.compareTo(LocalTime.of(23,59, 59)) < 0){
                 ivEinnahmeIcon.setImageResource(R.drawable.icon_night);
             }
 
             tvEinnahmeBeschreibung.setText(e.toString() + " " + med.getEinheit());
-            holder.layoutMedList.addView(ivEinnahmeIcon);
-            holder.layoutMedList.addView(tvEinnahmeBeschreibung);
+            tvEinnahmeBeschreibung.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
+            tvEinnahmeBeschreibung.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            // TODO: Fix Error - Already has Parent
+            layoutSingleMed.addView(tvEinnahmeBeschreibung);
+            layoutSingleMed.addView(ivEinnahmeIcon);
+            holder.layoutMedList.addView(layoutSingleMed);
         }
     }
 

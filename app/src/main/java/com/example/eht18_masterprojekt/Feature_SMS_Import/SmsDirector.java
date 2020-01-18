@@ -12,7 +12,7 @@ class SmsDirector {
     SmsBuilder builder;
     Context context;
 
-    public SmsDirector(String smsBody, String smsReceivedFrom, java.util.Date smsReceivedAt, Context ctx) {
+    public SmsDirector(String smsBody, String smsReceivedFrom, java.util.Date smsReceivedAt, Context ctx) throws SmsFormatException{
         context = ctx;
         String cleanedRawSms = cleanSms(smsBody);
         SmsType s = SMS.querySmsType(context, cleanedRawSms);
@@ -25,7 +25,7 @@ class SmsDirector {
             //this.builder = new SMS.Hl7v3SmsBuilder(qSMS);
         }
         else if (s == null){
-            throw new IllegalArgumentException("Unknown SMS Format");
+            throw new SmsFormatException("Unknown SMS Format");
         }
     }
 
