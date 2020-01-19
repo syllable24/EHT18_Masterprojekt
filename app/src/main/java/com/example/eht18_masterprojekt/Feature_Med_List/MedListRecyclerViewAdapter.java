@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,8 +18,7 @@ import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.R;
-
-import org.w3c.dom.Text;
+import com.google.android.material.tabs.TabLayout;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -46,6 +47,7 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView medikamentTextView;
         private final LinearLayout layoutMedList;
+        private final TableLayout tableMedEinnahme;
 
         public ViewHolder(View v) {
             super(v);
@@ -58,6 +60,8 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
             });
             medikamentTextView = v.findViewById(R.id.tvMedikament);
             layoutMedList = v.findViewById(R.id.layout_medList);
+            tableMedEinnahme = v.findViewById(R.id.table_layout_einnahmen);
+
         }
     }
 
@@ -86,53 +90,31 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
         String bezeichnung = med.getBezeichnung();
         MedikamentEinnahme ez = med.getEinnahmeZeiten();
 
-
-        /*
-        <LinearLayout
-            android:id="@+id/layout_medList_single_einnahme"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-         >
-         */
-        LinearLayout layoutSingleMed = new LinearLayout(context);
-        layoutSingleMed.setLayoutParams(
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT
-                )
-        );
-        layoutSingleMed.setOrientation(LinearLayout.HORIZONTAL);
-
-        ImageView ivEinnahmeIcon = new ImageView(context);
-        TextView tvEinnahmeBeschreibung = new TextView(context);
-
         holder.medikamentTextView.setText(bezeichnung);
 
         for (EinnahmeTuple e : ez){
+            TableRow singleEinnahme = new TableRow(context);
+            ImageView ivEinnahmeIcon = new ImageView(context);
+            TextView tvEinnahmeBeschreibung = new TextView(context);
             LocalTime einnahmeZeit = e.getEinnahmeZeit();
 
             if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.icon_morning);
+                ivEinnahmeIcon.setImageResource(R.drawable.ic_morning);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(14,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.icon_midday);
+                ivEinnahmeIcon.setImageResource(R.drawable.ic_midday);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.icon_evening);
+                ivEinnahmeIcon.setImageResource(R.drawable.ic_evening);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(23,59, 59)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.icon_night);
+                ivEinnahmeIcon.setImageResource(R.drawable.ic_night);
             }
 
-            tvEinnahmeBeschreibung.setText(e.toString() + " " + med.getEinheit());
-            tvEinnahmeBeschreibung.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
-            tvEinnahmeBeschreibung.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
-
-            // TODO: Fix Error - Already has Parent
-            layoutSingleMed.addView(tvEinnahmeBeschreibung);
-            layoutSingleMed.addView(ivEinnahmeIcon);
-            holder.layoutMedList.addView(layoutSingleMed);
+            tvEinnahmeBeschreibung.setText(e.toString());
+            singleEinnahme.addView(tvEinnahmeBeschreibung);
+            singleEinnahme.addView(ivEinnahmeIcon);
+            holder.tableMedEinnahme.addView(singleEinnahme);
         }
     }
 

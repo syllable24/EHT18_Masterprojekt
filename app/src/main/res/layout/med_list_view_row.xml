@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:id="@+id/layout_medList">
 
@@ -10,36 +10,15 @@
         android:id="@+id/tvMedikament"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Aspirin"
+        android:text="BspText Aspirin"
         android:textSize="30dp" />
 
-
-    <!-- Individuelle Einnahmezeiten werden hier beim Einlesen der MedListe eingefügt -->
-
-    <!-- Layout Bsp
-
-    <LinearLayout
-        android:id="@+id/layout_medList_single_einnahme"
+    <TableLayout
+        android:id="@+id/table_layout_einnahmen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         >
-
-        <TextView
-            android:id="@+id/tvEinnahmeDesc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Um 13:00 Uhr 1 Tablette"
-            android:textSize="20dp"
-            ></TextView>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_morning"
-            ></ImageView>
-
-    </LinearLayout>
-    -->
+        <!-- Individuelle Einnahmezeiten werden hier beim Einlesen der MedListe eingefügt;
+        Siehe MedListRecyclerViewAdapter -->
+    </TableLayout>
 </LinearLayout>

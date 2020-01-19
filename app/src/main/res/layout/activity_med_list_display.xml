@@ -26,10 +26,18 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvMedListe"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:fadeScrollbars="false"
+            android:scrollbarFadeDuration="0">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMedListe"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </ScrollView>
+
     </LinearLayout>
 
 
