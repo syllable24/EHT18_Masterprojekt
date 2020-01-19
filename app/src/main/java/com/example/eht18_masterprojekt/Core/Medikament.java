@@ -6,7 +6,7 @@ public class Medikament {
     private int pharmazentralnummer;
     private String bezeichnung;
     private String einheit;
-    private int stueckzahl;
+    private String stueckzahl;
     private MedikamentEinnahme einnahmeZeiten;
 
     public int getPharmazentralnummer() {
@@ -26,14 +26,14 @@ public class Medikament {
     public MedikamentEinnahme getEinnahmeZeiten() {
         return einnahmeZeiten;
     }
-    public int getStueckzahl() {
+    public String getStueckzahl() {
         return stueckzahl;
     }
 
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }
-    public void setStueckzahl(int stueckzahl) {
+    public void setStueckzahl(String stueckzahl) {
         this.stueckzahl = stueckzahl;
     }
     public void setEinnahmeZeiten(MedikamentEinnahme einnahmeZeiten) {this.einnahmeZeiten = einnahmeZeiten;}

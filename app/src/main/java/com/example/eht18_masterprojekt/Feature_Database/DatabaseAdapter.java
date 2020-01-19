@@ -67,7 +67,7 @@ public class DatabaseAdapter {
                 Medikament m = new Medikament();
                 m.setBezeichnung(medResult.getString(0));
                 m.setEinheit(medResult.getString(1));
-                m.setStueckzahl(medResult.getInt(2));
+                m.setStueckzahl(medResult.getString(2));
                 m.setPharmazentralnummer(medResult.getInt(3));
 
                 Cursor einnahmeResult = db.rawQuery("SELECT EinnahmeZeit, EinnahmeDosis FROM MedEinnahme WHERE MedID = " + medResult.getInt(3), null);

@@ -199,7 +199,7 @@ class SMS {
                     m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getTextContent()));
                     m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getTextContent());
                     m.setEinheit(xmlMedDetails.item(EINHEIT).getTextContent());
-                    m.setStueckzahl(Integer.parseInt(xmlMedDetails.item(ANZAHL).getTextContent()));
+                    m.setStueckzahl(xmlMedDetails.item(ANZAHL).getTextContent());
 
                     MedikamentEinnahme me = new MedikamentEinnahme();
                     NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
