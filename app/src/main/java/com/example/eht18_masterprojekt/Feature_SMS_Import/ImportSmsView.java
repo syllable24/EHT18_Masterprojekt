@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,7 +42,6 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     public static final String INBOX = "content://sms/inbox";
 
     Map<String, String> smsMap;
-    List<String> smsList = new ArrayList<>();
     RecyclerView rvSmsList;
     FloatingActionButton fabRefresh;
     ProgressBar pbCheckedSms;
@@ -54,8 +54,6 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             ImportSmsView.this.finish();
         }
     };
-
-    List<String> rawSmsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +105,14 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     private void initSmsListView(){
         if (smsMap.size() > 0) {
             SmsImportRecyclerViewAdapter srav = new SmsImportRecyclerViewAdapter(smsMap, this);
-            rvSmsList.setLayoutManager(new LinearLayoutManager(this));
+            LinearLayoutManager lm = new LinearLayoutManager(this);
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                    this,
+                    lm.getOrientation());
+            rvSmsList.setLayoutManager(lm);
+            rvSmsList.addItemDecoration(dividerItemDecoration);
             rvSmsList.setAdapter(srav);
+
         }
         else{
             Toast.makeText(this, "Keine  gültige SMS gefunden!", Toast.LENGTH_SHORT).show();

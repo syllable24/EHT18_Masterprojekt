@@ -1,6 +1,7 @@
 package com.example.eht18_masterprojekt.Feature_Med_List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.util.Log;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
+import com.example.eht18_masterprojekt.Feature_SMS_Import.SmsImportRecyclerViewAdapter;
 import com.example.eht18_masterprojekt.R;
 
 import java.util.ArrayList;
@@ -82,7 +84,13 @@ public class MainActivityView extends AppCompatActivity {
         Log.d("MedList", "Display Init. MedCount: " + medList.size());
         adapter = new MedListRecyclerViewAdapter(this);
         adapter.setMedList(medList);
-        rv_medList.setLayoutManager(new LinearLayoutManager(this));
+
+        LinearLayoutManager lm = new LinearLayoutManager(this);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                this,
+                lm.getOrientation());
+        rv_medList.setLayoutManager(lm);
+        rv_medList.addItemDecoration(dividerItemDecoration);
         rv_medList.setAdapter(adapter);
     }
 

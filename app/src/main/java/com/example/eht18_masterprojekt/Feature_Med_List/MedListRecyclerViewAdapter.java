@@ -99,21 +99,22 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
             LocalTime einnahmeZeit = e.getEinnahmeZeit();
 
             if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.ic_morning);
+                ivEinnahmeIcon.setImageResource(R.mipmap.ic_morning);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(14,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.ic_midday);
+                ivEinnahmeIcon.setImageResource(R.mipmap.ic_midday);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.ic_evening);
+                ivEinnahmeIcon.setImageResource(R.mipmap.ic_evening);
             }
             else if (einnahmeZeit.compareTo(LocalTime.of(23,59, 59)) < 0){
-                ivEinnahmeIcon.setImageResource(R.drawable.ic_night);
+                ivEinnahmeIcon.setImageResource(R.mipmap.ic_night);
             }
 
             tvEinnahmeBeschreibung.setText(e.toString());
-            singleEinnahme.addView(tvEinnahmeBeschreibung);
+            tvEinnahmeBeschreibung.setTextSize(24);
             singleEinnahme.addView(ivEinnahmeIcon);
+            singleEinnahme.addView(tvEinnahmeBeschreibung);
             holder.tableMedEinnahme.addView(singleEinnahme);
         }
     }
