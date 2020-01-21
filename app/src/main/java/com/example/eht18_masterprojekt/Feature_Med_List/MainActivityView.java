@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import com.example.eht18_masterprojekt.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivityView extends AppCompatActivity {
 
@@ -33,6 +35,8 @@ public class MainActivityView extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateMedListDisplay(MedListHolder.getMedList());
+            PersistMedListTask pt = new PersistMedListTask();
+            pt.execute();
         }
     };
 
@@ -132,4 +136,17 @@ public class MainActivityView extends AppCompatActivity {
                 .setPositiveButton("OK", d)
                 .show();
     }
+
+    private class PersistMedListTask extends AsyncTask {
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            List<Medikament> medlist = MedListHolder.getMedList();
+            DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
+            da.storeMedList(medlist);
+
+            return null;
+        }
+    }
+
 }

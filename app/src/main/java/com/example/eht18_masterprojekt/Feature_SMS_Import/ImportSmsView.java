@@ -58,20 +58,15 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try{
-            initActivity();
-            boolean permission = initPermission();
-            registerReceiver(br, medListInitFilter);
+        initActivity();
+        boolean permission = initPermission();
+        registerReceiver(br, medListInitFilter);
 
-            if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
-                startSmsInit();
-            }
+        if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
+            startSmsInit();
+        }
 
-            //sendSms();
-        }
-        catch (EmptyInboxException e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        //sendSms();
     }
 
     @Override
@@ -123,7 +118,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
      * Prüfen der READ_SMS Permission. Falls eine SMS gesendet werden soll muss die SEND_SMS permission
      * eingeholt werden.
      */
-    private boolean initPermission() throws EmptyInboxException{
+    private boolean initPermission(){
         String[] permissions = {Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS}; // , Manifest.permission.SEND_SMS
 
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED)
