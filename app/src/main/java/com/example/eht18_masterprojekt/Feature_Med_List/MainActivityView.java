@@ -13,7 +13,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -30,13 +32,19 @@ public class MainActivityView extends AppCompatActivity {
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
     private boolean regBroadcastReceiver = false;
+    private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
+
     private MedListRecyclerViewAdapter adapter;
     private BroadcastReceiver br = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateMedListDisplay(MedListHolder.getMedList());
-            PersistMedListTask pt = new PersistMedListTask();
-            pt.execute();
+            if (databaseAdapter.isMedListStored()){
+                userInteractOverwriteMedList();
+            }
+            else {
+                startPersistMedList();
+            }
         }
     };
 
@@ -70,6 +78,7 @@ public class MainActivityView extends AppCompatActivity {
         if (regBroadcastReceiver) {
             unregisterReceiver(br);
         }
+        databaseAdapter.close();
     }
 
     @Override
@@ -78,6 +87,14 @@ public class MainActivityView extends AppCompatActivity {
         if (regBroadcastReceiver){
             registerReceiver(br, medListInitFilter);
         }
+    }
+
+    /**
+     * Startet das Speichern der aktuellen MedListe
+     */
+    private void startPersistMedList(){
+        PersistMedListTask pt = new PersistMedListTask();
+        pt.execute();
     }
 
     /**
@@ -108,16 +125,14 @@ public class MainActivityView extends AppCompatActivity {
      * @return Gespeicherte MedList
      */
     private List<Medikament> queryMedList(){
-        DatabaseAdapter da = new DatabaseAdapter(this);
-        da.open();
-        return da.retrieveMedList();
+        databaseAdapter.open();
+        return databaseAdapter.retrieveMedList();
     }
 
     /**
      * Anzeigen eines Dialogs, der den User Informiert, dass der SMS Import gestartet wird.
      */
     private void userInteractStartSmsImport() {
-
         // TODO: Modal machen
         DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
             @Override
@@ -137,15 +152,47 @@ public class MainActivityView extends AppCompatActivity {
                 .show();
     }
 
-    private class PersistMedListTask extends AsyncTask {
+    /**
+     * Anzeigen eines Dialogs, der den User fragt, ob die bestehende MedListe
+     * überschrieben werden soll.
+     */
+    private void userInteractOverwriteMedList() {
+        // TODO: Modal machen
+        DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        startPersistMedList();
+                        break;
+                }
+            }
+        };
 
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setMessage("Soll die bestehende Medikationsliste überschrieben werden?")
+                .setPositiveButton("Ja", d)
+                .setNegativeButton("Nein", d)
+                .show();
+    }
+
+    /**
+     * Speichert die aktuell, in MedListHolder, gesetzte Medikationsliste.
+     * Dabei wird die bestehende MedListe überschrieben.
+     */
+    private class PersistMedListTask extends AsyncTask {
         @Override
         protected Object doInBackground(Object[] objects) {
             List<Medikament> medlist = MedListHolder.getMedList();
             DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
             da.storeMedList(medlist);
-
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            Toast.makeText(MainActivityView.this, "Medikationsliste gespeichert", Toast.LENGTH_LONG).show();
         }
     }
 

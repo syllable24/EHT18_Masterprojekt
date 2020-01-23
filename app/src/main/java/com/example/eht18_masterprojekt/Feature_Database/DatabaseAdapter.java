@@ -12,6 +12,8 @@ import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +23,10 @@ public class DatabaseAdapter {
     public static SQLiteDatabase db;
     private static DatabaseHelper dbHelper;
     private Context context;
+    private boolean medListStored = false;
 
-    public static final String DB_NAME = "MedList.db";
-    public static final int DB_VERSION = 1;
+    public static final String DB_NAME = "MedList";
+    public static final int DB_VERSION = 2;
 
     public static final String TABLE_MED_LIST = "MedList";
     public static final String COL_MED_ID = "MedID";
@@ -40,10 +43,9 @@ public class DatabaseAdapter {
     public static final String COL_ALARM_ID = "AlarmID";
     public static final String COL_ALARM_ZEIT = "AlarmZeit";
 
-    public static final String DB_CREATE =
-            "CREATE TABLE " + TABLE_MED_LIST + "(" + COL_MED_ID +" integer primary key autoincrement, " + COL_MED_BEZEICHNUNG + " text, " + COL_MED_EINHEIT + " text, " + COL_MED_STUECKZAHL + " int);" +
-            "CREATE TABLE " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + "integer NOT NULL, FOREIGN KEY(" + COL_MED_EINNAHME_MED_ID + " REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "), " + COL_MED_EINNAHME_EINNAHME_ZEIT + "text, " + COL_MED_EINNAHME_EINNAHME_DOSIS +  " text);" +
-            "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + "integer primary key autoincrement, " + COL_ALARM_ZEIT + " text);";
+    public static final String DB_CREATE_TABLE_MED_LIST = "CREATE TABLE " + TABLE_MED_LIST + "(" + COL_MED_ID +" INTEGER PRIMARY KEY autoincrement, " + COL_MED_BEZEICHNUNG + " text, " + COL_MED_EINHEIT + " text, " + COL_MED_STUECKZAHL + " int);";
+    public static final String DB_CREATE_TABLE_MED_EINNAHME = "CREATE TABLE " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + " integer NOT NULL, " + COL_MED_EINNAHME_EINNAHME_ZEIT + " TEXT, " + COL_MED_EINNAHME_EINNAHME_DOSIS +  " TEXT, FOREIGN KEY(" + COL_MED_EINNAHME_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
+    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " text);";
 
     public DatabaseAdapter(Context cx){
         context = cx;
@@ -63,7 +65,13 @@ public class DatabaseAdapter {
         return db;
     }
 
-    public void storeMedList(List<Medikament> medList){
+    /**
+     * Speichern der übergebenen Medliste in SQLite DB.
+     * @param medList die gespeichert werden soll
+     * @return true, wenn medListe erfolgreich gespeichert wurde.
+     */
+    public boolean storeMedList(@NotNull List<Medikament> medList){
+        deleteCurrentMedList();
         ContentValues cvMed = new ContentValues();
         ContentValues cvEinnahme = new ContentValues();
 
@@ -85,6 +93,24 @@ public class DatabaseAdapter {
         catch (SQLException e){
             Log.e("Store MedList", e.getMessage());
         }
+        return true;
+    }
+
+    /**
+     * Löscht die bestehende MedListe aus SQLite DB.
+     */
+    private void deleteCurrentMedList() {
+        Cursor temp = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table';", null);
+        while (temp.moveToNext()){
+            for (int i = 0; i < temp.getColumnCount(); i++){
+                Log.d("DEBUG", temp.getString(i));
+            }
+        }
+
+        db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
+        db.execSQL("DELETE FROM " + TABLE_MED_LIST);
+        db.execSQL("DELETE FROM " + TABLE_ALARMS);
+        // TODO: Unregister all Alarms
     }
 
     public void storeAlarms(List alarmList){
@@ -96,10 +122,21 @@ public class DatabaseAdapter {
     }
 
     public List<Medikament> retrieveMedList(){
+        if (db == null){
+            throw new RuntimeException("No Database opened!");
+        }
         List<Medikament> retrievedMedList = new ArrayList<>();
 
         try{
-            Cursor medResult = db.rawQuery("SELECT Bezeichnung, Einheit, Stueckzahl, MedID FROM MedList",null);
+            Cursor medResult = db.rawQuery(
+                    "SELECT "
+                    + COL_MED_BEZEICHNUNG +","
+                    + COL_MED_EINHEIT + ", "
+                    + COL_MED_STUECKZAHL + ","
+                    + COL_MED_ID
+                    + " FROM "
+                    + TABLE_MED_LIST,null);
+
             while (medResult.moveToNext()){
                 Medikament m = new Medikament();
                 m.setBezeichnung(medResult.getString(0));
@@ -116,13 +153,17 @@ public class DatabaseAdapter {
                 einnahmeResult.close();
                 m.setEinnahmeZeiten(me);
                 retrievedMedList.add(m);
+                medListStored = true;
             }
             medResult.close();
-
         }
         catch(SQLException e){
             Log.e("DB-Q", e.getMessage());
         }
         return retrievedMedList;
+    }
+
+    public boolean isMedListStored() {
+        return medListStored;
     }
 }
