@@ -294,13 +294,16 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                     String receivedFrom = rawSms.get(SMS.ADDRESS);  //Für die Anzeige des Kontaktnamens: (rawSms.get(SMS.PERSON) == null) ? rawSms.get(SMS.ADDRESS) : rawSms.get(SMS.PERSON);
                     String receivedAt = rawSms.get(SMS.DATE);
                     String smsBody = rawSms.get(SMS.BODY);
+                    String firstLine[] = smsBody.split("\\R", 1);
 
-                    tempSmsMap.put(receivedFrom + " " + receivedAt, smsBody);
-                    addedSmsCount++;
-                    Log.d("SMS-Import", "SmsCount : " + addedSmsCount);
+                    if(firstLine[0].contains("<?xml version=\"1.0\"")) {
+                        tempSmsMap.put(receivedFrom + " " + receivedAt, smsBody);
+                        addedSmsCount++;
+                        Log.d("SMS-Import", "SmsCount : " + addedSmsCount);
 
-                    if ((addedSmsCount % 10 == 0) || (addedSmsCount == c.getCount())){
-                        publishProgress(addedSmsCount, c.getCount());
+                        if ((addedSmsCount % 10 == 0) || (addedSmsCount == c.getCount())) {
+                            publishProgress(addedSmsCount, c.getCount());
+                        }
                     }
                     rawSms.clear();
                 } while (c.moveToNext());
