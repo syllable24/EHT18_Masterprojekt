@@ -5,12 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,10 +42,11 @@ public class DatabaseAdapter {
     public static final String TABLE_ALARMS = "Alarms";
     public static final String COL_ALARM_ID = "AlarmID";
     public static final String COL_ALARM_ZEIT = "AlarmZeit";
+    public static final String COL_ALARM_MED_ID = "MedID";
 
     public static final String DB_CREATE_TABLE_MED_LIST = "CREATE TABLE " + TABLE_MED_LIST + "(" + COL_MED_ID +" INTEGER PRIMARY KEY autoincrement, " + COL_MED_BEZEICHNUNG + " text, " + COL_MED_EINHEIT + " text, " + COL_MED_STUECKZAHL + " int);";
     public static final String DB_CREATE_TABLE_MED_EINNAHME = "CREATE TABLE " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + " integer NOT NULL, " + COL_MED_EINNAHME_EINNAHME_ZEIT + " TEXT, " + COL_MED_EINNAHME_EINNAHME_DOSIS +  " TEXT, FOREIGN KEY(" + COL_MED_EINNAHME_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
-    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " text);";
+    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " TEXT " + COL_ALARM_MED_ID + " INTEGER);"; // TODO: Add foreign key reference
 
     public DatabaseAdapter(Context cx){
         context = cx;
@@ -67,6 +68,8 @@ public class DatabaseAdapter {
 
     /**
      * Speichern der übergebenen Medliste in SQLite DB.
+     * Aktualisieren der medIDs der Medikamente in MedList.
+     *
      * @param medList die gespeichert werden soll
      * @return true, wenn medListe erfolgreich gespeichert wurde.
      */
@@ -81,6 +84,7 @@ public class DatabaseAdapter {
                 cvMed.put(COL_MED_EINHEIT, m.getEinheit());
                 cvMed.put(COL_MED_STUECKZAHL, m.getStueckzahl());
                 long id = db.insertOrThrow(TABLE_MED_LIST, null, cvMed);
+                m.setMedId(id);
 
                 for (EinnahmeTuple et : m.getEinnahmeZeiten()) {
                     cvEinnahme.put(COL_MED_EINNAHME_MED_ID, id);
@@ -113,8 +117,14 @@ public class DatabaseAdapter {
         // TODO: Unregister all Alarms
     }
 
-    public void storeAlarms(List alarmList){
-
+    public void storeAlarms(List<MedicationAlarm> alarmList){
+        for (MedicationAlarm mea : alarmList){
+            ContentValues cv = new ContentValues();
+            cv.put(COL_ALARM_ID, mea.getAlarmID());
+            cv.put(COL_ALARM_ZEIT, mea.getAlarmTime().toString());
+            cv.put(COL_ALARM_MED_ID, mea.getAlarmID());
+            db.insertOrThrow(TABLE_ALARMS, null, cv);
+        }
     }
 
     public List retrieveAlarms(){

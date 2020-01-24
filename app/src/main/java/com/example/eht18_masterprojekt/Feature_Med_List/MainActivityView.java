@@ -13,38 +13,51 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
-import com.example.eht18_masterprojekt.Feature_SMS_Import.SmsImportRecyclerViewAdapter;
 import com.example.eht18_masterprojekt.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivityView extends AppCompatActivity {
 
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
+    private IntentFilter medListPersistedFilter = new IntentFilter("MedList_Persist_Successful");
     private boolean regBroadcastReceiver = false;
     private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
 
     private MedListRecyclerViewAdapter adapter;
-    private BroadcastReceiver br = new BroadcastReceiver() {
+
+    /**
+     * Wird aufgerufen, wenn eine neue medListe aus einer SMS importiert wurde.
+     * Überschreibt eine bereits gespeicherte MedList, startet die Alarmgenerierung
+     * und aktualisiert die Anzeige der MedList.
+     */
+    private BroadcastReceiver broadcastReceiverMedListImported = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateMedListDisplay(MedListHolder.getMedList());
+
             if (databaseAdapter.isMedListStored()){
                 userInteractOverwriteMedList();
             }
             else {
                 startPersistMedList();
             }
+        }
+    };
+
+    private BroadcastReceiver broadcastReceiverMedListStored = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            startAlarmScheduling();
         }
     };
 
@@ -76,7 +89,8 @@ public class MainActivityView extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         if (regBroadcastReceiver) {
-            unregisterReceiver(br);
+            unregisterReceiver(broadcastReceiverMedListImported);
+            unregisterReceiver(broadcastReceiverMedListStored);
         }
         databaseAdapter.close();
     }
@@ -85,8 +99,14 @@ public class MainActivityView extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         if (regBroadcastReceiver){
-            registerReceiver(br, medListInitFilter);
+            registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
+            registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
         }
+    }
+
+    private void startAlarmScheduling(){
+        ScheduleAlarmsTask st = new ScheduleAlarmsTask();
+        st.execute();
     }
 
     /**
@@ -193,7 +213,17 @@ public class MainActivityView extends AppCompatActivity {
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             Toast.makeText(MainActivityView.this, "Medikationsliste gespeichert", Toast.LENGTH_LONG).show();
+            Intent i = new Intent("MedList_Persist_Successful");
+            MainActivityView.this.sendBroadcast(i);
         }
     }
+    private class ScheduleAlarmsTask extends AsyncTask{
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            AlarmController ac = new AlarmController(MainActivityView.this);
+            ac.scheduleAlarms(MedListHolder.getMedList());
+            return null;
+        }
 
+    }
 }

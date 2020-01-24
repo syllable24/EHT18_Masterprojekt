@@ -4,22 +4,26 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-class AlarmController {
+public class AlarmController {
 
-    Context c;
+    Context context;
 
     public AlarmController(Context context){
-        c = context;
+        this.context = context;
     }
 
     /**
@@ -27,7 +31,8 @@ class AlarmController {
      * @param medList
      * @return
      */
-    boolean scheduleAlarms(List<Medikament> medList){
+    public boolean scheduleAlarms(List<Medikament> medList){
+
         boolean alarmsInitialized = determineAlarmsInitialized();
 
         if (!alarmsInitialized){
@@ -42,22 +47,27 @@ class AlarmController {
      * @param medList basis for alarm scheduling
      */
     private void createAlarms(List<Medikament> medList){
-        AlarmManager alarmManager = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        List<MedicationAlarm> alarmList = new ArrayList<>();
 
         for (Medikament med : medList){
             MedikamentEinnahme me = med.getEinnahmeZeiten();
 
             for (LocalTime dt : me.toTimeList()){
-                Intent i = new Intent(c, AlarmReceiver.class);
+                Intent i = new Intent(context, AlarmReceiver.class);
 
                 long alarmTime = toAlarmTime(dt);
 
-                // if cancelling the alarms should be needed these ids must be remembered
-                int uniqueId = (int) System.currentTimeMillis();
-                PendingIntent alarmAction = PendingIntent.getBroadcast(c, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                int uniqueId = (int) System.currentTimeMillis(); // uniqueID generiere, um den Alarm wieder deaktivieren zu können
+                PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, alarmAction);
+
+                MedicationAlarm mea = new MedicationAlarm(uniqueId, dt, med.getMedId());
+                alarmList.add(mea);
             }
         }
+        DatabaseAdapter da = new DatabaseAdapter(context);
+        da.storeAlarms(alarmList);
     }
 
     /**
@@ -92,8 +102,23 @@ class AlarmController {
         }
     }
 
+    /**
+     * Checks if alarms are set.
+     * @return true if at least one alarm is set
+     */
     private boolean determineAlarmsInitialized(){
-        // TODO: implement me
+        // TODO: Loop through possible alarms
+
+        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
+                new Intent("com.my.package.MY_UNIQUE_ACTION"), // TODO: Insert Alarm Action
+                PendingIntent.FLAG_NO_CREATE) != null);
+
+        if (alarmUp)
+        {
+            Log.d("myTag", "Alarm is already active");
+            return true;
+        }
+
         return false;
     }
 

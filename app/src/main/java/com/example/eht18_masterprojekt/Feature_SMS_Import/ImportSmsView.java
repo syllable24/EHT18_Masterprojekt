@@ -294,8 +294,8 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
                     String receivedFrom = rawSms.get(SMS.ADDRESS);  //Für die Anzeige des Kontaktnamens: (rawSms.get(SMS.PERSON) == null) ? rawSms.get(SMS.ADDRESS) : rawSms.get(SMS.PERSON);
                     String receivedAt = rawSms.get(SMS.DATE);
                     String smsBody = rawSms.get(SMS.BODY);
-                    String firstLine[] = smsBody.split("\\R", 1);
 
+                    String firstLine[] = smsBody.split("\\R", 1);
                     if(firstLine[0].contains("<?xml version=\"1.0\"")) {
                         tempSmsMap.put(receivedFrom + " " + receivedAt, smsBody);
                         addedSmsCount++;
@@ -312,6 +312,10 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             return tempSmsMap;
         }
 
+        /**
+         * Aktualisieren der Progress Bar.
+         * @param values
+         */
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
@@ -320,6 +324,10 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             updateProgressBar(addedSmsCount, values[1]);
         }
 
+        /**
+         * Anzeigen der importierbaren SMS.
+         * @param result
+         */
         @Override
         protected void onPostExecute(Map<String, String> result) {
             super.onPostExecute(result);
