@@ -10,6 +10,7 @@ import android.util.Log;
 import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 
 import org.jetbrains.annotations.NotNull;
@@ -102,28 +103,34 @@ public class DatabaseAdapter {
 
     /**
      * Löscht die bestehende MedListe aus SQLite DB.
+     * Alle Android Alarme werden gelöscht.
      */
     private void deleteCurrentMedList() {
-        Cursor temp = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table';", null);
-        while (temp.moveToNext()){
-            for (int i = 0; i < temp.getColumnCount(); i++){
-                Log.d("DEBUG", temp.getString(i));
-            }
-        }
-
         db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
         db.execSQL("DELETE FROM " + TABLE_MED_LIST);
+
+        Cursor registeredAlarmIds = db.rawQuery("SELECT " + COL_ALARM_ID + " FROM " + TABLE_ALARMS, null);
+        List<Integer> alarmIds = new ArrayList<>();
+
+        while (registeredAlarmIds.moveToNext()){
+            alarmIds.add(registeredAlarmIds.getInt(0));
+        }
+        AlarmController ac = new AlarmController(context);
+        ac.unregisterScheduledAlarms(alarmIds);
+
         db.execSQL("DELETE FROM " + TABLE_ALARMS);
-        // TODO: Unregister all Alarms
     }
 
-    public void storeAlarms(List<MedicationAlarm> alarmList){
+    public void storeAlarms(@NotNull List<MedicationAlarm> alarmList){
         for (MedicationAlarm mea : alarmList){
-            ContentValues cv = new ContentValues();
-            cv.put(COL_ALARM_ID, mea.getAlarmID());
-            cv.put(COL_ALARM_ZEIT, mea.getAlarmTime().toString());
-            cv.put(COL_ALARM_MED_ID, mea.getAlarmID());
-            db.insertOrThrow(TABLE_ALARMS, null, cv);
+            if (mea.getMedToTakeID() != 0) {
+                ContentValues cv = new ContentValues();
+                cv.put(COL_ALARM_ID, mea.getAlarmID());
+                cv.put(COL_ALARM_ZEIT, mea.getAlarmTime().toString());
+                cv.put(COL_ALARM_MED_ID, mea.getAlarmID());
+                db.insertOrThrow(TABLE_ALARMS, null, cv);
+            }
+            else throw new IllegalArgumentException(mea.toString() + " has no medID, store in DB first!");
         }
     }
 

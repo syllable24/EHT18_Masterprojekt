@@ -4,12 +4,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -21,33 +22,18 @@ import java.util.List;
 public class AlarmController {
 
     Context context;
+    AlarmManager alarmManager;
 
     public AlarmController(Context context){
         this.context = context;
-    }
-
-    /**
-     * Determines if alarms are already initialized.
-     * @param medList
-     * @return
-     */
-    public boolean scheduleAlarms(List<Medikament> medList){
-
-        boolean alarmsInitialized = determineAlarmsInitialized();
-
-        if (!alarmsInitialized){
-            createAlarms(medList);
-            return true;
-        }
-        else return false;
+        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     }
 
     /**
      * Schedules android-alarms based on given List.
      * @param medList basis for alarm scheduling
      */
-    private void createAlarms(List<Medikament> medList){
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    public void createAlarms(@NotNull List<Medikament> medList){
         List<MedicationAlarm> alarmList = new ArrayList<>();
 
         for (Medikament med : medList){
@@ -58,7 +44,7 @@ public class AlarmController {
 
                 long alarmTime = toAlarmTime(dt);
 
-                int uniqueId = (int) System.currentTimeMillis(); // uniqueID generiere, um den Alarm wieder deaktivieren zu können
+                int uniqueId = (int) System.currentTimeMillis(); // uniqueID generieren, um den Alarm wieder deaktivieren zu können
                 PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, alarmAction);
 
@@ -103,23 +89,22 @@ public class AlarmController {
     }
 
     /**
-     * Checks if alarms are set.
-     * @return true if at least one alarm is set
+     * Löscht alle Android-Alarme der App.
+     * @return Number of cancelled Alarms.
      */
-    private boolean determineAlarmsInitialized(){
-        // TODO: Loop through possible alarms
+    public int unregisterScheduledAlarms(List<Integer> registeredAlarmIds) {
+        int i = 0;
 
-        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
-                new Intent("com.my.package.MY_UNIQUE_ACTION"), // TODO: Insert Alarm Action
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        if (alarmUp)
-        {
-            Log.d("myTag", "Alarm is already active");
-            return true;
+        //Get Alarm Intents identified by uniqueID.
+        for (int uniqueId : registeredAlarmIds) {
+            // PendingIntent, der den Alarm erzeugt hat rekonstruieren und schauen, ob dieser registriert ist.
+            PendingIntent pi = PendingIntent.getBroadcast(context, uniqueId, new Intent(context, AlarmReceiver.class), PendingIntent.FLAG_NO_CREATE);
+            boolean alarmUp = (pi != null);
+            if (alarmUp) {
+                alarmManager.cancel(pi);
+                i++;
+            }
         }
-
-        return false;
+        return i;
     }
-
 }

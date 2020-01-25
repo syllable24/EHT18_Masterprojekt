@@ -221,7 +221,7 @@ public class MainActivityView extends AppCompatActivity {
         @Override
         protected Object doInBackground(Object[] objects) {
             AlarmController ac = new AlarmController(MainActivityView.this);
-            ac.scheduleAlarms(MedListHolder.getMedList());
+            ac.createAlarms(MedListHolder.getMedList());
             return null;
         }
 
