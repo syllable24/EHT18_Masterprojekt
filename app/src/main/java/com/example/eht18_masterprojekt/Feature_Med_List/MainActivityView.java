@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
@@ -21,6 +22,7 @@ import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +32,10 @@ public class MainActivityView extends AppCompatActivity {
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
     private IntentFilter medListPersistedFilter = new IntentFilter("MedList_Persist_Successful");
-    private boolean regBroadcastReceiver = false;
+    private boolean commandRegisterBroadcastReceiver = false;
+    private boolean broadcastReceiversRegistered = false;
     private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
+    private FloatingActionButton fab;
 
     private MedListRecyclerViewAdapter adapter;
 
@@ -61,25 +65,47 @@ public class MainActivityView extends AppCompatActivity {
         }
     };
 
+    /**
+     * Einlesen der GUI Elemente.
+     */
+    private void initActivity(){
+        rv_medList = findViewById(R.id.rv_med_list);
+        fab = findViewById(R.id.fabStartSmsImport);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!broadcastReceiversRegistered){
+                    registerSmsImportBroadcastReceivers();
+                }
+                startSmsImport();
+            }
+        });
+    }
+
+    /**
+     * Setzen der MedList. Zuerst wird versucht, eine MedList aus der SQLite DB auszulesen.
+     * Falls das nicht möglich ist, wird der SMS Import gestartet und die dafür notwendigen
+     * BroadcastReceiver registriert. Siehe: {@link #broadcastReceiverMedListImported} und
+     * {@link #broadcastReceiverMedListStored}
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         boolean medListFound = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        rv_medList = findViewById(R.id.rv_med_list);
-
+        initActivity();
         List<Medikament> medList = queryMedList();
 
         if (medList.size() == 0){
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
             // Broadcast von "MedList_Init_Successful" aktualisiert werden kann.
-            regBroadcastReceiver = true;
-            userInteractStartSmsImport();
+            startSmsImport();
             initMedListDisplay(new ArrayList<Medikament>());
         }
         else{
-            // Recyclerview gleich mit Daten befüllen.
             MedListHolder.setMedList(medList);
             initMedListDisplay(medList);
         }
@@ -88,9 +114,10 @@ public class MainActivityView extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (regBroadcastReceiver) {
+        if (commandRegisterBroadcastReceiver) {
             unregisterReceiver(broadcastReceiverMedListImported);
             unregisterReceiver(broadcastReceiverMedListStored);
+            broadcastReceiversRegistered = false;
         }
         databaseAdapter.close();
     }
@@ -98,10 +125,19 @@ public class MainActivityView extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        if (regBroadcastReceiver){
-            registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
-            registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
+        if (commandRegisterBroadcastReceiver) {
+            registerSmsImportBroadcastReceivers();
         }
+    }
+
+    /**
+     * Registrieren der Broadcastreceiver die für den SMS Import
+     * notwendig sind.
+     */
+    private void registerSmsImportBroadcastReceivers(){
+        registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
+        registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
+        broadcastReceiversRegistered = true;
     }
 
     private void startAlarmScheduling(){
@@ -152,8 +188,9 @@ public class MainActivityView extends AppCompatActivity {
     /**
      * Anzeigen eines Dialogs, der den User Informiert, dass der SMS Import gestartet wird.
      */
-    private void userInteractStartSmsImport() {
+    private void startSmsImport() {
         // TODO: Modal machen
+        commandRegisterBroadcastReceiver = true;
         DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
