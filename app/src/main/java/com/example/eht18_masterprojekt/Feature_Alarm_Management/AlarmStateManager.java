@@ -14,6 +14,6 @@ public class AlarmStateManager extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         AlarmController ac = new AlarmController(context);
         // TODO: Get med List
-        boolean success = ac.scheduleAlarms(null);
+        //boolean success = ac.scheduleAlarms(null);
     }
 }

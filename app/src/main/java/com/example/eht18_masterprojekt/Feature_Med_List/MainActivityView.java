@@ -58,6 +58,11 @@ public class MainActivityView extends AppCompatActivity {
         }
     };
 
+    /**
+     * Wird aufgerufen, sobald eine medListe in DB gespeichert wurde und somit
+     * alle Meds eine medID von der DB erhalten haben. Basierend auf der
+     * globalen medListe werden die Alarme initialisiert.
+     */
     private BroadcastReceiver broadcastReceiverMedListStored = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -92,10 +97,11 @@ public class MainActivityView extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        boolean medListFound = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        databaseAdapter.open();
+        databaseAdapter.emptyDatabase();
         initActivity();
         List<Medikament> medList = queryMedList();
 

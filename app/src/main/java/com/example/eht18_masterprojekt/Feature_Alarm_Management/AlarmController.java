@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
@@ -12,6 +13,7 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,10 +32,14 @@ public class AlarmController {
     }
 
     /**
-     * Schedules android-alarms based on given List.
+     * Basierend auf übergebener MedListe Alarme für die einzelnen
+     * Medikamente erstellten
      * @param medList basis for alarm scheduling
      */
     public void createAlarms(@NotNull List<Medikament> medList){
+
+        //TODO: Add Group Alarms for meds with the same alarmTime.
+
         List<MedicationAlarm> alarmList = new ArrayList<>();
 
         for (Medikament med : medList){
@@ -44,9 +50,12 @@ public class AlarmController {
 
                 long alarmTime = toAlarmTime(dt);
 
-                int uniqueId = (int) System.currentTimeMillis(); // uniqueID generieren, um den Alarm wieder deaktivieren zu können
+                // uniqueID generieren, um den Alarm wieder deaktivieren zu können
+                int uniqueId = (int) System.currentTimeMillis();
+
                 PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, alarmAction);
+                Log.d("ALARM-INIT", "Alarm um: " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(alarmTime)) + " für: " + med.getBezeichnung() + " gestellt");
 
                 MedicationAlarm mea = new MedicationAlarm(uniqueId, dt, med.getMedId());
                 alarmList.add(mea);
@@ -57,10 +66,11 @@ public class AlarmController {
     }
 
     /**
-     * Returns Millisecond-Time on which an Alarm can be scheduled based on the given Time.
-     * Determines if the Alarm will be scheduled on the current day or the next day.
+     * Konvertiert die übergebene LocalTime zu einem long, der die kommende Einnahmezeit
+     * eines Medikaments repräsentiert. Dabei wird geprüft, ob die Zeit für den aktuellen
+     * oder den kommenden Tag gesetzt werden muss.
      *
-     * @param scheduledTime: Time at which a drug must be taken e.g. at 10:00 every day
+     * @param scheduledTime: Uhrzeit um die ein Medikament eingenommen werden muss, Bsp. 10:00
      * @return
      */
     private long toAlarmTime(LocalTime scheduledTime){
@@ -77,13 +87,15 @@ public class AlarmController {
         Date currentTime = new Date();
 
         if (scheduleCurrentDay > currentTime.getTime()){
-            // Alarm can be set for current day
+            // Zeit für den aktuellen Tag setzen
+            Log.d("CONVERT-TIME", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleCurrentDay)) + " konvertiert");
             return scheduleCurrentDay;
         }
         else {
-            // Alarm must be set for the next day
+            // Zeit für den kommenden Tag setzen
             midnight.add(Calendar.DAY_OF_MONTH, 1);
             long scheduleNextDay = midnight.getTime().getTime();
+            Log.d("CONVERT-TIME", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleNextDay)) + " konvertiert");
             return scheduleNextDay;
         }
     }

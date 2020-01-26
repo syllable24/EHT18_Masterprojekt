@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.setVersion(DatabaseAdapter.DB_VERSION);
             db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_ALARMS);
             db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_MED_LIST);
-            db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_MED_EINNAHME); // TODO: Throws SyntaxError...
+            db.execSQL(DatabaseAdapter.DB_CREATE_TABLE_MED_EINNAHME);
         }
         catch(SQLException e){
             Log.e("DB", e.getMessage());

@@ -27,7 +27,7 @@ public class DatabaseAdapter {
     private boolean medListStored = false;
 
     public static final String DB_NAME = "MedList";
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
 
     public static final String TABLE_MED_LIST = "MedList";
     public static final String COL_MED_ID = "MedID";
@@ -47,7 +47,7 @@ public class DatabaseAdapter {
 
     public static final String DB_CREATE_TABLE_MED_LIST = "CREATE TABLE " + TABLE_MED_LIST + "(" + COL_MED_ID +" INTEGER PRIMARY KEY autoincrement, " + COL_MED_BEZEICHNUNG + " text, " + COL_MED_EINHEIT + " text, " + COL_MED_STUECKZAHL + " int);";
     public static final String DB_CREATE_TABLE_MED_EINNAHME = "CREATE TABLE " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + " integer NOT NULL, " + COL_MED_EINNAHME_EINNAHME_ZEIT + " TEXT, " + COL_MED_EINNAHME_EINNAHME_DOSIS +  " TEXT, FOREIGN KEY(" + COL_MED_EINNAHME_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
-    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " TEXT " + COL_ALARM_MED_ID + " INTEGER);"; // TODO: Add foreign key reference
+    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " TEXT, " + COL_ALARM_MED_ID + " INTEGER, FOREIGN KEY(" + COL_ALARM_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
 
     public DatabaseAdapter(Context cx){
         context = cx;
@@ -92,6 +92,7 @@ public class DatabaseAdapter {
                     cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_ZEIT, et.getEinnahmeZeit().toString());
                     cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_DOSIS, et.getEinnahmeDosis());
                     db.insertOrThrow(TABLE_MED_EINNAHME, null, cvEinnahme);
+                    Log.d("PERSIST-MED", "Med-Einnahme für: " + m.getBezeichnung() + " um " + et.getEinnahmeZeit().toString() + " mit ID: " + id + " gespeichert");
                 }
             }
         }
@@ -121,13 +122,19 @@ public class DatabaseAdapter {
         db.execSQL("DELETE FROM " + TABLE_ALARMS);
     }
 
+    public void emptyDatabase(){
+        db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
+        db.execSQL("DELETE FROM " + TABLE_MED_LIST);
+        db.execSQL("DELETE FROM " + TABLE_ALARMS);
+    }
+
     public void storeAlarms(@NotNull List<MedicationAlarm> alarmList){
         for (MedicationAlarm mea : alarmList){
             if (mea.getMedToTakeID() != 0) {
                 ContentValues cv = new ContentValues();
                 cv.put(COL_ALARM_ID, mea.getAlarmID());
                 cv.put(COL_ALARM_ZEIT, mea.getAlarmTime().toString());
-                cv.put(COL_ALARM_MED_ID, mea.getAlarmID());
+                cv.put(COL_ALARM_MED_ID, mea.getMedToTakeID());
                 db.insertOrThrow(TABLE_ALARMS, null, cv);
             }
             else throw new IllegalArgumentException(mea.toString() + " has no medID, store in DB first!");
