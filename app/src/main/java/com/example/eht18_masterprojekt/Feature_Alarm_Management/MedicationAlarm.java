@@ -6,12 +6,16 @@ public class MedicationAlarm {
     private long alarmID;
     private LocalTime alarmTime;
     private long medToTakeID;
+    private String medToTakeName;
 
-    public MedicationAlarm(long alarmID, LocalTime alarmTime, long medToTakeID) {
+    public MedicationAlarm(long alarmID, LocalTime alarmTime, long medToTakeID, String medToTakeName) {
         this.alarmID = alarmID;
         this.alarmTime = alarmTime;
         this.medToTakeID = medToTakeID;
+        this.medToTakeName = medToTakeName;
     }
+
+    public String getMedToTakeName() {return medToTakeName;}
 
     public long getAlarmID() {
         return alarmID;

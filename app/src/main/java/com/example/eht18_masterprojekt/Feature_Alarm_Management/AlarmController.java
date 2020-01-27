@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -33,7 +34,7 @@ public class AlarmController {
 
     /**
      * Basierend auf übergebener MedListe Alarme für die einzelnen
-     * Medikamente erstellten
+     * Medikamente erstellen.
      * @param medList basis for alarm scheduling
      */
     public void createAlarms(@NotNull List<Medikament> medList){
@@ -46,23 +47,23 @@ public class AlarmController {
             MedikamentEinnahme me = med.getEinnahmeZeiten();
 
             for (LocalTime dt : me.toTimeList()){
-                Intent i = new Intent(context, AlarmReceiver.class);
-
                 long alarmTime = toAlarmTime(dt);
 
                 // uniqueID generieren, um den Alarm wieder deaktivieren zu können
                 int uniqueId = (int) System.currentTimeMillis();
 
+                Intent i = new Intent(context, AlarmReceiver.class);
                 PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, alarmAction);
                 Log.d("ALARM-INIT", "Alarm um: " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(alarmTime)) + " für: " + med.getBezeichnung() + " gestellt");
 
-                MedicationAlarm mea = new MedicationAlarm(uniqueId, dt, med.getMedId());
+                MedicationAlarm mea = new MedicationAlarm(uniqueId, dt, med.getMedId(), med.getBezeichnung());
                 alarmList.add(mea);
             }
         }
         DatabaseAdapter da = new DatabaseAdapter(context);
         da.storeAlarms(alarmList);
+        GlobalListHolder.setAlarmList(alarmList);
     }
 
     /**

@@ -1,22 +1,29 @@
 package com.example.eht18_masterprojekt.Feature_Med_List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -28,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityView extends AppCompatActivity {
+
+    private static final int NOTIFICATION_ID = 1;
 
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
@@ -47,7 +56,7 @@ public class MainActivityView extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiverMedListImported = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateMedListDisplay(MedListHolder.getMedList());
+            updateMedListDisplay(GlobalListHolder.getMedList());
 
             if (databaseAdapter.isMedListStored()){
                 userInteractOverwriteMedList();
@@ -100,6 +109,7 @@ public class MainActivityView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        createNotificationChannel();
         databaseAdapter.open();
         databaseAdapter.emptyDatabase();
         initActivity();
@@ -112,7 +122,7 @@ public class MainActivityView extends AppCompatActivity {
             initMedListDisplay(new ArrayList<Medikament>());
         }
         else{
-            MedListHolder.setMedList(medList);
+            GlobalListHolder.setMedList(medList);
             initMedListDisplay(medList);
         }
     }
@@ -240,13 +250,34 @@ public class MainActivityView extends AppCompatActivity {
     }
 
     /**
-     * Speichert die aktuell, in MedListHolder, gesetzte Medikationsliste.
+     * Einrichten eines Notification Channels zum Darstellen von Notifications
+     * für Android 8.0 und höher.
+     */
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Dauermedikationsliste";
+            String description = "Dauermedikationsliste";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("medList", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
+    /**
+     * Speichert die aktuell, in GlobalListHolder, gesetzte Medikationsliste.
      * Dabei wird die bestehende MedListe überschrieben.
      */
     private class PersistMedListTask extends AsyncTask {
         @Override
         protected Object doInBackground(Object[] objects) {
-            List<Medikament> medlist = MedListHolder.getMedList();
+            List<Medikament> medlist = GlobalListHolder.getMedList();
             DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
             da.storeMedList(medlist);
             return null;
@@ -264,9 +295,31 @@ public class MainActivityView extends AppCompatActivity {
         @Override
         protected Object doInBackground(Object[] objects) {
             AlarmController ac = new AlarmController(MainActivityView.this);
-            ac.createAlarms(MedListHolder.getMedList());
+            ac.createAlarms(GlobalListHolder.getMedList());
             return null;
         }
 
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            String strContentText = "Testmessage";
+
+
+
+
+            Intent i = new Intent(MainActivityView.this, MainActivityView.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(MainActivityView.this, 0, i, 0);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivityView.this, "medList");
+            builder.setContentTitle("Dauermedikationsalarme")
+                   .setContentText(strContentText)
+                    .setSmallIcon(R.mipmap.ic_info)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
+
+            NotificationManagerCompat nm = NotificationManagerCompat.from(MainActivityView.this);
+            nm.notify(NOTIFICATION_ID, builder.build());
+        }
     }
 }

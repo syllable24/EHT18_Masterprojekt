@@ -11,11 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AlertDialogLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.eht18_masterprojekt.Feature_Med_List.MedListHolder;
+import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.R;
 
 import java.text.SimpleDateFormat;
@@ -92,7 +90,7 @@ public class SmsImportRecyclerViewAdapter extends RecyclerView.Adapter<SmsImport
                                                 .buildOrdinationsInformationen()
                                                 .getSms();
 
-                                        MedListHolder.setMedList(result.getMedList());
+                                        GlobalListHolder.setMedList(result.getMedList());
 
                                         Intent intent = new Intent();
                                         intent.setAction("MedList_Init_Successful");

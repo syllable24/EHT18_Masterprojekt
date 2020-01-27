@@ -8,6 +8,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // TODO: Play Alarm and display message what med to take
 
     }
 }
