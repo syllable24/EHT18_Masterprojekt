@@ -3,12 +3,12 @@ package com.example.eht18_masterprojekt.Feature_Alarm_Management;
 import java.time.LocalTime;
 
 public class MedicationAlarm {
-    private long alarmID;
+    private int alarmID;
     private LocalTime alarmTime;
     private long medToTakeID;
     private String medToTakeName;
 
-    public MedicationAlarm(long alarmID, LocalTime alarmTime, long medToTakeID, String medToTakeName) {
+    public MedicationAlarm(int alarmID, LocalTime alarmTime, long medToTakeID, String medToTakeName) {
         this.alarmID = alarmID;
         this.alarmTime = alarmTime;
         this.medToTakeID = medToTakeID;
@@ -17,7 +17,7 @@ public class MedicationAlarm {
 
     public String getMedToTakeName() {return medToTakeName;}
 
-    public long getAlarmID() {
+    public int getAlarmID() {
         return alarmID;
     }
 

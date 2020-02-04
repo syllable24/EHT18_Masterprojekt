@@ -12,14 +12,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <receiver
-            android:name=".Feature_Alarm_Management.AlarmReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
-        <receiver
-            android:name=".Feature_Alarm_Management.AlarmStateManager"
-            android:enabled="true"
-            android:exported="true" />
+
+        <receiver android:name=".Feature_Alarm_Management.AlarmReceiver" android:enabled="true">
+            <intent-filter >
+                <action android:name ="MedAlarm"></action>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".Feature_Med_List.MedListDisplayView"
@@ -36,6 +34,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".Feature_Alarm_Management.AlarmMusicService">
+        </service>
+
     </application>
 
 </manifest>

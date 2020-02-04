@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
@@ -91,7 +92,7 @@ public class MainActivityView extends AppCompatActivity {
                 if (!broadcastReceiversRegistered){
                     registerSmsImportBroadcastReceivers();
                 }
-                startSmsImport();
+                showSmsImportDialog();
             }
         });
     }
@@ -111,19 +112,33 @@ public class MainActivityView extends AppCompatActivity {
 
         createNotificationChannel();
         databaseAdapter.open();
-        databaseAdapter.emptyDatabase();
+        //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
         initActivity();
-        List<Medikament> medList = queryMedList();
 
-        if (medList.size() == 0){
+        GlobalListHolder.init(databaseAdapter);
+
+        if (GlobalListHolder.getMedList().size() == 0){
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
             // Broadcast von "MedList_Init_Successful" aktualisiert werden kann.
-            startSmsImport();
+            showSmsImportDialog();
             initMedListDisplay(new ArrayList<Medikament>());
         }
         else{
-            GlobalListHolder.setMedList(medList);
-            initMedListDisplay(medList);
+
+            //TODO: Test this
+
+            initMedListDisplay(GlobalListHolder.getMedList());
+            displayMedListNotification();
+
+            if(GlobalListHolder.getAlarmList().size() != 0) {
+                AlarmController ac = new AlarmController(this);
+
+                boolean alarmsRegistered = ac.checkAlarmsRegistered(GlobalListHolder.getAlarmList());
+
+                if (!alarmsRegistered) {
+                    ac.registerAlarms(GlobalListHolder.getMedList());
+                }
+            }
         }
     }
 
@@ -174,7 +189,7 @@ public class MainActivityView extends AppCompatActivity {
      * @param medList
      */
     private void initMedListDisplay(List<Medikament> medList){
-        Log.d("MedList", "Display Init. MedCount: " + medList.size());
+        Log.d("APP", "Display Init. MedCount: " + medList.size());
         adapter = new MedListRecyclerViewAdapter(this);
         adapter.setMedList(medList);
 
@@ -197,15 +212,13 @@ public class MainActivityView extends AppCompatActivity {
      * @return Gespeicherte MedList
      */
     private List<Medikament> queryMedList(){
-        databaseAdapter.open();
         return databaseAdapter.retrieveMedList();
     }
 
     /**
      * Anzeigen eines Dialogs, der den User Informiert, dass der SMS Import gestartet wird.
      */
-    private void startSmsImport() {
-        // TODO: Modal machen
+    private void showSmsImportDialog() {
         commandRegisterBroadcastReceiver = true;
         DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
             @Override
@@ -222,6 +235,7 @@ public class MainActivityView extends AppCompatActivity {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage("Keine Med Liste vorhanden, der SMS Import wird gestartet.")
                 .setPositiveButton("OK", d)
+                .setCancelable(false)
                 .show();
     }
 
@@ -230,7 +244,6 @@ public class MainActivityView extends AppCompatActivity {
      * überschrieben werden soll.
      */
     private void userInteractOverwriteMedList() {
-        // TODO: Modal machen
         DialogInterface.OnClickListener d = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -246,7 +259,29 @@ public class MainActivityView extends AppCompatActivity {
         b.setMessage("Soll die bestehende Medikationsliste überschrieben werden?")
                 .setPositiveButton("Ja", d)
                 .setNegativeButton("Nein", d)
+                .setCancelable(false)
                 .show();
+    }
+
+    /**
+     * Anzeigen der medList Notification.
+     */
+    private void displayMedListNotification(){
+        String strContentText = "Dauermedikationsalarme werden ausgelöst.";
+
+        Intent i = new Intent(MainActivityView.this, MainActivityView.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivityView.this, 0, i, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivityView.this, "medList");
+        builder.setContentTitle("Dauermedikationsalarme")
+                .setContentText(strContentText)
+                .setSmallIcon(R.mipmap.ic_info)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat nm = NotificationManagerCompat.from(MainActivityView.this);
+        nm.notify(NOTIFICATION_ID, builder.build());
     }
 
     /**
@@ -268,7 +303,6 @@ public class MainActivityView extends AppCompatActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
-
 
     /**
      * Speichert die aktuell, in GlobalListHolder, gesetzte Medikationsliste.
@@ -295,31 +329,20 @@ public class MainActivityView extends AppCompatActivity {
         @Override
         protected Object doInBackground(Object[] objects) {
             AlarmController ac = new AlarmController(MainActivityView.this);
-            ac.createAlarms(GlobalListHolder.getMedList());
+
+            List<MedicationAlarm> alarmList = ac.registerAlarms(GlobalListHolder.getMedList());
+            DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
+            da.storeAlarms(alarmList);
+            GlobalListHolder.setAlarmList(alarmList);
             return null;
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            String strContentText = "Testmessage";
 
-
-
-
-            Intent i = new Intent(MainActivityView.this, MainActivityView.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(MainActivityView.this, 0, i, 0);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivityView.this, "medList");
-            builder.setContentTitle("Dauermedikationsalarme")
-                   .setContentText(strContentText)
-                    .setSmallIcon(R.mipmap.ic_info)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
-
-            NotificationManagerCompat nm = NotificationManagerCompat.from(MainActivityView.this);
-            nm.notify(NOTIFICATION_ID, builder.build());
+            displayMedListNotification();
+            //startAlarmReceiverService();
         }
     }
 }

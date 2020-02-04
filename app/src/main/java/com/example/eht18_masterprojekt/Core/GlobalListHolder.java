@@ -2,6 +2,7 @@ package com.example.eht18_masterprojekt.Core;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import java.util.List;
 
@@ -30,5 +31,10 @@ public class GlobalListHolder {
             globalAlarmList = alarmList;
         }
         else throw new RuntimeException("Tried to overwrite existing AlarmList");
+    }
+
+    public static void init(DatabaseAdapter da){
+        globalMedList = da.retrieveMedList();
+        globalAlarmList = da.retrieveAlarms();
     }
 }

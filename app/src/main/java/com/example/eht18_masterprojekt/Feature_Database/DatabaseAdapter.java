@@ -141,8 +141,31 @@ public class DatabaseAdapter {
         }
     }
 
-    public List retrieveAlarms(){
-        return null;
+    /**
+     * Auslesen der gespeicherten Alarme.
+     * @return Liste an Alarmen
+     */
+    public List<MedicationAlarm> retrieveAlarms(){
+        List<MedicationAlarm> temp = new ArrayList<>();
+        Cursor c = db.rawQuery("SELECT " + COL_ALARM_ID + ", " + COL_ALARM_MED_ID + ", " + COL_ALARM_ZEIT + " FROM " + TABLE_ALARMS, null);
+
+        while (c.moveToNext()){
+            Log.d("APP", "Values AlarmID: " + c.getLong(0) + " MedID: " + c.getLong(1) + " AlarmZeit: " + c.getString(2));
+            Cursor cSingleValue = db.rawQuery("SELECT " + COL_MED_BEZEICHNUNG + " FROM " + TABLE_MED_LIST + " WHERE " + COL_MED_ID + " = " + c.getLong(1), null);
+            cSingleValue.moveToNext();
+            if (cSingleValue.isAfterLast()) throw new RuntimeException("MedID " + c.getLong(0) + " ist nicht in MedList!");
+
+            String medToTakeName = cSingleValue.getString(0);
+            MedicationAlarm mea
+                    = new MedicationAlarm(c.getInt(0)
+                                        , LocalTime.parse(c.getString(2))
+                                        , c.getLong(1)
+                                        , medToTakeName);
+            temp.add(mea);
+            cSingleValue.close();
+        }
+        c.close();
+        return temp;
     }
 
     public List<Medikament> retrieveMedList(){
