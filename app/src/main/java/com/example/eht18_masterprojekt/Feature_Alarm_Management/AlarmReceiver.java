@@ -38,7 +38,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         builder.setContentTitle("Dauermedikationsalarme")
                 .setContentText(strContentText)
                 .setSmallIcon(R.mipmap.ic_info)
-                .setContentIntent(pendingIntent)
+                .setDeleteIntent(pendingIntent)
                 .setAutoCancel(true);
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);

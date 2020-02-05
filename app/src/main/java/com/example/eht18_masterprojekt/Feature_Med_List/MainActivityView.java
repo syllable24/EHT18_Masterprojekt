@@ -1,23 +1,16 @@
 package com.example.eht18_masterprojekt.Feature_Med_List;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,8 +18,9 @@ import android.widget.Toast;
 
 import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
+import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
-import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.ScheduleAlarmsTask;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
@@ -42,10 +36,12 @@ public class MainActivityView extends AppCompatActivity {
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
     private IntentFilter medListPersistedFilter = new IntentFilter("MedList_Persist_Successful");
+    private IntentFilter alarmsScheduledFilter = new IntentFilter(ScheduleAlarmsTask.ACTION_ALARMS_SCHEDULED);
     private boolean commandRegisterBroadcastReceiver = false;
     private boolean broadcastReceiversRegistered = false;
     private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
     private FloatingActionButton fab;
+    private NotificationController notificationController;
 
     private MedListRecyclerViewAdapter adapter;
 
@@ -68,6 +64,13 @@ public class MainActivityView extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver broadcastReceiverAlarmsScheduled = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            notificationController.displayMedListNotification(NOTIFICATION_ID);
+        }
+    };
+
     /**
      * Wird aufgerufen, sobald eine medListe in DB gespeichert wurde und somit
      * alle Meds eine medID von der DB erhalten haben. Basierend auf der
@@ -76,6 +79,7 @@ public class MainActivityView extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiverMedListStored = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Toast.makeText(MainActivityView.this, "Medikationsliste gespeichert", Toast.LENGTH_LONG).show();
             startAlarmScheduling();
         }
     };
@@ -90,11 +94,12 @@ public class MainActivityView extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!broadcastReceiversRegistered){
-                    registerSmsImportBroadcastReceivers();
+                    registerBroadcastReceivers();
                 }
                 showSmsImportDialog();
             }
         });
+        notificationController = new NotificationController(this);
     }
 
     /**
@@ -110,25 +115,21 @@ public class MainActivityView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createNotificationChannel();
         databaseAdapter.open();
         //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
         initActivity();
 
         GlobalListHolder.init(databaseAdapter);
 
-        if (GlobalListHolder.getMedList().size() == 0){
+        if (GlobalListHolder.isMedListSet()){
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
             // Broadcast von "MedList_Init_Successful" aktualisiert werden kann.
             showSmsImportDialog();
             initMedListDisplay(new ArrayList<Medikament>());
         }
         else{
-
-            //TODO: Test this
-
             initMedListDisplay(GlobalListHolder.getMedList());
-            displayMedListNotification();
+            notificationController.displayMedListNotification(NOTIFICATION_ID);
 
             if(GlobalListHolder.getAlarmList().size() != 0) {
                 AlarmController ac = new AlarmController(this);
@@ -148,6 +149,7 @@ public class MainActivityView extends AppCompatActivity {
         if (commandRegisterBroadcastReceiver) {
             unregisterReceiver(broadcastReceiverMedListImported);
             unregisterReceiver(broadcastReceiverMedListStored);
+            unregisterReceiver(broadcastReceiverAlarmsScheduled);
             broadcastReceiversRegistered = false;
         }
         databaseAdapter.close();
@@ -157,22 +159,22 @@ public class MainActivityView extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         if (commandRegisterBroadcastReceiver) {
-            registerSmsImportBroadcastReceivers();
+            registerBroadcastReceivers();
         }
     }
 
     /**
-     * Registrieren der Broadcastreceiver die für den SMS Import
-     * notwendig sind.
+     * Registrieren der Broadcastreceiver
      */
-    private void registerSmsImportBroadcastReceivers(){
+    private void registerBroadcastReceivers(){
         registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
         registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
+        registerReceiver(broadcastReceiverAlarmsScheduled, alarmsScheduledFilter);
         broadcastReceiversRegistered = true;
     }
 
     private void startAlarmScheduling(){
-        ScheduleAlarmsTask st = new ScheduleAlarmsTask();
+        ScheduleAlarmsTask st = new ScheduleAlarmsTask(this, databaseAdapter);
         st.execute();
     }
 
@@ -180,7 +182,7 @@ public class MainActivityView extends AppCompatActivity {
      * Startet das Speichern der aktuellen MedListe
      */
     private void startPersistMedList(){
-        PersistMedListTask pt = new PersistMedListTask();
+        PersistMedListTask pt = new PersistMedListTask(this, databaseAdapter);
         pt.execute();
     }
 
@@ -261,88 +263,5 @@ public class MainActivityView extends AppCompatActivity {
                 .setNegativeButton("Nein", d)
                 .setCancelable(false)
                 .show();
-    }
-
-    /**
-     * Anzeigen der medList Notification.
-     */
-    private void displayMedListNotification(){
-        String strContentText = "Dauermedikationsalarme werden ausgelöst.";
-
-        Intent i = new Intent(MainActivityView.this, MainActivityView.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivityView.this, 0, i, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivityView.this, "medList");
-        builder.setContentTitle("Dauermedikationsalarme")
-                .setContentText(strContentText)
-                .setSmallIcon(R.mipmap.ic_info)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat nm = NotificationManagerCompat.from(MainActivityView.this);
-        nm.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    /**
-     * Einrichten eines Notification Channels zum Darstellen von Notifications
-     * für Android 8.0 und höher.
-     */
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Dauermedikationsliste";
-            String description = "Dauermedikationsliste";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("medList", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-    /**
-     * Speichert die aktuell, in GlobalListHolder, gesetzte Medikationsliste.
-     * Dabei wird die bestehende MedListe überschrieben.
-     */
-    private class PersistMedListTask extends AsyncTask {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            List<Medikament> medlist = GlobalListHolder.getMedList();
-            DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
-            da.storeMedList(medlist);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-            Toast.makeText(MainActivityView.this, "Medikationsliste gespeichert", Toast.LENGTH_LONG).show();
-            Intent i = new Intent("MedList_Persist_Successful");
-            MainActivityView.this.sendBroadcast(i);
-        }
-    }
-    private class ScheduleAlarmsTask extends AsyncTask{
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            AlarmController ac = new AlarmController(MainActivityView.this);
-
-            List<MedicationAlarm> alarmList = ac.registerAlarms(GlobalListHolder.getMedList());
-            DatabaseAdapter da = new DatabaseAdapter(MainActivityView.this);
-            da.storeAlarms(alarmList);
-            GlobalListHolder.setAlarmList(alarmList);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-
-            displayMedListNotification();
-            //startAlarmReceiverService();
-        }
     }
 }

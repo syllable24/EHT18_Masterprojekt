@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
@@ -26,15 +29,12 @@ public class AlarmMusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
-
-            if (!mediaPlayer.isPlaying()) {
-                mediaPlayer = MediaPlayer.create(this, R.raw.money_alarm); //TODO: Insert professional alarm
-                mediaPlayer.setLooping(true);
-                mediaPlayer.start();
-                vat = new VolumeAdjusterTask();
-                vat.execute();
-            }
-
+            Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            mediaPlayer = MediaPlayer.create(this, alarmTone);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.start();
+            vat = new VolumeAdjusterTask();
+            vat.execute();
         }
         catch (Exception e) {
             Log.e("APP", "Can't open Alarm-Music File");
@@ -73,9 +73,10 @@ public class AlarmMusicService extends Service {
             try {
                 for (int i = 0; i < 5; i++) {
                     mediaPlayer.setVolume(currVolume, maxVolume);
-                    Thread.sleep(1000 * 120); // Wait for 2 minutes
+                    Thread.sleep(1000 * 60); // Wait for 1 minute
                     currVolume += 0.1;
                 }
+                AlarmMusicService.this.stopSelf(); // Cancel Alarm after 5 Minutes
             }
             catch (InterruptedException e){
                 Log.e("APP", "AlarmVolumeManagerTask interrupted");
