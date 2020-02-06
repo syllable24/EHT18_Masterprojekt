@@ -142,6 +142,47 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Retourniert das Medikament der übergebenen medID mit der Einnahmedosis für die übergebene
+     * Einnahmezeit.
+     *
+     * @param medID
+     * @param einnahmeZeit
+     * @return Medikament mit einer Einnahmedosis
+     */
+    public Medikament retrieveMedikamentWithEinnahmeDosis(long medID, String einnahmeZeit){
+        String queryMed =
+                "SELECT "
+                    + COL_MED_ID
+                    + ", " + COL_MED_BEZEICHNUNG
+                    + ", " + COL_MED_STUECKZAHL
+                    + ", " + COL_MED_EINHEIT
+                    + ", " + COL_MED_EINNAHME_EINNAHME_DOSIS
+                + " FROM "
+                    + TABLE_MED_LIST
+                    + " INNER JOIN "
+                        + TABLE_MED_EINNAHME + " USING("+ COL_MED_ID +")"
+                + " WHERE "
+                    + COL_MED_ID + " = " + medID
+                    + " AND " + COL_MED_EINNAHME_EINNAHME_ZEIT + " = '" + einnahmeZeit + "'";
+
+        Cursor c = db.rawQuery(queryMed, null);
+        Medikament m = new Medikament();
+        MedikamentEinnahme mea = new MedikamentEinnahme();
+
+        if (c.moveToNext()){
+            m.setMedId(c.getLong(0));
+            m.setBezeichnung(c.getString(1));
+            m.setStueckzahl(c.getString(2));
+            m.setEinheit(c.getString(3));
+            mea.add(LocalTime.parse(einnahmeZeit), c.getString(4));
+            m.setEinnahmeZeiten(mea);
+        }
+        c.close();
+
+        return m;
+    }
+
+    /**
      * Auslesen der gespeicherten Alarme.
      * @return Liste an Alarmen
      */
@@ -153,7 +194,7 @@ public class DatabaseAdapter {
             Log.d("APP", "Values AlarmID: " + c.getLong(0) + " MedID: " + c.getLong(1) + " AlarmZeit: " + c.getString(2));
             Cursor cSingleValue = db.rawQuery("SELECT " + COL_MED_BEZEICHNUNG + " FROM " + TABLE_MED_LIST + " WHERE " + COL_MED_ID + " = " + c.getLong(1), null);
             cSingleValue.moveToNext();
-            if (cSingleValue.isAfterLast()) throw new RuntimeException("MedID " + c.getLong(0) + " ist nicht in MedList!");
+            if (cSingleValue.isAfterLast()) throw new RuntimeException("MedID " + c.getLong(0) + " is not in MedList!");
 
             String medToTakeName = cSingleValue.getString(0);
             MedicationAlarm mea
@@ -189,7 +230,7 @@ public class DatabaseAdapter {
                 m.setBezeichnung(medResult.getString(0));
                 m.setEinheit(medResult.getString(1));
                 m.setStueckzahl(medResult.getString(2));
-                m.setPharmazentralnummer(medResult.getInt(3));
+                m.setMedId(medResult.getInt(3));
 
                 Cursor einnahmeResult = db.rawQuery("SELECT EinnahmeZeit, EinnahmeDosis FROM MedEinnahme WHERE MedID = " + medResult.getInt(3), null);
                 MedikamentEinnahme me = new MedikamentEinnahme();

@@ -18,6 +18,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent startMusicService = new Intent(context, AlarmMusicService.class);
+        startMusicService.putExtras(intent);
         context.startService(startMusicService);
 
         displayMedAlarmNotification(context ,intent.getExtras().getString("medName"));

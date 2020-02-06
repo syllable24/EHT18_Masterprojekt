@@ -10,6 +10,8 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmMusicService;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 import com.example.eht18_masterprojekt.R;
 
@@ -66,4 +68,31 @@ public class NotificationController {
             notificationChannelCreated = true;
         }
     }
+
+    /**
+     * Anzeigen einer Notification für einen Med-Einnahme Alarm.
+     *
+     * @param notificationID
+     * @param medName
+     * @param medAnzahl
+     * @param medEinheit
+     */
+    public void displayAlarmNotification(int notificationID, String medName, String medAnzahl, String medEinheit){
+        // TODO: Service Intent must be explicit - Test this
+        Intent i = new Intent(context, AlarmMusicService.class);
+        i.setAction(AlarmMusicService.ACTION_STOP_ALARM);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
+        builder.setContentTitle(medName + " einnehmen")
+                .setContentText("Bitte " + medAnzahl + " " + medEinheit + " " + medName + " einnehmen")
+                .setSmallIcon(R.mipmap.ic_info)
+                .setDeleteIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+        nm.notify(notificationID, builder.build());
+    }
+
 }

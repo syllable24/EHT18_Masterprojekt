@@ -61,4 +61,17 @@ public class MedikamentEinnahme implements Iterable<EinnahmeTuple>{
         return result;
     }
 
+    /**
+     * Retournieren der Einnahmedosis zur übergebenen Zeit.
+     * @param lt
+     * @return Einnahmedosis
+     */
+    public String getEinnahmeDosis(LocalTime lt){
+        for (EinnahmeTuple et : einnahmeProtokoll){
+            if(et.getEinnahmeZeit() == lt){
+                return et.einnahmeDosis;
+            }
+        }
+        throw new RuntimeException("LocalTime not found");
+    }
 }

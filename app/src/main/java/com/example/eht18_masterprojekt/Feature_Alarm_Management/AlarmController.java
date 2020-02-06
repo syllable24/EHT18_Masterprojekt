@@ -25,6 +25,8 @@ public class AlarmController {
     AlarmManager alarmManager;
     public static final int FULL_DAY_MILLIS = 1000 * 60 * 60 * 24;
     public static final String ACTION_MED_ALARM = "MedAlarm";
+    public static final String ALARM_INTENT_EXTRA_MED_ID = "medID";
+    public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT = "medEinnahmeZeit";
 
     public AlarmController(Context context){
         this.context = context;
@@ -70,8 +72,8 @@ public class AlarmController {
 
         Intent i = new Intent(context, AlarmReceiver.class);
         i.setAction(ACTION_MED_ALARM);
-        i.putExtra("medName", med.getBezeichnung());
-        i.putExtra("medID", med.getMedId());
+        i.putExtra(ALARM_INTENT_EXTRA_MED_ID, med.getMedId());
+        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT, lt.toString());
 
         PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);

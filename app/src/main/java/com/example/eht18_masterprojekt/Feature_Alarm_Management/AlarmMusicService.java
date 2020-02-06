@@ -5,9 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,30 +14,39 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.example.eht18_masterprojekt.R;
+import com.example.eht18_masterprojekt.Core.Medikament;
+import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
+import com.example.eht18_masterprojekt.Core.NotificationController;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
+
+import java.time.LocalTime;
 
 public class AlarmMusicService extends Service {
+    private static final int ALARM_NOTIFICATION_ID = 100;
+    public static final String ACTION_STOP_ALARM = "Stop_Alarm";
+
     MediaPlayer mediaPlayer;
     VolumeAdjusterTask vat;
     AlarmMusicServiceStopBroadcastReceiver stopServiceReceiver = new AlarmMusicServiceStopBroadcastReceiver();
 
-    public static final String ACTION_STOP_ALARM = "Stop_Alarm";
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        try {
-            registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
-            Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-            mediaPlayer = MediaPlayer.create(this, alarmTone);
-            mediaPlayer.setLooping(true);
-            mediaPlayer.start();
-            vat = new VolumeAdjusterTask();
-            vat.execute();
+        if (intent.getLongExtra(AlarmController.ALARM_INTENT_EXTRA_MED_ID, 0) == 0){
+            Log.e("APP", "Received undefined Med");
+            this.stopSelf();
         }
-        catch (Exception e) {
-            Log.e("APP", "Can't open Alarm-Music File");
-            e.printStackTrace();
-        }
+
+        registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
+
+        displayNotification(intent);
+
+        Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        mediaPlayer = MediaPlayer.create(this, alarmTone);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+
+        vat = new VolumeAdjusterTask();
+        vat.execute();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -84,5 +91,26 @@ public class AlarmMusicService extends Service {
             }
             return null;
         }
+    }
+
+    /**
+     * Anzeigen der Notification für das Medikament, dass den Alarm ausgelöst hat.
+     * @param intent
+     */
+    private void displayNotification(Intent intent){
+        // TODO: Keeps receiving some null meds
+
+        long medID = intent.getLongExtra(AlarmController.ALARM_INTENT_EXTRA_MED_ID, 0);
+        String medEinnahmeZeit = intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT);
+
+        DatabaseAdapter da = new DatabaseAdapter(this);
+        da.open();
+        Medikament med = da.retrieveMedikamentWithEinnahmeDosis(medID, medEinnahmeZeit);
+        da.close();
+
+        MedikamentEinnahme mea = med.getEinnahmeZeiten();
+        String einnahmeDosis = mea.getEinnahmeDosis(LocalTime.parse(medEinnahmeZeit));
+
+        new NotificationController(this).displayAlarmNotification(ALARM_NOTIFICATION_ID, med.getBezeichnung(), einnahmeDosis , med.getEinheit());
     }
 }
