@@ -78,7 +78,7 @@ public class AlarmController {
         PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);
 
-        Log.d("APP", "Alarm um: " + new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(testAlarmTime)) + " für: " + med.getBezeichnung() + " gestellt");
+        Log.d("APP", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
 
         MedicationAlarm mea = new MedicationAlarm(uniqueId, lt, med.getMedId(), med.getBezeichnung());
 
@@ -90,7 +90,7 @@ public class AlarmController {
      * eines Medikaments repräsentiert. Dabei wird geprüft, ob die Zeit für den aktuellen
      * oder den kommenden Tag gesetzt werden muss.
      *
-     * @param scheduledTime: Uhrzeit um die ein Medikament eingenommen werden muss, Bsp. 10:00
+     * @param scheduledTime: Uhrzeit, um die ein Medikament eingenommen werden muss, Bsp. 10:00
      * @return
      */
     private long toAlarmTime(LocalTime scheduledTime){
@@ -108,14 +108,14 @@ public class AlarmController {
 
         if (scheduleCurrentDay > currentTime.getTime()){
             // Zeit für den aktuellen Tag setzen
-            Log.d("APP", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleCurrentDay)) + " konvertiert");
+            //Log.d("APP", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleCurrentDay)) + " konvertiert");
             return scheduleCurrentDay;
         }
         else {
             // Zeit für den kommenden Tag setzen
             midnight.add(Calendar.DAY_OF_MONTH, 1);
             long scheduleNextDay = midnight.getTime().getTime();
-            Log.d("APP", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleNextDay)) + " konvertiert");
+            //Log.d("APP", scheduledTime.toString() + " zu " + new SimpleDateFormat("yyyy.MM.dd HH:mm").format(new Date(scheduleNextDay)) + " konvertiert");
             return scheduleNextDay;
         }
     }
@@ -138,14 +138,6 @@ public class AlarmController {
             //}
         }
         return i;
-    }
-
-    /**
-     * Registriert den nächsten Alarm für das übergebene Medikament
-     *
-     * @param med
-     */
-    public void scheduleNextAlarm(Medikament med){
     }
 
     /**

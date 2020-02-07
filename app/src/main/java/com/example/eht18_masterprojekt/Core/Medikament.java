@@ -41,6 +41,16 @@ public class Medikament {
     @NonNull
     @Override
     public String toString() {
-        return super.toString();
+        String temp = "";
+        temp += getBezeichnung();
+        temp += " ";
+        temp += getStueckzahl();
+        temp += " ";
+        temp += getEinheit();
+        temp += " ";
+        temp += " ID: " + getMedId();
+        temp += " EinnahmeZeiten: ";
+        temp += einnahmeZeiten.toString();
+        return temp;
     }
 }

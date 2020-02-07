@@ -176,6 +176,7 @@ public class DatabaseAdapter {
             m.setEinheit(c.getString(3));
             mea.add(LocalTime.parse(einnahmeZeit), c.getString(4));
             m.setEinnahmeZeiten(mea);
+            Log.d("APP-DatabaseAdapter",m.toString());
         }
         c.close();
 

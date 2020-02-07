@@ -19,6 +19,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".Core.NotificationController$NotificationDeletedBroadcastreceiver">
+            <intent-filter >
+                <action android:name ="notificationDeleted"></action>
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".Feature_Med_List.MedListDisplayView"
             android:label="@string/title_activity_med_list_display"

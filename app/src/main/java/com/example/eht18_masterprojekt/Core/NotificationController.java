@@ -3,15 +3,16 @@ package com.example.eht18_masterprojekt.Core;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmMusicService;
-import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 import com.example.eht18_masterprojekt.R;
 
@@ -19,6 +20,7 @@ public class NotificationController {
 
     Context context;
     static boolean notificationChannelCreated;
+    private static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
 
     public NotificationController(Context ctx){
         this.context = ctx;
@@ -70,7 +72,8 @@ public class NotificationController {
     }
 
     /**
-     * Anzeigen einer Notification für einen Med-Einnahme Alarm.
+     * Anzeigen einer Notification für einen Med-Einnahme Alarm. Registriert einen BroadcastReceiver
+     * zum Stoppen des AlarmServices nach entfernen der Notification.
      *
      * @param notificationID
      * @param medName
@@ -78,21 +81,29 @@ public class NotificationController {
      * @param medEinheit
      */
     public void displayAlarmNotification(int notificationID, String medName, String medAnzahl, String medEinheit){
-        // TODO: Service Intent must be explicit - Test this
-        Intent i = new Intent(context, AlarmMusicService.class);
-        i.setAction(AlarmMusicService.ACTION_STOP_ALARM);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent i = new Intent(ACTION_NOTIFICATION_DELETED);
+        i.putExtra("notificationID", notificationID);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, 0);
 
+        // TODO: Sendet keinen Intent wenn beendet.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
         builder.setContentTitle(medName + " einnehmen")
                 .setContentText("Bitte " + medAnzahl + " " + medEinheit + " " + medName + " einnehmen")
                 .setSmallIcon(R.mipmap.ic_info)
-                .setDeleteIntent(pendingIntent)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.notify(notificationID, builder.build());
+    }
+
+    public static class NotificationDeletedBroadcastreceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent i = new Intent(context, AlarmMusicService.class);
+            context.stopService(i);
+        }
     }
 
 }

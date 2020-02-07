@@ -21,28 +21,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         startMusicService.putExtras(intent);
         context.startService(startMusicService);
 
-        displayMedAlarmNotification(context ,intent.getExtras().getString("medName"));
-        Log.d("APP", "Med Alarm für: " + intent.getExtras().getString("medName") + " erhalten");
-    }
-
-    /**
-     * Anzeigen der medList Notification.
-     */
-    private void displayMedAlarmNotification(Context context, String medBezeichnung){
-        String strContentText = "Med Alarm für " + medBezeichnung + " ausgelöst";
-
-        Intent i = new Intent(AlarmMusicService.ACTION_STOP_ALARM);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,0,i,0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
-        builder.setContentTitle("Dauermedikationsalarme")
-                .setContentText(strContentText)
-                .setSmallIcon(R.mipmap.ic_info)
-                .setDeleteIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-        nm.notify(NOTIFICATION_ID, builder.build());
+        Log.d("APP", "Med Alarm für MedID: " + intent.getExtras().getLong(AlarmController.ALARM_INTENT_EXTRA_MED_ID) + " erhalten");
     }
 }
