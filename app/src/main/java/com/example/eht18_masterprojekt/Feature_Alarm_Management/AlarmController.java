@@ -66,7 +66,8 @@ public class AlarmController {
     private MedicationAlarm registerIndivAlarm(Medikament med, LocalTime lt){
         long alarmTime = toAlarmTime(lt);
         long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
-
+        Date display = new Date(testAlarmTime);
+        Log.d("APP", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
         // uniqueID generieren, um den Alarm wieder deaktivieren zu können
         int uniqueId = (int) System.currentTimeMillis();
 

@@ -3,16 +3,14 @@ package com.example.eht18_masterprojekt.Core;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmMusicService;
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 import com.example.eht18_masterprojekt.R;
 
@@ -20,7 +18,8 @@ public class NotificationController {
 
     Context context;
     static boolean notificationChannelCreated;
-    private static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
+    public static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
+    public static final String EXTRA_NOTIFICATION_ID = "notificationID";
 
     public NotificationController(Context ctx){
         this.context = ctx;
@@ -72,8 +71,7 @@ public class NotificationController {
     }
 
     /**
-     * Anzeigen einer Notification für einen Med-Einnahme Alarm. Registriert einen BroadcastReceiver
-     * zum Stoppen des AlarmServices nach entfernen der Notification.
+     * Anzeigen einer Notification für einen Med-Einnahme Alarm.
      *
      * @param notificationID
      * @param medName
@@ -81,29 +79,22 @@ public class NotificationController {
      * @param medEinheit
      */
     public void displayAlarmNotification(int notificationID, String medName, String medAnzahl, String medEinheit){
-        Intent i = new Intent(ACTION_NOTIFICATION_DELETED);
-        i.putExtra("notificationID", notificationID);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-        // TODO: Sendet keinen Intent wenn beendet.
+        // TODO: Multiple Notifications get grouped together, leading to cancelling them as one -> only one Broadcast gets sent.
+
+        Intent i = new Intent(context, NotificationDeletedReceiver.class);
+        i.putExtra(EXTRA_NOTIFICATION_ID, notificationID);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
         builder.setContentTitle(medName + " einnehmen")
                 .setContentText("Bitte " + medAnzahl + " " + medEinheit + " " + medName + " einnehmen")
                 .setSmallIcon(R.mipmap.ic_info)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+                .setDeleteIntent(pendingIntent);
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.notify(notificationID, builder.build());
+
+        Log.d("APP", "Notification ID: " + notificationID + " wird angezeigt");
     }
-
-    public static class NotificationDeletedBroadcastreceiver extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Intent i = new Intent(context, AlarmMusicService.class);
-            context.stopService(i);
-        }
-    }
-
 }

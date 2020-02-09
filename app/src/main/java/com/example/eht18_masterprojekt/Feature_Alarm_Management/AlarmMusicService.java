@@ -37,33 +37,28 @@ public class AlarmMusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
+        registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
 
         displayNotification(intent);
 
-        Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        mediaPlayer = MediaPlayer.create(this, alarmTone);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start();
+        if (mediaPlayer == null) {
+            Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            mediaPlayer = MediaPlayer.create(this, alarmTone);
+            mediaPlayer.setLooping(true);
+        }
 
-        vat = new VolumeAdjusterTask();
-        vat.execute();
+        if (mediaPlayer.isPlaying() != true) {
+            mediaPlayer.start();
+            vat = new VolumeAdjusterTask();
+            vat.execute();
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
-    public boolean stopService(Intent name) {
-        Integer notificationIDCancelled = name.getIntExtra("notificationID", 0);
-
-        if(notificationIDCancelled != 0){
-            activeNotificationIDs.remove(notificationIDCancelled);
-            Integer max = Collections.max(activeNotificationIDs);
-            notificationID = max;
-        }
-
-        mediaPlayer.stop();
-        vat.cancel(true);
-        return super.stopService(name);
+    public void onDestroy() {
+        unregisterReceiver(stopServiceReceiver);
+        super.onDestroy();
     }
 
     @Nullable
@@ -72,13 +67,31 @@ public class AlarmMusicService extends Service {
         return null;
     }
 
-    class AlarmMusicServiceStopBroadcastReceiver extends BroadcastReceiver{
+    /**
+     * Alternative zu stopService(). Beendet den Alarm-Ton, unterbricht den VolumeAdjusterTask und
+     * löscht die NotificationID der ID aus activeNotificationIDs.
+     */
+    public class AlarmMusicServiceStopBroadcastReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            stopService(intent);
+
+            Integer notificationIDCancelled = intent.getIntExtra("notificationID", 0);
+
+            if(notificationIDCancelled != 0){
+                activeNotificationIDs.remove(notificationIDCancelled);
+                Integer max = Collections.max(activeNotificationIDs);
+                notificationID = max;
+            }
+
+            mediaPlayer.stop();
+            vat.cancel(true);
+            AlarmMusicService.this.stopSelf();
         }
     }
 
+    /**
+     * Graduelles erhöhen der Lautstärke des Alarms. Beendet den Alarm nach 5 Minuten.
+     */
     class VolumeAdjusterTask extends AsyncTask{
         @Override
         protected Object doInBackground(Object[] objects) {
@@ -105,8 +118,6 @@ public class AlarmMusicService extends Service {
      * @param intent
      */
     private void displayNotification(Intent intent){
-        // TODO: Keeps receiving some null meds
-
         long medID = intent.getLongExtra(AlarmController.ALARM_INTENT_EXTRA_MED_ID, 0);
         String medEinnahmeZeit = intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT);
 
@@ -126,6 +137,5 @@ public class AlarmMusicService extends Service {
 
         activeNotificationIDs.add(new Integer(notificationID++));
         nc.displayAlarmNotification(notificationID, med.getBezeichnung(), einnahmeDosis , med.getEinheit());
-        Log.d("APP-AlarmMusicService", "Notification ID: " + notificationID + " displayed");
     }
 }

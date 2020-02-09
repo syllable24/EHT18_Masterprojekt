@@ -19,10 +19,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".Core.NotificationController$NotificationDeletedBroadcastreceiver">
-            <intent-filter >
-                <action android:name ="notificationDeleted"></action>
-            </intent-filter>
+        <receiver android:name=".Core.NotificationDeletedReceiver">
         </receiver>
 
         <activity

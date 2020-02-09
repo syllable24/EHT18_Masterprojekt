@@ -1,15 +1,10 @@
 package com.example.eht18_masterprojekt.Feature_Alarm_Management;
 
-import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-
-import com.example.eht18_masterprojekt.R;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
