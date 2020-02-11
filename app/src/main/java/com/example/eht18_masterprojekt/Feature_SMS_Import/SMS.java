@@ -6,7 +6,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
-import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Core.OrdinationsInformationen;
 import com.example.eht18_masterprojekt.R;
 
@@ -29,7 +28,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import mf.javax.xml.parsers.ParserConfigurationException;
 import mf.javax.xml.transform.Source;
 import mf.javax.xml.transform.stream.StreamSource;
 import mf.javax.xml.validation.Schema;
@@ -187,6 +185,12 @@ class SMS {
             xmlSms.medList = parseMedList(adds);
         }
 
+        /**
+         * Einlesen der Medikamente und deren Einnahmezeiten aus übergebener XML-NodeList.
+         *
+         * @param medList
+         * @return Medikationsliste
+         */
         private List<Medikament> parseMedList(NodeList medList){
             List<Medikament> xmlMedList = new ArrayList<>();
             try {
@@ -195,28 +199,27 @@ class SMS {
                     Node xmlMedikament = medList.item(i);
                     NodeList xmlMedDetails = xmlMedikament.getChildNodes();
 
-                    Medikament m = new Medikament();
-                    m.setPharmazentralnummer(Integer.parseInt(xmlMedDetails.item(PZN).getTextContent()));
-                    m.setBezeichnung(xmlMedDetails.item(BEZEICHNUNG).getTextContent());
-                    m.setEinheit(xmlMedDetails.item(EINHEIT).getTextContent());
-                    m.setStueckzahl(xmlMedDetails.item(ANZAHL).getTextContent());
+                    Medikament m = new Medikament(
+                             xmlMedDetails.item(BEZEICHNUNG).getTextContent()
+                            ,xmlMedDetails.item(EINHEIT).getTextContent()
+                            ,xmlMedDetails.item(ANZAHL).getTextContent()
+                    );
 
-                    MedikamentEinnahme me = new MedikamentEinnahme();
                     NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
 
+                    // In einer XML-SMS kann ein EinnahmeProtokoll nur diese 4 Einträge haben.
                     if (xmlEinnahmeDetails.item(FRUEH).getTextContent().equals("1")) {
-                        me.add(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
                     }
                     if (xmlEinnahmeDetails.item(MITTAG).getTextContent().equals("1")) {
-                        me.add(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
                     }
                     if (xmlEinnahmeDetails.item(ABEND).getTextContent().equals("1")) {
-                        me.add(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
                     }
                     if (xmlEinnahmeDetails.item(NACHT).getTextContent().equals("1")) {
-                        me.add(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
                     }
-                    m.setEinnahmeZeiten(me);
                     xmlMedList.add(m);
                     Log.d("MED-INIT", "Med " + m.getBezeichnung() + " eingelesen!");
                 }

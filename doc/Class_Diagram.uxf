@@ -205,7 +205,7 @@ pharmazentralnummer : long
 bezeichnung : String
 einheit : String
 stueckzahl : long
-einnahmeZeiten : MedikamentEinnahmeZeiten
+einnahmeProtokoll : MedikamentEinnahmeZeiten
 dosierung : MedikamentDosierung
 --
 ^+ toString() : String

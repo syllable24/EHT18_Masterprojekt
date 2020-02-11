@@ -14,7 +14,7 @@ import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmMusicServic
 public class NotificationDeletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("APP", "NotificationID: " + intent.getLongExtra(NotificationController.EXTRA_NOTIFICATION_ID, 0) +  " gelöscht");
+        Log.d("APP", "NotificationID: " + intent.getIntExtra(NotificationController.EXTRA_NOTIFICATION_ID, 0) +  " gelöscht");
         Intent i = new Intent(AlarmMusicService.ACTION_STOP_ALARM);
         i.putExtras(intent);
         context.sendBroadcast(i);

@@ -15,14 +15,10 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
-import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 public class AlarmMusicService extends Service {
     private static Integer notificationID = 100;
@@ -33,13 +29,11 @@ public class AlarmMusicService extends Service {
     AlarmMusicServiceStopBroadcastReceiver stopServiceReceiver = new AlarmMusicServiceStopBroadcastReceiver();
     NotificationController nc;
 
-    ArrayList<Integer> activeNotificationIDs = new ArrayList<>();
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
 
-        displayNotification(intent);
+        displayAlarmTriggeredNotification(intent);
 
         if (mediaPlayer == null) {
             Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -77,12 +71,6 @@ public class AlarmMusicService extends Service {
 
             Integer notificationIDCancelled = intent.getIntExtra("notificationID", 0);
 
-            if(notificationIDCancelled != 0){
-                activeNotificationIDs.remove(notificationIDCancelled);
-                Integer max = Collections.max(activeNotificationIDs);
-                notificationID = max;
-            }
-
             mediaPlayer.stop();
             vat.cancel(true);
             AlarmMusicService.this.stopSelf();
@@ -117,7 +105,7 @@ public class AlarmMusicService extends Service {
      * Anzeigen der Notification für das Medikament, dass den Alarm ausgelöst hat.
      * @param intent
      */
-    private void displayNotification(Intent intent){
+    private void displayAlarmTriggeredNotification(Intent intent){
         long medID = intent.getLongExtra(AlarmController.ALARM_INTENT_EXTRA_MED_ID, 0);
         String medEinnahmeZeit = intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT);
 
@@ -130,12 +118,10 @@ public class AlarmMusicService extends Service {
         Medikament med = da.retrieveMedikamentWithEinnahmeDosis(medID, medEinnahmeZeit);
         da.close();
 
-        MedikamentEinnahme mea = med.getEinnahmeZeiten();
-        String einnahmeDosis = mea.getEinnahmeDosis(LocalTime.parse(medEinnahmeZeit));
+        // TODO: medEinnahme hat keine notificationID
+        Medikament.MedEinnahme medEinnahme = med.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit));
 
         nc = new NotificationController(this);
-
-        activeNotificationIDs.add(new Integer(notificationID++));
-        nc.displayAlarmNotification(notificationID, med.getBezeichnung(), einnahmeDosis , med.getEinheit());
+        nc.displayMedEinnahmeReminder(medEinnahme.getNotificationID(), med.getBezeichnung(), medEinnahme.getEinnahmeDosis(), med.getEinheit());
     }
 }

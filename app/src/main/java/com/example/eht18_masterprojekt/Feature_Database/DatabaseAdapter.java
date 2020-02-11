@@ -7,9 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
-import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 
@@ -84,15 +82,16 @@ public class DatabaseAdapter {
                 cvMed.put(COL_MED_BEZEICHNUNG, m.getBezeichnung());
                 cvMed.put(COL_MED_EINHEIT, m.getEinheit());
                 cvMed.put(COL_MED_STUECKZAHL, m.getStueckzahl());
-                long id = db.insertOrThrow(TABLE_MED_LIST, null, cvMed);
-                m.setMedId(id);
+                long medID = db.insertOrThrow(TABLE_MED_LIST, null, cvMed);
+                m.setMedId(medID);
 
-                for (EinnahmeTuple et : m.getEinnahmeZeiten()) {
-                    cvEinnahme.put(COL_MED_EINNAHME_MED_ID, id);
-                    cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_ZEIT, et.getEinnahmeZeit().toString());
-                    cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_DOSIS, et.getEinnahmeDosis());
-                    db.insertOrThrow(TABLE_MED_EINNAHME, null, cvEinnahme);
-                    Log.d("PERSIST-MED", "Med-Einnahme für: " + m.getBezeichnung() + " um " + et.getEinnahmeZeit().toString() + " mit ID: " + id + " gespeichert");
+                for (Medikament.MedEinnahme medEinnahme : m.getEinnahmeProtokoll()) {
+                    cvEinnahme.put(COL_MED_EINNAHME_MED_ID, medID);
+                    cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_ZEIT, medEinnahme.getEinnahmeZeit().toString());
+                    cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_DOSIS, medEinnahme.getEinnahmeDosis());
+                    long einnahmeID = db.insertOrThrow(TABLE_MED_EINNAHME, null, cvEinnahme);
+                    medEinnahme.setEinnahmeID(einnahmeID);
+                    Log.d("APP-PERSIST-MED", "Med-Einnahme für: " + m.getBezeichnung() + " um " + medEinnahme.getEinnahmeZeit().toString() + " mit ID: " + medID + " gespeichert");
                 }
             }
         }
@@ -128,16 +127,17 @@ public class DatabaseAdapter {
         db.execSQL("DELETE FROM " + TABLE_ALARMS);
     }
 
-    public void storeAlarms(@NotNull List<MedicationAlarm> alarmList){
-        for (MedicationAlarm mea : alarmList){
-            if (mea.getMedToTakeID() != 0) {
+    public void storeAlarms(@NotNull List<Medikament> medList){
+        // TODO: Test this
+        for (Medikament med : medList){
+            if (med.getMedId() == 0) throw new RuntimeException(med.toString() + " has no medID, store in DB first!");
+            for (Medikament.MedEinnahme mea : med.getEinnahmeProtokoll()) {
                 ContentValues cv = new ContentValues();
                 cv.put(COL_ALARM_ID, mea.getAlarmID());
-                cv.put(COL_ALARM_ZEIT, mea.getAlarmTime().toString());
-                cv.put(COL_ALARM_MED_ID, mea.getMedToTakeID());
+                cv.put(COL_ALARM_ZEIT, mea.getEinnahmeZeit().toString());
+                cv.put(COL_ALARM_MED_ID, med.getMedId());
                 db.insertOrThrow(TABLE_ALARMS, null, cv);
             }
-            else throw new IllegalArgumentException(mea.toString() + " has no medID, store in DB first!");
         }
     }
 
@@ -150,12 +150,13 @@ public class DatabaseAdapter {
      * @return Medikament mit einer Einnahmedosis
      */
     public Medikament retrieveMedikamentWithEinnahmeDosis(long medID, String einnahmeZeit){
+        // TODO: Also Select notificationID of MedEinnahme
         String queryMed =
                 "SELECT "
                     + COL_MED_ID
                     + ", " + COL_MED_BEZEICHNUNG
-                    + ", " + COL_MED_STUECKZAHL
                     + ", " + COL_MED_EINHEIT
+                    + ", " + COL_MED_STUECKZAHL
                     + ", " + COL_MED_EINNAHME_EINNAHME_DOSIS
                 + " FROM "
                     + TABLE_MED_LIST
@@ -166,90 +167,80 @@ public class DatabaseAdapter {
                     + " AND " + COL_MED_EINNAHME_EINNAHME_ZEIT + " = '" + einnahmeZeit + "'";
 
         Cursor c = db.rawQuery(queryMed, null);
-        Medikament m = new Medikament();
-        MedikamentEinnahme mea = new MedikamentEinnahme();
 
         if (c.moveToNext()){
-            m.setMedId(c.getLong(0));
-            m.setBezeichnung(c.getString(1));
-            m.setStueckzahl(c.getString(2));
-            m.setEinheit(c.getString(3));
-            mea.add(LocalTime.parse(einnahmeZeit), c.getString(4));
-            m.setEinnahmeZeiten(mea);
-            Log.d("APP-DatabaseAdapter",m.toString());
-        }
-        c.close();
+            Medikament m = new Medikament(
+                      c.getInt(0)
+                    , c.getString(1)
+                    , c.getString(2)
+                    , c.getString(3)
+            );
 
-        return m;
+
+            m.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(einnahmeZeit), c.getString(4));
+            Log.d("APP-DatabaseAdapter",m.toString());
+            c.close();
+            return m;
+        }
+        else throw new RuntimeException("Kein Med für medID: " + medID + " und einnahmeZeit: " + einnahmeZeit + " gefunden.");
     }
 
     /**
-     * Auslesen der gespeicherten Alarme.
-     * @return Liste an Alarmen
+     * Einlesen einer bestehenden MedListe aus DB.
+     *
+     * @return eingelesene MedList
      */
-    public List<MedicationAlarm> retrieveAlarms(){
-        List<MedicationAlarm> temp = new ArrayList<>();
-        Cursor c = db.rawQuery("SELECT " + COL_ALARM_ID + ", " + COL_ALARM_MED_ID + ", " + COL_ALARM_ZEIT + " FROM " + TABLE_ALARMS, null);
-
-        while (c.moveToNext()){
-            Log.d("APP", "Values AlarmID: " + c.getLong(0) + " MedID: " + c.getLong(1) + " AlarmZeit: " + c.getString(2));
-            Cursor cSingleValue = db.rawQuery("SELECT " + COL_MED_BEZEICHNUNG + " FROM " + TABLE_MED_LIST + " WHERE " + COL_MED_ID + " = " + c.getLong(1), null);
-            cSingleValue.moveToNext();
-            if (cSingleValue.isAfterLast()) throw new RuntimeException("MedID " + c.getLong(0) + " is not in MedList!");
-
-            String medToTakeName = cSingleValue.getString(0);
-            MedicationAlarm mea
-                    = new MedicationAlarm(c.getInt(0)
-                                        , LocalTime.parse(c.getString(2))
-                                        , c.getLong(1)
-                                        , medToTakeName);
-            temp.add(mea);
-            cSingleValue.close();
-        }
-        c.close();
-        return temp;
-    }
-
     public List<Medikament> retrieveMedList(){
+        List<Medikament> retrievedMedList;
+
         if (db == null){
             throw new RuntimeException("No Database opened!");
         }
-        List<Medikament> retrievedMedList = new ArrayList<>();
 
         try{
             Cursor medResult = db.rawQuery(
                     "SELECT "
-                    + COL_MED_BEZEICHNUNG +","
-                    + COL_MED_EINHEIT + ", "
-                    + COL_MED_STUECKZAHL + ","
-                    + COL_MED_ID
+                        + COL_MED_BEZEICHNUNG +","
+                        + COL_MED_EINHEIT + ", "
+                        + COL_MED_STUECKZAHL + ","
+                        + COL_MED_ID
                     + " FROM "
-                    + TABLE_MED_LIST,null);
+                        + TABLE_MED_LIST,null);
+
+            if(medResult.getCount() > 0){
+                retrievedMedList = new ArrayList<>();
+            }
+            else return null;
 
             while (medResult.moveToNext()){
-                Medikament m = new Medikament();
-                m.setBezeichnung(medResult.getString(0));
-                m.setEinheit(medResult.getString(1));
-                m.setStueckzahl(medResult.getString(2));
-                m.setMedId(medResult.getInt(3));
+                Medikament m = new Medikament(
+                          medResult.getInt(3)
+                        , medResult.getString(0)
+                        , medResult.getString(1)
+                        , medResult.getString(2)
+                );
 
-                Cursor einnahmeResult = db.rawQuery("SELECT EinnahmeZeit, EinnahmeDosis FROM MedEinnahme WHERE MedID = " + medResult.getInt(3), null);
-                MedikamentEinnahme me = new MedikamentEinnahme();
+                Cursor medEinnahmen = db.rawQuery("SELECT EinnahmeZeit, EinnahmeDosis FROM MedEinnahme WHERE MedID = " + medResult.getInt(3), null);
 
-                while(einnahmeResult.moveToNext()){
-                    me.add(LocalTime.parse(einnahmeResult.getString(0)), einnahmeResult.getString(1));
+                if (medEinnahmen.getCount() == 0){
+                    throw new RuntimeException("Medikament ID: " + m.getMedId() + " hat keine verbundenen MedEinnahmen in DB");
                 }
-                einnahmeResult.close();
-                m.setEinnahmeZeiten(me);
+
+                while(medEinnahmen.moveToNext()){
+                    m.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(medEinnahmen.getString(0)), medEinnahmen.getString(1));
+                }
+
+                medEinnahmen.close();
                 retrievedMedList.add(m);
                 medListStored = true;
             }
             medResult.close();
+            return retrievedMedList;
         }
         catch(SQLException e){
             Log.e("DB-Q", e.getMessage());
+            return null;
         }
-        return retrievedMedList;
     }
 
     public boolean isMedListStored() {

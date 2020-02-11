@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -14,11 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.eht18_masterprojekt.Core.EinnahmeTuple;
 import com.example.eht18_masterprojekt.Core.Medikament;
-import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
 import com.example.eht18_masterprojekt.R;
-import com.google.android.material.tabs.TabLayout;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -88,11 +84,11 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     public void onBindViewHolder(@NonNull MedListRecyclerViewAdapter.ViewHolder holder, int position) {
         Medikament med = medList.get(position);
         String bezeichnung = med.getBezeichnung();
-        MedikamentEinnahme ez = med.getEinnahmeZeiten();
+        Medikament.MedEinnahmeProtokoll ez = med.getEinnahmeProtokoll();
 
         holder.medikamentTextView.setText(bezeichnung);
 
-        for (EinnahmeTuple e : ez){
+        for (Medikament.MedEinnahme e : ez){
             TableRow singleEinnahme = new TableRow(context);
             ImageView ivEinnahmeIcon = new ImageView(context);
             TextView tvEinnahmeBeschreibung = new TextView(context);

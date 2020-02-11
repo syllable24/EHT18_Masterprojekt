@@ -7,46 +7,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 import com.example.eht18_masterprojekt.R;
 
 public class NotificationController {
 
     Context context;
+    private static final String NOTIFICATION_CHANNEL_NAME = "medList";
     static boolean notificationChannelCreated;
     public static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
     public static final String EXTRA_NOTIFICATION_ID = "notificationID";
+    public static final int NOTIFICATION_BASE_ID = 100;
 
     public NotificationController(Context ctx){
         this.context = ctx;
         if (notificationChannelCreated){
             createNotificationChannel();
         }
-    }
-
-    /**
-     * Anzeigen der medList Notification.
-     */
-    public void displayMedListNotification(int notificationID){
-        String strContentText = "Dauermedikationsalarme werden ausgelöst.";
-
-        Intent i = new Intent(context, MainActivityView.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
-        builder.setContentTitle("Dauermedikationsalarme")
-                .setContentText(strContentText)
-                .setSmallIcon(R.mipmap.ic_info)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-        nm.notify(notificationID, builder.build());
     }
 
     /**
@@ -60,7 +43,7 @@ public class NotificationController {
             CharSequence name = "Dauermedikationsliste";
             String description = "Dauermedikationsliste";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("medList", name, importance);
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_NAME, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -78,7 +61,7 @@ public class NotificationController {
      * @param medAnzahl
      * @param medEinheit
      */
-    public void displayAlarmNotification(int notificationID, String medName, String medAnzahl, String medEinheit){
+    public void displayMedEinnahmeReminder(int notificationID, String medName, String medAnzahl, String medEinheit){
 
         // TODO: Multiple Notifications get grouped together, leading to cancelling them as one -> only one Broadcast gets sent.
 
@@ -86,15 +69,40 @@ public class NotificationController {
         i.putExtra(EXTRA_NOTIFICATION_ID, notificationID);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "medList");
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NAME);
         builder.setContentTitle(medName + " einnehmen")
                 .setContentText("Bitte " + medAnzahl + " " + medEinheit + " " + medName + " einnehmen")
                 .setSmallIcon(R.mipmap.ic_info)
-                .setDeleteIntent(pendingIntent);
+                .setDeleteIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true);
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.notify(notificationID, builder.build());
 
         Log.d("APP", "Notification ID: " + notificationID + " wird angezeigt");
+    }
+
+    /**
+     * Anzeigen der Notifications für die individuellen Einnahmezeiten des übergebenen Medikaments.
+     *
+     * @param med
+     */
+    public void displayAlarmNotifications(Medikament med){
+
+        // TODO: ContentIntent -> Anzeigen der MedListView
+
+        for (Medikament.MedEinnahme medEinnahme : med.getEinnahmeProtokoll()){
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NAME);
+            builder.setContentTitle(med.getBezeichnung())
+                    .setContentText(medEinnahme.toString())
+                    .setSmallIcon(R.mipmap.ic_info)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOngoing(true);
+
+            NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+            nm.notify(medEinnahme.getNotificationID(), builder.build());
+        }
     }
 }

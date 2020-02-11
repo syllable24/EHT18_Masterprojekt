@@ -7,13 +7,13 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
-import com.example.eht18_masterprojekt.Core.MedikamentEinnahme;
+import com.example.eht18_masterprojekt.Core.NotificationController;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -34,56 +34,60 @@ public class AlarmController {
     }
 
     /**
-     * Basierend auf übergebener MedListe Alarme für die einzelnen
-     * Medikamente erstellen und in Android registrieren.
-     * @param medList basis for alarm scheduling
+     * Basierend auf übergebener MedListe, Alarme für die einzelnen
+     * MedikamentAlarme erstellen und in Android registrieren.
+     *
+     * Für jedes Medikament werden Notifications, die den registrierten Alarm
+     * beinhalten, angezeigt.
+     *
+     * Jeder registrierte Alarm wird in der SQLiteDB gespeichert.
+     *
+     * @param medList Medikamente für die Alarme gesetzt werden sollen
      */
-    public List<MedicationAlarm> registerAlarms(@NotNull List<Medikament> medList){
-
+    public void registerAlarms(@NotNull List<Medikament> medList){
         //TODO: Add Group Alarms for meds with the same alarmTime.
-
-        List<MedicationAlarm> alarmList = new ArrayList<>();
+        NotificationController nc = new NotificationController(context);
 
         for (Medikament med : medList){
-            MedikamentEinnahme me = med.getEinnahmeZeiten();
+            int notificationID = NotificationController.NOTIFICATION_BASE_ID;
 
-            for (LocalTime dt : me.toTimeList()){
-                MedicationAlarm mea = registerIndivAlarm(med, dt);
-                alarmList.add(mea);
+            for (Medikament.MedEinnahme me : med.getEinnahmeProtokoll()){
+                registerIndivAlarm(me, notificationID++);
             }
+            //nc.displayAlarmNotifications(med);
         }
-        return alarmList;
+
+        DatabaseAdapter da = new DatabaseAdapter(context);
+        da.storeAlarms(medList);
     }
 
     /**
-     * Registrieren des wiederholenden Alarms für das übergebene Medikaments, zur übergebenen Zeit
-     * im Android Alarm Manager. Der Alarm wird alle 24h wiederholt.
+     * Registrieren des wiederholenden Alarms für die übergebene MedikamentEinnahme im Android
+     * Alarm Manager. Der Alarm wird alle 24h wiederholt. Die medEinnahme wird mit dem generiertem
+     * Alarm verlinkt.
      *
-     * @param med Medikament
-     * @param lt Einnahmezeit
-     * @return Registrierten MedAlarm
+     * @param medEinnahme
      */
-    private MedicationAlarm registerIndivAlarm(Medikament med, LocalTime lt){
-        long alarmTime = toAlarmTime(lt);
+    private void registerIndivAlarm(Medikament.MedEinnahme medEinnahme, int notificationID){
+        long alarmTime = toAlarmTime(medEinnahme.getEinnahmeZeit());
         long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
         Date display = new Date(testAlarmTime);
         Log.d("APP", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
+
         // uniqueID generieren, um den Alarm wieder deaktivieren zu können
-        int uniqueId = (int) System.currentTimeMillis();
+        int alarmID = (int) System.currentTimeMillis();
 
         Intent i = new Intent(context, AlarmReceiver.class);
         i.setAction(ACTION_MED_ALARM);
-        i.putExtra(ALARM_INTENT_EXTRA_MED_ID, med.getMedId());
-        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT, lt.toString());
+        i.putExtra(ALARM_INTENT_EXTRA_MED_ID, medEinnahme.getMed().getMedId());
+        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT, medEinnahme.getEinnahmeZeit().toString());
 
-        PendingIntent alarmAction = PendingIntent.getBroadcast(context, uniqueId, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmAction = PendingIntent.getBroadcast(context, alarmID, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);
 
+        medEinnahme.linkAlarm(alarmID, notificationID);
+
         Log.d("APP", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
-
-        MedicationAlarm mea = new MedicationAlarm(uniqueId, lt, med.getMedId(), med.getBezeichnung());
-
-        return mea;
     }
 
     /**

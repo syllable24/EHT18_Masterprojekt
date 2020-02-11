@@ -42,7 +42,6 @@ public class MainActivityView extends AppCompatActivity {
     private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
     private FloatingActionButton fab;
     private NotificationController notificationController;
-
     private MedListRecyclerViewAdapter adapter;
 
     /**
@@ -53,6 +52,7 @@ public class MainActivityView extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiverMedListImported = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            // TODO: AsynchTask?
             updateMedListDisplay(GlobalListHolder.getMedList());
 
             if (databaseAdapter.isMedListStored()){
@@ -61,13 +61,6 @@ public class MainActivityView extends AppCompatActivity {
             else {
                 startPersistMedList();
             }
-        }
-    };
-
-    private BroadcastReceiver broadcastReceiverAlarmsScheduled = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            notificationController.displayMedListNotification(NOTIFICATION_ID);
         }
     };
 
@@ -83,6 +76,14 @@ public class MainActivityView extends AppCompatActivity {
             startAlarmScheduling();
         }
     };
+
+    private BroadcastReceiver broadcastReceiverAlarmsScheduled = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context, "Alarme für importierte SMS gesetzt.", Toast.LENGTH_SHORT).show();
+        }
+    };
+
 
     /**
      * Einlesen der GUI Elemente.
@@ -122,24 +123,17 @@ public class MainActivityView extends AppCompatActivity {
         GlobalListHolder.init(databaseAdapter);
 
         if (GlobalListHolder.isMedListSet()){
+            initMedListDisplay(GlobalListHolder.getMedList());
+
+            // TODO: Check if Alarms are registered
+            AlarmController ac = new AlarmController(this);
+            ac.registerAlarms(GlobalListHolder.getMedList());
+        }
+        else{
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
             // Broadcast von "MedList_Init_Successful" aktualisiert werden kann.
             showSmsImportDialog();
             initMedListDisplay(new ArrayList<Medikament>());
-        }
-        else{
-            initMedListDisplay(GlobalListHolder.getMedList());
-            notificationController.displayMedListNotification(NOTIFICATION_ID);
-
-            if(GlobalListHolder.getAlarmList().size() != 0) {
-                AlarmController ac = new AlarmController(this);
-
-                boolean alarmsRegistered = ac.checkAlarmsRegistered(GlobalListHolder.getAlarmList());
-
-                if (!alarmsRegistered) {
-                    ac.registerAlarms(GlobalListHolder.getMedList());
-                }
-            }
         }
     }
 
