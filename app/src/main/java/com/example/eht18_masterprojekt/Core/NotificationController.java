@@ -20,10 +20,12 @@ public class NotificationController {
 
     Context context;
     private static final String NOTIFICATION_CHANNEL_NAME = "medList";
-    static boolean notificationChannelCreated;
+    public static boolean notificationChannelCreated;
     public static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
     public static final String EXTRA_NOTIFICATION_ID = "notificationID";
     public static final int NOTIFICATION_BASE_ID = 100;
+    private static int notificationID = NOTIFICATION_BASE_ID;
+
 
     public NotificationController(Context ctx){
         this.context = ctx;
@@ -56,17 +58,15 @@ public class NotificationController {
     /**
      * Anzeigen einer Notification für einen Med-Einnahme Alarm.
      *
-     * @param notificationID
      * @param medName
      * @param medAnzahl
      * @param medEinheit
      */
-    public void displayMedEinnahmeReminder(int notificationID, String medName, String medAnzahl, String medEinheit){
-
+    public void displayMedEinnahmeReminder(String medName, String medAnzahl, String medEinheit){
         // TODO: Multiple Notifications get grouped together, leading to cancelling them as one -> only one Broadcast gets sent.
-
+        int notID = getNextNotificationID();
         Intent i = new Intent(context, NotificationDeletedReceiver.class);
-        i.putExtra(EXTRA_NOTIFICATION_ID, notificationID);
+        i.putExtra(EXTRA_NOTIFICATION_ID, notID);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NAME);
@@ -79,9 +79,9 @@ public class NotificationController {
                 .setAutoCancel(true);
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-        nm.notify(notificationID, builder.build());
+        nm.notify(notID, builder.build());
 
-        Log.d("APP", "Notification ID: " + notificationID + " wird angezeigt");
+        Log.d("APP", "Notification ID: " + notID + " wird angezeigt");
     }
 
     /**
@@ -104,5 +104,16 @@ public class NotificationController {
             NotificationManagerCompat nm = NotificationManagerCompat.from(context);
             nm.notify(medEinnahme.getNotificationID(), builder.build());
         }
+    }
+
+    /**
+     * Retournieren der nächsten freien NorificationID.
+     * @return
+     */
+    private int getNextNotificationID(){
+        if (notificationID == Integer.MAX_VALUE){
+            notificationID = NOTIFICATION_BASE_ID;
+        }
+        return notificationID++;
     }
 }

@@ -14,7 +14,7 @@ public class GlobalListHolder {
 
     public static void init(DatabaseAdapter da){
         globalMedList = da.retrieveMedList();
-        medListSet = (globalMedList.size() > 0);
+        medListSet = (globalMedList != null);
     }
 
     public static List<Medikament> getMedList() {

@@ -21,7 +21,6 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import java.time.LocalTime;
 
 public class AlarmMusicService extends Service {
-    private static Integer notificationID = 100;
     public static final String ACTION_STOP_ALARM = "Stop_Alarm";
 
     MediaPlayer mediaPlayer;
@@ -62,46 +61,6 @@ public class AlarmMusicService extends Service {
     }
 
     /**
-     * Alternative zu stopService(). Beendet den Alarm-Ton, unterbricht den VolumeAdjusterTask und
-     * löscht die NotificationID der ID aus activeNotificationIDs.
-     */
-    public class AlarmMusicServiceStopBroadcastReceiver extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            Integer notificationIDCancelled = intent.getIntExtra("notificationID", 0);
-
-            mediaPlayer.stop();
-            vat.cancel(true);
-            AlarmMusicService.this.stopSelf();
-        }
-    }
-
-    /**
-     * Graduelles erhöhen der Lautstärke des Alarms. Beendet den Alarm nach 5 Minuten.
-     */
-    class VolumeAdjusterTask extends AsyncTask{
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            float maxVolume = 1f;
-            float currVolume = 0.1f;
-
-            try {
-                for (int i = 0; i < 5; i++) {
-                    mediaPlayer.setVolume(currVolume, maxVolume);
-                    Thread.sleep(1000 * 60); // Wait for 1 minute
-                    currVolume += 0.1;
-                }
-                AlarmMusicService.this.stopSelf(); // Cancel Alarm after 5 Minutes
-            }
-            catch (InterruptedException e){
-                Log.d("APP", "AlarmVolumeManagerTask interrupted");
-            }
-            return null;
-        }
-    }
-
-    /**
      * Anzeigen der Notification für das Medikament, dass den Alarm ausgelöst hat.
      * @param intent
      */
@@ -118,10 +77,51 @@ public class AlarmMusicService extends Service {
         Medikament med = da.retrieveMedikamentWithEinnahmeDosis(medID, medEinnahmeZeit);
         da.close();
 
-        // TODO: medEinnahme hat keine notificationID
         Medikament.MedEinnahme medEinnahme = med.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit));
 
         nc = new NotificationController(this);
-        nc.displayMedEinnahmeReminder(medEinnahme.getNotificationID(), med.getBezeichnung(), medEinnahme.getEinnahmeDosis(), med.getEinheit());
+        nc.displayMedEinnahmeReminder(med.getBezeichnung(), medEinnahme.getEinnahmeDosis(), med.getEinheit());
+    }
+
+    /**
+     * Alternative zu stopService(). Beendet den Alarm-Ton, unterbricht den VolumeAdjusterTask und
+     * löscht die NotificationID der ID aus activeNotificationIDs.
+     */
+    public class AlarmMusicServiceStopBroadcastReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Integer notificationIDCancelled = intent.getIntExtra("notificationID", 0);
+
+            mediaPlayer.stop();
+            vat.cancel(true);
+            AlarmMusicService.this.stopSelf();
+        }
+    }
+
+    /**
+     * Graduelles erhöhen der Lautstärke des Alarms.
+     */
+    class VolumeAdjusterTask extends AsyncTask{
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            float maxVolume = 1.0f;
+            float currVolume = 0.1f;
+
+            try {
+                while (true) {
+                    Thread.sleep(1000 * 30); // Wait for 30 sec
+                    if (currVolume < maxVolume){
+                        currVolume += 0.3;
+                        mediaPlayer.setVolume(currVolume, maxVolume);
+                        Log.d("APP", "Volume increased.");
+                    }
+                }
+            }
+            catch (InterruptedException e){
+                Log.d("APP", "AlarmVolumeManagerTask interrupted");
+            }
+            return null;
+        }
     }
 }
