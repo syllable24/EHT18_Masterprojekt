@@ -20,12 +20,14 @@ import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmReceiverService;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.ScheduleAlarmsTask;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,9 +107,7 @@ public class MainActivityView extends AppCompatActivity {
 
     /**
      * Setzen der MedList. Zuerst wird versucht, eine MedList aus der SQLite DB auszulesen.
-     * Falls das nicht möglich ist, wird der SMS Import gestartet und die dafür notwendigen
-     * BroadcastReceiver registriert. Siehe: {@link #broadcastReceiverMedListImported} und
-     * {@link #broadcastReceiverMedListStored}
+     * Falls das nicht möglich ist, wird der SMS Import gestartet.
      *
      * @param savedInstanceState
      */
@@ -116,11 +116,14 @@ public class MainActivityView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d("APP-START", "APP started " + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(System.currentTimeMillis()));
         databaseAdapter.open();
-        //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
+        databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
         initActivity();
 
         GlobalListHolder.init(databaseAdapter);
+        Intent startAlarmReceiverService = new Intent(this, AlarmReceiverService.class);
+        startService(startAlarmReceiverService);
 
         if (GlobalListHolder.isMedListSet()){
             initMedListDisplay(GlobalListHolder.getMedList());

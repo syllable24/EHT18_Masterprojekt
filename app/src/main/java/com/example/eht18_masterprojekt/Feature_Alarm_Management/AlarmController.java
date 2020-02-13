@@ -72,13 +72,12 @@ public class AlarmController {
         long alarmTime = toAlarmTime(medEinnahme.getEinnahmeZeit());
         long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
         Date display = new Date(testAlarmTime);
-        Log.d("APP", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
+        Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
 
         // uniqueID generieren, um den Alarm wieder deaktivieren zu können
         int alarmID = (int) System.currentTimeMillis();
 
         Intent i = new Intent(context, AlarmReceiver.class);
-        i.setAction(ACTION_MED_ALARM);
         i.putExtra(ALARM_INTENT_EXTRA_MED_ID, medEinnahme.getMed().getMedId());
         i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT, medEinnahme.getEinnahmeZeit().toString());
 
@@ -87,7 +86,7 @@ public class AlarmController {
 
         medEinnahme.linkAlarm(alarmID, notificationID);
 
-        Log.d("APP", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
+        Log.d("APP-ALARM_TIME", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
     }
 
     /**

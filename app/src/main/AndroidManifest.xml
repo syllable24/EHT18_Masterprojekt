@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
 
     <application
         android:allowBackup="true"
@@ -14,9 +15,6 @@
         android:theme="@style/AppTheme">
 
         <receiver android:name=".Feature_Alarm_Management.AlarmReceiver" android:enabled="true">
-            <intent-filter >
-                <action android:name ="MedAlarm"></action>
-            </intent-filter>
         </receiver>
 
         <receiver android:name=".Core.NotificationDeletedReceiver">
@@ -33,13 +31,13 @@
         <activity android:name=".Feature_Med_List.MainActivityView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service android:name=".Feature_Alarm_Management.AlarmMusicService">
-        </service>
+        <service android:name=".Feature_Alarm_Management.AlarmMusicService"></service>
+
+        <service android:name=".Feature_Alarm_Management.AlarmReceiverService"></service>
 
     </application>
 
