@@ -122,8 +122,6 @@ public class MainActivityView extends AppCompatActivity {
         initActivity();
 
         GlobalListHolder.init(databaseAdapter);
-        Intent startAlarmReceiverService = new Intent(this, AlarmReceiverService.class);
-        startService(startAlarmReceiverService);
 
         if (GlobalListHolder.isMedListSet()){
             initMedListDisplay(GlobalListHolder.getMedList());

@@ -1,5 +1,6 @@
 package com.example.eht18_masterprojekt.Core;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -62,7 +63,7 @@ public class NotificationController {
      * @param medAnzahl
      * @param medEinheit
      */
-    public void displayMedEinnahmeReminder(String medName, String medAnzahl, String medEinheit){
+    public Notification getMedEinnahmeReminder(String medName, String medAnzahl, String medEinheit){
         // TODO: Multiple Notifications get grouped together, leading to cancelling them as one -> only one Broadcast gets sent.
         int notID = getNextNotificationID();
         Intent i = new Intent(context, NotificationDeletedReceiver.class);
@@ -78,10 +79,8 @@ public class NotificationController {
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true);
 
-        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-        nm.notify(notID, builder.build());
-
-        Log.d("APP", "Notification ID: " + notID + " wird angezeigt");
+        Log.d("APP", "Notification ID: " + notID + " erzeugt");
+        return builder.build();
     }
 
     /**
@@ -104,6 +103,14 @@ public class NotificationController {
             NotificationManagerCompat nm = NotificationManagerCompat.from(context);
             nm.notify(medEinnahme.getNotificationID(), builder.build());
         }
+    }
+
+    /**
+     * Retournieren der aktuellen NotificationID.
+     * @return
+     */
+    public int getCurrentNotificationID(){
+        return notificationID;
     }
 
     /**
