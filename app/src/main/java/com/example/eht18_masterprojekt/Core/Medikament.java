@@ -75,7 +75,7 @@ public class Medikament {
 
         private List<MedEinnahme> einnahmeProtokoll;
 
-        public MedEinnahmeProtokoll(){
+        private MedEinnahmeProtokoll(){
             einnahmeProtokoll = new ArrayList<>();
         }
 
@@ -138,13 +138,6 @@ public class Medikament {
             }
             throw new RuntimeException("Med Einnahme für LocalTime: " + lt.toString() + " not found");
         }
-
-        /**
-         * Jedem Eintrag des EinnahmeProtokolls eine AlarmID und eine NotificationID zuweisen.
-         */
-        public void registerEinnahmeProtokoll(){
-
-        }
     }
 
     public class MedEinnahme {
@@ -159,7 +152,7 @@ public class Medikament {
         private LocalTime einnahmeZeit;
         private String einnahmeDosis;
 
-        public MedEinnahme(LocalTime einnahmeZeit, String einnahmeDosis) {
+        private MedEinnahme(LocalTime einnahmeZeit, String einnahmeDosis) {
             this.einnahmeZeit = einnahmeZeit;
             this.einnahmeDosis = einnahmeDosis;
         }

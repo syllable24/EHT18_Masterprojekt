@@ -38,8 +38,6 @@
 
         <service android:name=".Feature_Alarm_Management.AlarmMusicService"></service>
 
-        <service android:name=".Feature_Alarm_Management.AlarmReceiverService"></service>
-
     </application>
 
 </manifest>

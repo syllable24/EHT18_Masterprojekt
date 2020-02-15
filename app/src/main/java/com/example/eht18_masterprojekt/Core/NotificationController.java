@@ -17,6 +17,9 @@ import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 import com.example.eht18_masterprojekt.R;
 
+import java.time.LocalTime;
+import java.util.List;
+
 public class NotificationController {
 
     Context context;
@@ -80,6 +83,43 @@ public class NotificationController {
                 .setAutoCancel(true);
 
         Log.d("APP", "Notification ID: " + notID + " erzeugt");
+        return builder.build();
+    }
+
+    public Notification getMedEinnahmeReminder(List<Medikament> meds, String medEinnahmeZeit){
+        int notificationID = getNextNotificationID();
+        Intent i = new Intent(context, NotificationDeletedReceiver.class);
+        i.putExtra(EXTRA_NOTIFICATION_ID, notificationID);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        String title = "";
+        String content = "";
+        for(int j = 0; j < meds.size(); j++){
+            Medikament currentMed = meds.get(j);
+            if (j == 0) title += currentMed.getBezeichnung();
+            else        title += ", " + currentMed.getBezeichnung();
+
+            String dosis = currentMed.getEinnahmeProtokoll()
+                                     .getEinnahmeAt(LocalTime.parse(medEinnahmeZeit))
+                                     .getEinnahmeDosis();
+            content += "Bitte " + dosis + " " + currentMed.getEinheit() + " " + currentMed.getEinheit() + " einnehmen";
+
+            if (j != meds.size() - 1){
+                content += System.getProperty("line.separator");
+            }
+        }
+        title += " einnehmen";
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NAME);
+        builder.setContentTitle(title)
+                .setContentText(content)
+                .setSmallIcon(R.mipmap.ic_info)
+                .setDeleteIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true);
+
+        Log.d("APP", "Notification ID: " + notificationID + " erzeugt");
         return builder.build();
     }
 

@@ -22,7 +22,9 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class AlarmMusicService extends Service {
@@ -32,14 +34,9 @@ public class AlarmMusicService extends Service {
     VolumeAdjusterTask vat;
     AlarmMusicServiceStopBroadcastReceiver stopServiceReceiver = new AlarmMusicServiceStopBroadcastReceiver();
     NotificationController nc;
-    Queue<Intent> startIntentQueue = new ArrayDeque<>();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startIntentQueue.add(intent);
-
-        // TODO: if service gets started multiple times, only last notification is shown
-        // either implement intent queue or check notificationID assignment
 
         nc = new NotificationController(this);
         Notification n = getAlarmTriggeredNotification(intent, nc);
@@ -75,25 +72,36 @@ public class AlarmMusicService extends Service {
         return null;
     }
 
+    private void nextIntent(Intent intent){
+
+    }
+
     /**
      * Anzeigen der Notification für das Medikament, dass den Alarm ausgelöst hat.
      * @param intent
      */
     private Notification getAlarmTriggeredNotification(Intent intent, NotificationController nc){
-        long medID = intent.getLongExtra(AlarmController.ALARM_INTENT_EXTRA_MED_ID, 0);
-        String medEinnahmeZeit = intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT);
-
-        if (medID == 0 || medEinnahmeZeit.equals("")){
-            throw new RuntimeException("Received undefined Med");
+        AlarmController.MedikamentEinnahmeGroupAlarm groupAlarm = (AlarmController.MedikamentEinnahmeGroupAlarm) intent.getSerializableExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP);
+        if (groupAlarm == null){
+            throw new RuntimeException("Received empty Group Alarm");
+        }
+        if (groupAlarm.getAlarmTime() == null){
+            throw new RuntimeException("Received Group Alarm without AlarmTime");
+        }
+        if (groupAlarm.getMedsToTakeIds() == null){
+            throw new RuntimeException("Received Group Alarm without medIDs");
         }
 
+        List<Long> medIDs = groupAlarm.getMedsToTakeIds();
+        String medEinnahmeZeit = groupAlarm.getAlarmTime().toString();
+
         DatabaseAdapter da = new DatabaseAdapter(this);
+
         da.open();
-        Medikament med = da.retrieveMedikamentWithEinnahmeDosis(medID, medEinnahmeZeit);
+        List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);;
         da.close();
 
-        Medikament.MedEinnahme medEinnahme = med.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit));
-        return nc.getMedEinnahmeReminder(med.getBezeichnung(), medEinnahme.getEinnahmeDosis(), med.getEinheit());
+        return nc.getMedEinnahmeReminder(medList, medEinnahmeZeit);
     }
 
     /**

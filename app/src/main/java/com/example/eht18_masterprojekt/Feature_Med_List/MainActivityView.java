@@ -20,7 +20,6 @@ import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
-import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmReceiverService;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.ScheduleAlarmsTask;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;

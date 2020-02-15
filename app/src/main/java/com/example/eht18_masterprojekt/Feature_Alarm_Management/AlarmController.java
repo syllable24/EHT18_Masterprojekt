@@ -4,6 +4,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
@@ -12,12 +14,17 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.FileHandler;
 
 public class AlarmController {
 
@@ -27,6 +34,7 @@ public class AlarmController {
     public static final String ACTION_MED_ALARM = "MedAlarm";
     public static final String ALARM_INTENT_EXTRA_MED_ID = "medID";
     public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT = "medEinnahmeZeit";
+    public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP = "medEinnahmeGroup";
 
     public AlarmController(Context context){
         this.context = context;
@@ -34,27 +42,40 @@ public class AlarmController {
     }
 
     /**
-     * Basierend auf übergebener MedListe, Alarme für die einzelnen
-     * MedikamentAlarme erstellen und in Android registrieren.
-     *
-     * Für jedes Medikament werden Notifications, die den registrierten Alarm
-     * beinhalten, angezeigt.
+     * Basierend auf übergebener MedListe werden Alarm Gruppen erstellt. Alarm Gruppen fassen
+     * Alarme für unterschiedliche Medikamente, die zur selben Zeit eingenommen werden müssen,
+     * zusammen. Dementsprechend wird für die Alarm Gruppe nur ein einzelner Alarm in Android
+     * registriert.
      *
      * Jeder registrierte Alarm wird in der SQLiteDB gespeichert.
      *
      * @param medList Medikamente für die Alarme gesetzt werden sollen
      */
     public void registerAlarms(@NotNull List<Medikament> medList){
-        //TODO: Add Group Alarms for meds with the same alarmTime.
-        NotificationController nc = new NotificationController(context);
+
+        // TODO: Test Group Alarm Feature
+        Map<LocalTime, MedikamentEinnahmeGroupAlarm> alarmMedGroups = new HashMap<>();
 
         for (Medikament med : medList){
-            int notificationID = NotificationController.NOTIFICATION_BASE_ID;
+            int notificationID = NotificationController.NOTIFICATION_BASE_ID; // TODO: This is a job for NotificationController.java
 
             for (Medikament.MedEinnahme me : med.getEinnahmeProtokoll()){
-                registerIndivAlarm(me, notificationID++);
+
+                MedikamentEinnahmeGroupAlarm alarmGroup = alarmMedGroups.get(me.getEinnahmeZeit());
+
+                if (alarmGroup == null){
+                    MedikamentEinnahmeGroupAlarm newAlarmGroup = new MedikamentEinnahmeGroupAlarm(me.getEinnahmeZeit());
+                    newAlarmGroup.addAlarm(me.getMed().getMedId());
+                    alarmMedGroups.put(newAlarmGroup.getAlarmTime(), newAlarmGroup);
+                }
+                else {
+                    alarmGroup.addAlarm(me.getMed().getMedId());
+                }
             }
-            //nc.displayAlarmNotifications(med);
+
+            for(LocalTime key : alarmMedGroups.keySet()){
+                registerIndivAlarm(alarmMedGroups.get(key));
+            }
         }
 
         DatabaseAdapter da = new DatabaseAdapter(context);
@@ -87,6 +108,33 @@ public class AlarmController {
         medEinnahme.linkAlarm(alarmID, notificationID);
 
         Log.d("APP-ALARM_TIME", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
+    }
+
+    /**
+     * Registrieren eines wiederholenden Alarms für die übergebene MedikamentEinnahmeGroup.
+     *
+     * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
+     */
+    private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me){
+        long alarmTime = toAlarmTime(me.getAlarmTime());
+        long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        Date display = new Date(testAlarmTime);
+        Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
+
+        // uniqueID generieren, um den Alarm wieder deaktivieren zu können
+        int alarmID = (int) System.currentTimeMillis();
+
+        Intent i = new Intent(context, AlarmReceiver.class);
+        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP, me);
+
+        PendingIntent alarmAction = PendingIntent.getBroadcast(context, alarmID, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);
+
+        String medIDs = "";
+        for (Long medID : me.getMedsToTakeIds()){
+            medIDs += medID + " ";
+        }
+        Log.d("APP-ALARM_TIME", "Alarm um: " + me.getAlarmTime() + " für Meds: " + medIDs + "gestellt");
     }
 
     /**
@@ -159,5 +207,39 @@ public class AlarmController {
             }
         }
         return true;
+    }
+
+    /**
+     * Container für Medikament-Alarme die zur selben Zeit abgefeuert werden sollen. Dementsprechend
+     * soll für n Medikament nur ein Alarm in Android registriert werden.
+     */
+    public class MedikamentEinnahmeGroupAlarm implements Serializable{
+
+        private final int ALARM_NOT_REGISTERED = -1;
+
+        private int alarmID = ALARM_NOT_REGISTERED;
+        private LocalTime alarmTime;
+        private List<Long> medsToTakeIds;
+
+        MedikamentEinnahmeGroupAlarm(LocalTime alarmTime) {
+            this.medsToTakeIds = new ArrayList<>();
+            this.alarmTime = alarmTime;
+        }
+
+        LocalTime getAlarmTime() {
+            return alarmTime;
+        }
+
+        void addAlarm(Long medID){
+            medsToTakeIds.add(medID);
+        }
+
+        public List<Long> getMedsToTakeIds() {
+            return medsToTakeIds;
+        }
+
+        public boolean isRegistered(){
+            return alarmID != ALARM_NOT_REGISTERED;
+        }
     }
 }

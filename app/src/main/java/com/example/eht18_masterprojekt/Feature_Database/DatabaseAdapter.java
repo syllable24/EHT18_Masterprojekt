@@ -185,6 +185,47 @@ public class DatabaseAdapter {
         else throw new RuntimeException("Kein Med für medID: " + medID + " und einnahmeZeit: " + einnahmeZeit + " gefunden.");
     }
 
+    public List<Medikament> retrieveMedikamentListWithEinnahmeDosis(List<Long> medIDs, String einnahmeZeit){
+
+        String sqlMedIDs = medIDs.get(0).toString();
+        for (int i = 1; i < medIDs.size(); i++){
+            sqlMedIDs += ", " + medIDs.get(i).toString();
+        }
+
+        String queryMed =
+                "SELECT "
+                        + COL_MED_ID
+                        + ", " + COL_MED_BEZEICHNUNG
+                        + ", " + COL_MED_EINHEIT
+                        + ", " + COL_MED_STUECKZAHL
+                        + ", " + COL_MED_EINNAHME_EINNAHME_DOSIS
+                        + " FROM "
+                        + TABLE_MED_LIST
+                        + " INNER JOIN "
+                        + TABLE_MED_EINNAHME + " USING("+ COL_MED_ID +")"
+                        + " WHERE "
+                        + COL_MED_ID + " = " + sqlMedIDs
+                        + " AND " + COL_MED_EINNAHME_EINNAHME_ZEIT + " = '" + einnahmeZeit + "'";
+
+        Cursor c = db.rawQuery(queryMed, null);
+        List<Medikament> result = new ArrayList<>();
+        while (c.moveToNext()){
+            Medikament m = new Medikament(
+                    c.getInt(0)
+                    , c.getString(1)
+                    , c.getString(2)
+                    , c.getString(3)
+            );
+
+            m.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(einnahmeZeit), c.getString(4));
+            result.add(m);
+            Log.d("APP-DatabaseAdapter",m.toString());
+        }
+        c.close();
+        return result;
+
+    }
+
     /**
      * Einlesen einer bestehenden MedListe aus DB.
      *
