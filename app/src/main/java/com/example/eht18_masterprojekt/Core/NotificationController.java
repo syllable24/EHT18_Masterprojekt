@@ -23,7 +23,7 @@ import java.util.List;
 public class NotificationController {
 
     Context context;
-    private static final String NOTIFICATION_CHANNEL_NAME = "medList";
+    private static final String NOTIFICATION_CHANNEL_NAME = "medListService";
     public static boolean notificationChannelCreated;
     public static final String ACTION_NOTIFICATION_DELETED = "notificationDeleted";
     public static final String EXTRA_NOTIFICATION_ID = "notificationID";
@@ -86,7 +86,7 @@ public class NotificationController {
         return builder.build();
     }
 
-    public Notification getMedEinnahmeReminder(List<Medikament> meds, String medEinnahmeZeit){
+    public Notification getMedEinnahmeReminder(List<Medikament> meds, String medEinnahmeZeit, String notificationChannelID){
         int notificationID = getNextNotificationID();
         Intent i = new Intent(context, NotificationDeletedReceiver.class);
         i.putExtra(EXTRA_NOTIFICATION_ID, notificationID);
@@ -99,18 +99,19 @@ public class NotificationController {
             if (j == 0) title += currentMed.getBezeichnung();
             else        title += ", " + currentMed.getBezeichnung();
 
-            String dosis = currentMed.getEinnahmeProtokoll()
-                                     .getEinnahmeAt(LocalTime.parse(medEinnahmeZeit))
-                                     .getEinnahmeDosis();
-            content += "Bitte " + dosis + " " + currentMed.getEinheit() + " " + currentMed.getEinheit() + " einnehmen";
+            String medBezeichnung = currentMed.getBezeichnung();
+            String dosis = currentMed.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit)).getEinnahmeDosis();
 
-            if (j != meds.size() - 1){
+            // TODO: Content not readable; linebreaks not visible..
+            content += "Bitte " + dosis + " "  + medBezeichnung + " einnehmen";
+
+            if (j < meds.size() - 1){
                 content += System.getProperty("line.separator");
             }
         }
         title += " einnehmen";
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NAME);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelID);
         builder.setContentTitle(title)
                 .setContentText(content)
                 .setSmallIcon(R.mipmap.ic_info)

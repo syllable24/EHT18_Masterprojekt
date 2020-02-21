@@ -8,6 +8,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -15,6 +17,7 @@ import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -52,13 +55,11 @@ public class AlarmController {
      * @param medList Medikamente für die Alarme gesetzt werden sollen
      */
     public void registerAlarms(@NotNull List<Medikament> medList){
-
-        // TODO: Test Group Alarm Feature
+        final String tag = "APP-REGISTER_ALARMS";
         Map<LocalTime, MedikamentEinnahmeGroupAlarm> alarmMedGroups = new HashMap<>();
 
         for (Medikament med : medList){
-            int notificationID = NotificationController.NOTIFICATION_BASE_ID; // TODO: This is a job for NotificationController.java
-
+            Log.d(tag, "Med " + med.getBezeichnung() + ": ");
             for (Medikament.MedEinnahme me : med.getEinnahmeProtokoll()){
 
                 MedikamentEinnahmeGroupAlarm alarmGroup = alarmMedGroups.get(me.getEinnahmeZeit());
@@ -67,19 +68,27 @@ public class AlarmController {
                     MedikamentEinnahmeGroupAlarm newAlarmGroup = new MedikamentEinnahmeGroupAlarm(me.getEinnahmeZeit());
                     newAlarmGroup.addAlarm(me.getMed().getMedId());
                     alarmMedGroups.put(newAlarmGroup.getAlarmTime(), newAlarmGroup);
+                    Log.d(tag, "Created New alarmGroup "  + newAlarmGroup.getAlarmTime());
+                    Log.d(tag, "Added Med: " + med.getBezeichnung() + " ID: " + med.getMedId() + " to AlarmGroup: " + newAlarmGroup.getAlarmTime().toString());
                 }
                 else {
-                    alarmGroup.addAlarm(me.getMed().getMedId());
+                    alarmGroup.addAlarm(med.getMedId());
+                    Log.d(tag, "Added Med: " + med.getBezeichnung() + " ID: " + med.getMedId() + " to AlarmGroup: " + alarmGroup.getAlarmTime().toString());
                 }
-            }
-
-            for(LocalTime key : alarmMedGroups.keySet()){
-                registerIndivAlarm(alarmMedGroups.get(key));
             }
         }
 
+        if (alarmMedGroups.size() == 0 || alarmMedGroups == null){
+            throw new RuntimeException("AlarmMedGroups has no entries!");
+        }
+
+        for(LocalTime key : alarmMedGroups.keySet()){
+            registerIndivAlarm(alarmMedGroups.get(key));
+            Log.d(tag, "Registered indivAlarm for:" + key);
+        }
+
         DatabaseAdapter da = new DatabaseAdapter(context);
-        da.storeAlarms(medList);
+        da.storeAlarms(alarmMedGroups);
     }
 
     /**
@@ -116,19 +125,19 @@ public class AlarmController {
      * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
      */
     private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me){
-        long alarmTime = toAlarmTime(me.getAlarmTime());
-        long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
-        Date display = new Date(testAlarmTime);
+        long alarmTime = System.currentTimeMillis() + 1000 * 15;; // toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        Date display = new Date(alarmTime);
         Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
 
         // uniqueID generieren, um den Alarm wieder deaktivieren zu können
         int alarmID = (int) System.currentTimeMillis();
 
         Intent i = new Intent(context, AlarmReceiver.class);
-        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP, me);
+        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP, me.toString());
 
         PendingIntent alarmAction = PendingIntent.getBroadcast(context, alarmID, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, FULL_DAY_MILLIS, alarmAction);
+        me.setAlarmID(alarmID);
 
         String medIDs = "";
         for (Long medID : me.getMedsToTakeIds()){
@@ -209,37 +218,5 @@ public class AlarmController {
         return true;
     }
 
-    /**
-     * Container für Medikament-Alarme die zur selben Zeit abgefeuert werden sollen. Dementsprechend
-     * soll für n Medikament nur ein Alarm in Android registriert werden.
-     */
-    public class MedikamentEinnahmeGroupAlarm implements Serializable{
 
-        private final int ALARM_NOT_REGISTERED = -1;
-
-        private int alarmID = ALARM_NOT_REGISTERED;
-        private LocalTime alarmTime;
-        private List<Long> medsToTakeIds;
-
-        MedikamentEinnahmeGroupAlarm(LocalTime alarmTime) {
-            this.medsToTakeIds = new ArrayList<>();
-            this.alarmTime = alarmTime;
-        }
-
-        LocalTime getAlarmTime() {
-            return alarmTime;
-        }
-
-        void addAlarm(Long medID){
-            medsToTakeIds.add(medID);
-        }
-
-        public List<Long> getMedsToTakeIds() {
-            return medsToTakeIds;
-        }
-
-        public boolean isRegistered(){
-            return alarmID != ALARM_NOT_REGISTERED;
-        }
-    }
 }

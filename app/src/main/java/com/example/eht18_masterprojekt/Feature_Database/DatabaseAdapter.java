@@ -9,13 +9,16 @@ import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
-import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
+import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedikamentEinnahmeGroupAlarm;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static com.example.eht18_masterprojekt.Feature_Database.DatabaseHelper.*;
 
 public class DatabaseAdapter {
 
@@ -24,32 +27,9 @@ public class DatabaseAdapter {
     private Context context;
     private boolean medListStored = false;
 
-    public static final String DB_NAME = "MedList";
-    public static final int DB_VERSION = 3;
-
-    public static final String TABLE_MED_LIST = "MedList";
-    public static final String COL_MED_ID = "MedID";
-    public static final String COL_MED_BEZEICHNUNG = "Bezeichnung";
-    public static final String COL_MED_EINHEIT = "Einheit";
-    public static final String COL_MED_STUECKZAHL = "Stueckzahl";
-
-    public static final String TABLE_MED_EINNAHME = "MedEinnahme";
-    public static final String COL_MED_EINNAHME_MED_ID = "MedID";
-    public static final String COL_MED_EINNAHME_EINNAHME_ZEIT = "EinnahmeZeit";
-    public static final String COL_MED_EINNAHME_EINNAHME_DOSIS = "EinnahmeDosis";
-
-    public static final String TABLE_ALARMS = "Alarms";
-    public static final String COL_ALARM_ID = "AlarmID";
-    public static final String COL_ALARM_ZEIT = "AlarmZeit";
-    public static final String COL_ALARM_MED_ID = "MedID";
-
-    public static final String DB_CREATE_TABLE_MED_LIST = "CREATE TABLE " + TABLE_MED_LIST + "(" + COL_MED_ID +" INTEGER PRIMARY KEY autoincrement, " + COL_MED_BEZEICHNUNG + " text, " + COL_MED_EINHEIT + " text, " + COL_MED_STUECKZAHL + " int);";
-    public static final String DB_CREATE_TABLE_MED_EINNAHME = "CREATE TABLE " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + " integer NOT NULL, " + COL_MED_EINNAHME_EINNAHME_ZEIT + " TEXT, " + COL_MED_EINNAHME_EINNAHME_DOSIS +  " TEXT, FOREIGN KEY(" + COL_MED_EINNAHME_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
-    public static final String DB_CREATE_TABLE_ALARMS = "CREATE TABLE " + TABLE_ALARMS + "(" + COL_ALARM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_ALARM_ZEIT + " TEXT, " + COL_ALARM_MED_ID + " INTEGER, FOREIGN KEY(" + COL_ALARM_MED_ID + ") REFERENCES " + TABLE_MED_LIST + "(" + COL_MED_ID + "));";
-
     public DatabaseAdapter(Context cx){
         context = cx;
-        dbHelper = new DatabaseHelper(context, DB_NAME, null, DB_VERSION);
+        dbHelper = new DatabaseHelper(context, DatabaseHelper.DB_NAME, null, DatabaseHelper.DB_VERSION);
     }
 
     public DatabaseAdapter open() throws SQLException{
@@ -122,13 +102,17 @@ public class DatabaseAdapter {
     }
 
     public void emptyDatabase(){
-        db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
-        db.execSQL("DELETE FROM " + TABLE_MED_LIST);
-        db.execSQL("DELETE FROM " + TABLE_ALARMS);
+        try {
+            db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
+            db.execSQL("DELETE FROM " + TABLE_MED_LIST);
+            db.execSQL("DELETE FROM " + TABLE_ALARMS);
+        }
+        catch (SQLException e ){
+            Log.e("DB-EMPTY", e.getMessage());
+        }
     }
 
     public void storeAlarms(@NotNull List<Medikament> medList){
-        // TODO: Test this
         for (Medikament med : medList){
             if (med.getMedId() == 0) throw new RuntimeException(med.toString() + " has no medID, store in DB first!");
             for (Medikament.MedEinnahme mea : med.getEinnahmeProtokoll()) {
@@ -138,6 +122,25 @@ public class DatabaseAdapter {
                 cv.put(COL_ALARM_MED_ID, med.getMedId());
                 db.insertOrThrow(TABLE_ALARMS, null, cv);
             }
+        }
+    }
+
+    public void storeAlarms(@NotNull Map<LocalTime, MedikamentEinnahmeGroupAlarm> groupAlarmMap){
+        for (LocalTime l : groupAlarmMap.keySet()){
+            MedikamentEinnahmeGroupAlarm current = groupAlarmMap.get(l);
+            if(current.getMedsToTakeIds() == null) throw new RuntimeException("No MedIDs in groupAlarm");
+            ContentValues cv = new ContentValues();
+            cv.put(COL_ALARM_ID, current.getAlarmID());
+            cv.put(COL_ALARM_ZEIT, current.getAlarmTime().toString());
+            db.insertOrThrow(TABLE_ALARMS, null, cv);
+
+            cv.clear();
+            String sqlValues = "(" + String.valueOf(groupAlarmMap.get(l).getMedsToTakeIds().get(0)) + ", "+ current.getAlarmID() + ")";
+            for (int i = 1; i < groupAlarmMap.get(l).getMedsToTakeIds().size(); i++){
+                sqlValues += ", " + "(" + String.valueOf(groupAlarmMap.get(l).getMedsToTakeIds().get(i)) + ", "+ current.getAlarmID() + ")";
+            }
+
+            db.rawQuery("INSERT INTO " + TABLE_MEDS_TO_TAKE + "(" + COL_MED_ID + ", " + COL_ALARM_ID + ") VALUES" + sqlValues, null);
         }
     }
 
@@ -204,10 +207,11 @@ public class DatabaseAdapter {
                         + " INNER JOIN "
                         + TABLE_MED_EINNAHME + " USING("+ COL_MED_ID +")"
                         + " WHERE "
-                        + COL_MED_ID + " = " + sqlMedIDs
+                        + COL_MED_ID + " IN(" + sqlMedIDs + ")"
                         + " AND " + COL_MED_EINNAHME_EINNAHME_ZEIT + " = '" + einnahmeZeit + "'";
 
         Cursor c = db.rawQuery(queryMed, null);
+
         List<Medikament> result = new ArrayList<>();
         while (c.moveToNext()){
             Medikament m = new Medikament(

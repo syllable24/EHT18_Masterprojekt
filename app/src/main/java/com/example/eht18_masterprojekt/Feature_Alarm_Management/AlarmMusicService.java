@@ -1,19 +1,24 @@
 package com.example.eht18_masterprojekt.Feature_Alarm_Management;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.NotificationController;
@@ -29,6 +34,7 @@ import java.util.Queue;
 
 public class AlarmMusicService extends Service {
     public static final String ACTION_STOP_ALARM = "Stop_Alarm";
+    private static final String ALARM_SERVICE_NOTIFICATION_CHANNEL_ID = "AlarmMusicService";
 
     MediaPlayer mediaPlayer;
     VolumeAdjusterTask vat;
@@ -39,6 +45,11 @@ public class AlarmMusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         nc = new NotificationController(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel( ALARM_SERVICE_NOTIFICATION_CHANNEL_ID, "AlarmMusicServiceNotificationChannel");
+        }
+        else {/*channel ID not used*/}
+
         Notification n = getAlarmTriggeredNotification(intent, nc);
         this.startForeground(nc.getCurrentNotificationID(), n);
 
@@ -81,7 +92,8 @@ public class AlarmMusicService extends Service {
      * @param intent
      */
     private Notification getAlarmTriggeredNotification(Intent intent, NotificationController nc){
-        AlarmController.MedikamentEinnahmeGroupAlarm groupAlarm = (AlarmController.MedikamentEinnahmeGroupAlarm) intent.getSerializableExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP);
+        MedikamentEinnahmeGroupAlarm groupAlarm = new MedikamentEinnahmeGroupAlarm(intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP));
+
         if (groupAlarm == null){
             throw new RuntimeException("Received empty Group Alarm");
         }
@@ -101,7 +113,7 @@ public class AlarmMusicService extends Service {
         List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);;
         da.close();
 
-        return nc.getMedEinnahmeReminder(medList, medEinnahmeZeit);
+        return nc.getMedEinnahmeReminder(medList, medEinnahmeZeit, ALARM_SERVICE_NOTIFICATION_CHANNEL_ID);
     }
 
     /**
@@ -140,5 +152,15 @@ public class AlarmMusicService extends Service {
             }
             return null;
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(String channelId, String channelName ){
+        NotificationChannel chan = new NotificationChannel(channelId,channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        service.createNotificationChannel(chan);
+        return channelId;
     }
 }
