@@ -125,7 +125,12 @@ public class AlarmController {
      * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
      */
     private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me){
-        long alarmTime = System.currentTimeMillis() + (testAlarmCounter * (1000 * 60)); // toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        long alarmTime = toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+
+
+        alarmTime = System.currentTimeMillis() + (testAlarmCounter * (1000 * 60)); // Testfall only
+
+
         testAlarmCounter++;
         Date display = new Date(alarmTime);
         Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd HH:mm:ss").format(display));
@@ -144,6 +149,7 @@ public class AlarmController {
         for (Long medID : me.getMedsToTakeIds()){
             medIDs += medID + " ";
         }
+
         Log.d("APP-ALARM_TIME", "Alarm um: " + me.getAlarmTime() + " für Meds: " + medIDs + "gestellt");
     }
 
@@ -203,21 +209,23 @@ public class AlarmController {
     }
 
     /**
-     * Prüfen, ob die übergebene Liste an Alarmen registriert sind.
-     * @return
+     * Prüfen, ob die gespeicherten AlarmIDs für die übergebene MedList in Android registriert sind.
+     * @return true wenn sämtliche gespeicherten AlarmIDs in Android registriert sind.
      */
-    public boolean checkAlarmsRegistered(@NotNull List<MedicationAlarm> alarms){
+    public boolean checkAlarmsRegistered(@NotNull List<Medikament> medList, DatabaseAdapter da){
         boolean alarmUp;
 
-        for (MedicationAlarm medicationAlarm : alarms) {
-            int uniqueID = medicationAlarm.getAlarmID();
-            alarmUp = (PendingIntent.getBroadcast(context, uniqueID, new Intent(ACTION_MED_ALARM), PendingIntent.FLAG_NO_CREATE) != null);
-            if (alarmUp == false){
-                return false;
+        for (Medikament med: medList) {
+            long medID = med.getMedId();
+            List<Integer> storedAlarmIDs = da.getMedAlarmIDs(medID);
+
+            for (Integer i : storedAlarmIDs) {
+                alarmUp = (PendingIntent.getBroadcast(context, i, new Intent(ACTION_MED_ALARM), PendingIntent.FLAG_NO_CREATE) != null);
+                if (!alarmUp) {
+                    return false;
+                }
             }
         }
         return true;
     }
-
-
 }

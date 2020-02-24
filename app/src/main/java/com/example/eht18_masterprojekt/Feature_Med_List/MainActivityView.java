@@ -32,8 +32,6 @@ import java.util.List;
 
 public class MainActivityView extends AppCompatActivity {
 
-    private static final int NOTIFICATION_ID = 1;
-
     private RecyclerView rv_medList;
     private IntentFilter medListInitFilter = new IntentFilter("MedList_Init_Successful");
     private IntentFilter medListPersistedFilter = new IntentFilter("MedList_Persist_Successful");
@@ -42,7 +40,6 @@ public class MainActivityView extends AppCompatActivity {
     private boolean broadcastReceiversRegistered = false;
     private DatabaseAdapter databaseAdapter = new DatabaseAdapter(this);
     private FloatingActionButton fab;
-    private NotificationController notificationController;
     private MedListRecyclerViewAdapter adapter;
 
     /**
@@ -101,7 +98,6 @@ public class MainActivityView extends AppCompatActivity {
                 showSmsImportDialog();
             }
         });
-        notificationController = new NotificationController(this);
     }
 
     /**
@@ -115,7 +111,6 @@ public class MainActivityView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("APP-START", "APP started " + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(System.currentTimeMillis()));
         databaseAdapter.open();
         databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
         initActivity();
@@ -125,9 +120,13 @@ public class MainActivityView extends AppCompatActivity {
         if (GlobalListHolder.isMedListSet()){
             initMedListDisplay(GlobalListHolder.getMedList());
 
-            // TODO: Check if Alarms are registered
+            // TODO: Testen der Prüfung auf registrierte Alarme.
             AlarmController ac = new AlarmController(this);
-            ac.registerAlarms(GlobalListHolder.getMedList());
+            boolean alarmsRegistered = ac.checkAlarmsRegistered(GlobalListHolder.getMedList(), databaseAdapter);
+
+            if (!alarmsRegistered) {
+                ac.registerAlarms(GlobalListHolder.getMedList());
+            }
         }
         else{
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels

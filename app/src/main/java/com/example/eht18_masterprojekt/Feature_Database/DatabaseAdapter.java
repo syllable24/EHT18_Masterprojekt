@@ -128,19 +128,23 @@ public class DatabaseAdapter {
     public void storeAlarms(@NotNull Map<LocalTime, MedikamentEinnahmeGroupAlarm> groupAlarmMap){
         for (LocalTime l : groupAlarmMap.keySet()){
             MedikamentEinnahmeGroupAlarm current = groupAlarmMap.get(l);
+
             if(current.getMedsToTakeIds() == null) throw new RuntimeException("No MedIDs in groupAlarm");
+
             ContentValues cv = new ContentValues();
             cv.put(COL_ALARM_ID, current.getAlarmID());
             cv.put(COL_ALARM_ZEIT, current.getAlarmTime().toString());
             db.insertOrThrow(TABLE_ALARMS, null, cv);
 
             cv.clear();
-            String sqlValues = "(" + String.valueOf(groupAlarmMap.get(l).getMedsToTakeIds().get(0)) + ", "+ current.getAlarmID() + ")";
+            String sqlValues = "(" + groupAlarmMap.get(l).getMedsToTakeIds().get(0) + ", "+ current.getAlarmID() + ")";
             for (int i = 1; i < groupAlarmMap.get(l).getMedsToTakeIds().size(); i++){
-                sqlValues += ", " + "(" + String.valueOf(groupAlarmMap.get(l).getMedsToTakeIds().get(i)) + ", "+ current.getAlarmID() + ")";
+                sqlValues += ", " + "(" + groupAlarmMap.get(l).getMedsToTakeIds().get(i) + ", "+ current.getAlarmID() + ")";
             }
 
-            db.rawQuery("INSERT INTO " + TABLE_MEDS_TO_TAKE + "(" + COL_MED_ID + ", " + COL_ALARM_ID + ") VALUES" + sqlValues, null);
+            String sql = "INSERT INTO " + TABLE_MEDS_TO_TAKE + "(" + COL_MED_ID + ", " + COL_ALARM_ID + ") VALUES" + sqlValues;
+            db.rawQuery(sql, null);
+            Log.d("APP-DB_STORE_ALARM", sql);
         }
     }
 
@@ -290,5 +294,21 @@ public class DatabaseAdapter {
 
     public boolean isMedListStored() {
         return medListStored;
+    }
+
+    /**
+     * Gespeicherte AlarmIDs für die übergebene MedID retournieren.
+     * @param medID
+     * @return
+     */
+    public List<Integer> getMedAlarmIDs(long medID) {
+        List<Integer> result = new ArrayList<>();
+        String sql = "SELECT " + COL_ALARM_ID + " FROM " + TABLE_MEDS_TO_TAKE + " WHERE " + COL_MED_ID + " = " + medID;
+
+        Cursor c = db.rawQuery(sql, null);
+        while (c.moveToNext()){
+            result.add(c.getInt(0));
+        }
+        return result;
     }
 }
