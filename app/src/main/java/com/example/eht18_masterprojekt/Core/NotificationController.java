@@ -6,7 +6,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.text.Html;
+import android.text.SpannableString;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -102,25 +105,29 @@ public class NotificationController {
             String medBezeichnung = currentMed.getBezeichnung();
             String dosis = currentMed.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit)).getEinnahmeDosis();
 
-            // TODO: Content not readable; linebreaks not visible..
             content += "Bitte " + dosis + " "  + medBezeichnung + " einnehmen";
 
             if (j < meds.size() - 1){
-                content += System.getProperty("line.separator");
+                content += "<br>";
             }
         }
         title += " einnehmen";
 
+        SpannableString spannableContent = new SpannableString(Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY));
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelID);
         builder.setContentTitle(title)
-                .setContentText(content)
+                .setContentText(title)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(spannableContent))
                 .setSmallIcon(R.mipmap.ic_info)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_info))
                 .setDeleteIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true);
 
         Log.d("APP", "Notification ID: " + notificationID + " erzeugt");
+        Log.d("APP", "Title: " + title + " Content: " + content);
         return builder.build();
     }
 

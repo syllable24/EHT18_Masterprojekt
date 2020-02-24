@@ -110,7 +110,7 @@ public class AlarmMusicService extends Service {
         DatabaseAdapter da = new DatabaseAdapter(this);
 
         da.open();
-        List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);;
+        List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);
         da.close();
 
         return nc.getMedEinnahmeReminder(medList, medEinnahmeZeit, ALARM_SERVICE_NOTIFICATION_CHANNEL_ID);

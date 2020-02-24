@@ -38,6 +38,7 @@ public class AlarmController {
     public static final String ALARM_INTENT_EXTRA_MED_ID = "medID";
     public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT = "medEinnahmeZeit";
     public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP = "medEinnahmeGroup";
+    public static int testAlarmCounter = 0;
 
     public AlarmController(Context context){
         this.context = context;
@@ -59,7 +60,6 @@ public class AlarmController {
         Map<LocalTime, MedikamentEinnahmeGroupAlarm> alarmMedGroups = new HashMap<>();
 
         for (Medikament med : medList){
-            Log.d(tag, "Med " + med.getBezeichnung() + ": ");
             for (Medikament.MedEinnahme me : med.getEinnahmeProtokoll()){
 
                 MedikamentEinnahmeGroupAlarm alarmGroup = alarmMedGroups.get(me.getEinnahmeZeit());
@@ -84,7 +84,7 @@ public class AlarmController {
 
         for(LocalTime key : alarmMedGroups.keySet()){
             registerIndivAlarm(alarmMedGroups.get(key));
-            Log.d(tag, "Registered indivAlarm for:" + key);
+            Log.d(tag, "Registered indivAlarm for: " + key);
         }
 
         DatabaseAdapter da = new DatabaseAdapter(context);
@@ -125,9 +125,10 @@ public class AlarmController {
      * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
      */
     private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me){
-        long alarmTime = System.currentTimeMillis() + 1000 * 15;; // toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        long alarmTime = System.currentTimeMillis() + (testAlarmCounter * (1000 * 60)); // toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        testAlarmCounter++;
         Date display = new Date(alarmTime);
-        Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
+        Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd HH:mm:ss").format(display));
 
         // uniqueID generieren, um den Alarm wieder deaktivieren zu können
         int alarmID = (int) System.currentTimeMillis();

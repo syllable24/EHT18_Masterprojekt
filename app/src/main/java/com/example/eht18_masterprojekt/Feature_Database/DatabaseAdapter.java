@@ -223,7 +223,7 @@ public class DatabaseAdapter {
 
             m.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(einnahmeZeit), c.getString(4));
             result.add(m);
-            Log.d("APP-DatabaseAdapter",m.toString());
+            Log.d("APP-DatabaseAdapter", m.toString());
         }
         c.close();
         return result;
