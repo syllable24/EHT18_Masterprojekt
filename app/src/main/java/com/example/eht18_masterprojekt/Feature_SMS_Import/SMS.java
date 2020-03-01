@@ -209,16 +209,16 @@ class SMS {
 
                     // In einer XML-SMS kann ein EinnahmeProtokoll nur diese 4 Einträge haben.
                     if (xmlEinnahmeDetails.item(FRUEH).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_FRUEH, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_FRUEH, m.getStueckzahl());
                     }
                     if (xmlEinnahmeDetails.item(MITTAG).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_MITTAG, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_MITTAG, m.getStueckzahl() );
                     }
                     if (xmlEinnahmeDetails.item(ABEND).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_ABEND, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_ABEND, m.getStueckzahl());
                     }
                     if (xmlEinnahmeDetails.item(NACHT).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_NACHT, m.getStueckzahl() + " " + m.getEinheit());
+                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_NACHT, m.getStueckzahl());
                     }
                     xmlMedList.add(m);
                     Log.d("MED-INIT", "Med " + m.getBezeichnung() + " eingelesen!");

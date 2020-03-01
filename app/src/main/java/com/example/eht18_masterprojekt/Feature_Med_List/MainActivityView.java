@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.AlarmController;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.ScheduleAlarmsTask;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseHelper;
 import com.example.eht18_masterprojekt.Feature_SMS_Import.ImportSmsView;
 import com.example.eht18_masterprojekt.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -112,21 +114,14 @@ public class MainActivityView extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         databaseAdapter.open();
-        databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
+        //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
+
         initActivity();
 
         GlobalListHolder.init(databaseAdapter);
 
         if (GlobalListHolder.isMedListSet()){
             initMedListDisplay(GlobalListHolder.getMedList());
-
-            // TODO: Testen der Prüfung auf registrierte Alarme.
-            AlarmController ac = new AlarmController(this);
-            boolean alarmsRegistered = ac.checkAlarmsRegistered(GlobalListHolder.getMedList(), databaseAdapter);
-
-            if (!alarmsRegistered) {
-                ac.registerAlarms(GlobalListHolder.getMedList());
-            }
         }
         else{
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels

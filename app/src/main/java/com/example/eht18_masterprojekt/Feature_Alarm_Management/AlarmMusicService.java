@@ -56,6 +56,7 @@ public class AlarmMusicService extends Service {
         registerReceiver(stopServiceReceiver, new IntentFilter(ACTION_STOP_ALARM));
 
         if (mediaPlayer == null) {
+            // TODO: Set Volume to some audible level
             Uri alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             mediaPlayer = MediaPlayer.create(this, alarmTone);
             mediaPlayer.setLooping(true);
@@ -108,8 +109,6 @@ public class AlarmMusicService extends Service {
         String medEinnahmeZeit = groupAlarm.getAlarmTime().toString();
 
         DatabaseAdapter da = new DatabaseAdapter(this);
-
-        da.open();
         List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);
         da.close();
 

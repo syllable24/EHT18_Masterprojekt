@@ -39,6 +39,7 @@ public class AlarmController {
     public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT = "medEinnahmeZeit";
     public static final String ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP = "medEinnahmeGroup";
     public static int testAlarmCounter = 0;
+    private static final int ALARM_ID_BASE = 200;
 
     public AlarmController(Context context){
         this.context = context;
@@ -78,12 +79,13 @@ public class AlarmController {
             }
         }
 
-        if (alarmMedGroups.size() == 0 || alarmMedGroups == null){
+        if (alarmMedGroups.size() == 0){
             throw new RuntimeException("AlarmMedGroups has no entries!");
         }
 
+        int alarmID = ALARM_ID_BASE;
         for(LocalTime key : alarmMedGroups.keySet()){
-            registerIndivAlarm(alarmMedGroups.get(key));
+            registerIndivAlarm(alarmMedGroups.get(key), alarmID++);
             Log.d(tag, "Registered indivAlarm for: " + key);
         }
 
@@ -124,7 +126,7 @@ public class AlarmController {
      *
      * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
      */
-    private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me){
+    private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me, int alarmID){
         long alarmTime = toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
 
 
@@ -134,9 +136,6 @@ public class AlarmController {
         testAlarmCounter++;
         Date display = new Date(alarmTime);
         Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd HH:mm:ss").format(display));
-
-        // uniqueID generieren, um den Alarm wieder deaktivieren zu können
-        int alarmID = (int) System.currentTimeMillis();
 
         Intent i = new Intent(context, AlarmReceiver.class);
         i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP, me.toString());
@@ -213,14 +212,17 @@ public class AlarmController {
      * @return true wenn sämtliche gespeicherten AlarmIDs in Android registriert sind.
      */
     public boolean checkAlarmsRegistered(@NotNull List<Medikament> medList, DatabaseAdapter da){
-        boolean alarmUp;
 
         for (Medikament med: medList) {
             long medID = med.getMedId();
             List<Integer> storedAlarmIDs = da.getMedAlarmIDs(medID);
 
-            for (Integer i : storedAlarmIDs) {
-                alarmUp = (PendingIntent.getBroadcast(context, i, new Intent(ACTION_MED_ALARM), PendingIntent.FLAG_NO_CREATE) != null);
+            if (storedAlarmIDs.size() == 0) throw new RuntimeException("DB retrieved med has no AlarmIDs");
+
+            for (Integer alarmId : storedAlarmIDs) {
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                intent.setAction(ACTION_MED_ALARM);
+                boolean alarmUp = (PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_NO_CREATE) != null);
                 if (!alarmUp) {
                     return false;
                 }

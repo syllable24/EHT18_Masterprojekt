@@ -41,6 +41,10 @@ public class DatabaseAdapter {
         db.close();
     }
 
+    public boolean isDbOpen(){
+        return db.isOpen();
+    }
+
     public SQLiteDatabase getDatabaseInstance(){
         return db;
     }
@@ -63,6 +67,7 @@ public class DatabaseAdapter {
                 cvMed.put(COL_MED_EINHEIT, m.getEinheit());
                 cvMed.put(COL_MED_STUECKZAHL, m.getStueckzahl());
                 long medID = db.insertOrThrow(TABLE_MED_LIST, null, cvMed);
+                Log.d("APP-DB_STORE_MED", "INSERT INTO " + TABLE_MED_LIST + "(" + COL_MED_BEZEICHNUNG + ", " + COL_MED_EINHEIT + ", " + COL_MED_STUECKZAHL + ") VALUES('" + cvMed.get(COL_MED_BEZEICHNUNG) + "', '" + cvMed.get(COL_MED_EINHEIT) +  "', " + cvMed.getAsString(COL_MED_STUECKZAHL).replace(",",".") + ");");
                 m.setMedId(medID);
 
                 for (Medikament.MedEinnahme medEinnahme : m.getEinnahmeProtokoll()) {
@@ -70,13 +75,13 @@ public class DatabaseAdapter {
                     cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_ZEIT, medEinnahme.getEinnahmeZeit().toString());
                     cvEinnahme.put(COL_MED_EINNAHME_EINNAHME_DOSIS, medEinnahme.getEinnahmeDosis());
                     long einnahmeID = db.insertOrThrow(TABLE_MED_EINNAHME, null, cvEinnahme);
+                    Log.d("APP-DB_STORE_MED", "INSERT INTO " + TABLE_MED_EINNAHME + "(" + COL_MED_EINNAHME_MED_ID + ", " + COL_MED_EINNAHME_EINNAHME_ZEIT + ", " + COL_MED_EINNAHME_EINNAHME_DOSIS + ") VALUES(" + cvEinnahme.get(COL_MED_EINNAHME_MED_ID) + ", '" + cvEinnahme.get(COL_MED_EINNAHME_EINNAHME_ZEIT) +  "', " + cvEinnahme.getAsString(COL_MED_EINNAHME_EINNAHME_DOSIS).replace(",", ".") + ");");
                     medEinnahme.setEinnahmeID(einnahmeID);
-                    Log.d("APP-PERSIST-MED", "Med-Einnahme für: " + m.getBezeichnung() + " um " + medEinnahme.getEinnahmeZeit().toString() + " mit ID: " + medID + " gespeichert");
                 }
             }
         }
         catch (SQLException e){
-            Log.e("Store MedList", e.getMessage());
+            Log.e("APP-STORE-MED_LIST", e.getMessage());
         }
         return true;
     }
@@ -106,22 +111,10 @@ public class DatabaseAdapter {
             db.execSQL("DELETE FROM " + TABLE_MED_EINNAHME);
             db.execSQL("DELETE FROM " + TABLE_MED_LIST);
             db.execSQL("DELETE FROM " + TABLE_ALARMS);
+            db.execSQL("DELETE FROM " + TABLE_MEDS_TO_TAKE);
         }
         catch (SQLException e ){
             Log.e("DB-EMPTY", e.getMessage());
-        }
-    }
-
-    public void storeAlarms(@NotNull List<Medikament> medList){
-        for (Medikament med : medList){
-            if (med.getMedId() == 0) throw new RuntimeException(med.toString() + " has no medID, store in DB first!");
-            for (Medikament.MedEinnahme mea : med.getEinnahmeProtokoll()) {
-                ContentValues cv = new ContentValues();
-                cv.put(COL_ALARM_ID, mea.getAlarmID());
-                cv.put(COL_ALARM_ZEIT, mea.getEinnahmeZeit().toString());
-                cv.put(COL_ALARM_MED_ID, med.getMedId());
-                db.insertOrThrow(TABLE_ALARMS, null, cv);
-            }
         }
     }
 
@@ -135,17 +128,17 @@ public class DatabaseAdapter {
             cv.put(COL_ALARM_ID, current.getAlarmID());
             cv.put(COL_ALARM_ZEIT, current.getAlarmTime().toString());
             db.insertOrThrow(TABLE_ALARMS, null, cv);
+            Log.d("APP-DB_STORE_ALARM", "INSERT INTO " + TABLE_ALARMS + "(" + COL_ALARM_ID + ", " + COL_ALARM_ZEIT + ") VALUES(" + cv.get(COL_ALARM_ID) + ", '" + cv.get(COL_ALARM_ZEIT) + "');");
 
             cv.clear();
-            String sqlValues = "(" + groupAlarmMap.get(l).getMedsToTakeIds().get(0) + ", "+ current.getAlarmID() + ")";
-            for (int i = 1; i < groupAlarmMap.get(l).getMedsToTakeIds().size(); i++){
-                sqlValues += ", " + "(" + groupAlarmMap.get(l).getMedsToTakeIds().get(i) + ", "+ current.getAlarmID() + ")";
-            }
 
-            String sql = "INSERT INTO " + TABLE_MEDS_TO_TAKE + "(" + COL_MED_ID + ", " + COL_ALARM_ID + ") VALUES" + sqlValues;
-            db.rawQuery(sql, null);
-            Log.d("APP-DB_STORE_ALARM", sql);
+            for (int i = 0; i < groupAlarmMap.get(l).getMedsToTakeIds().size(); i++){
+                cv.put(COL_ALARM_ID, current.getAlarmID());
+                cv.put(COL_MED_ID, groupAlarmMap.get(l).getMedsToTakeIds().get(i));
+                db.insertOrThrow(TABLE_MEDS_TO_TAKE, null, cv);
+            }
         }
+        printDatabaseContents();
     }
 
     /**
@@ -304,11 +297,36 @@ public class DatabaseAdapter {
     public List<Integer> getMedAlarmIDs(long medID) {
         List<Integer> result = new ArrayList<>();
         String sql = "SELECT " + COL_ALARM_ID + " FROM " + TABLE_MEDS_TO_TAKE + " WHERE " + COL_MED_ID + " = " + medID;
+        String[] selectColumns = {COL_ALARM_ID};
+        String[] selectArgs = {String.valueOf(medID)};
 
-        Cursor c = db.rawQuery(sql, null);
+        Cursor c = db.query(TABLE_MEDS_TO_TAKE, selectColumns, COL_MED_ID + " = ?", selectArgs, null, null,null);
         while (c.moveToNext()){
             result.add(c.getInt(0));
         }
         return result;
+    }
+
+    public void printDatabaseContents() {
+        String[] sqls = {"SELECT * FROM " + TABLE_ALARMS, "SELECT * FROM " + TABLE_MED_LIST, "SELECT * FROM " + TABLE_MEDS_TO_TAKE, "SELECT * FROM " + TABLE_MED_EINNAHME};
+        String display = "";
+        for (String sql : sqls) {
+            Log.d("APP-DB-DATA", sql);
+            Cursor c = db.rawQuery(sql, null);
+            for (String cName : c.getColumnNames()){
+                display += cName + " | ";
+            }
+            Log.d("APP-DB-DATA", display);
+            display = "";
+
+            while(c.moveToNext()){
+                for(int i = 0; i < c.getColumnCount(); i++){
+                    display += c.getString(i) == null ? "null" : c.getString(i);
+                    display += " | ";
+                }
+                Log.d("APP-DB-DATA", display);
+                display = "";
+            }
+        }
     }
 }

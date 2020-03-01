@@ -88,6 +88,8 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
 
         holder.medikamentTextView.setText(bezeichnung);
 
+        // TODO: Med Einnahme Einheit muss in anzeige hinzugefügt werden.
+
         for (Medikament.MedEinnahme e : ez){
             TableRow singleEinnahme = new TableRow(context);
             ImageView ivEinnahmeIcon = new ImageView(context);

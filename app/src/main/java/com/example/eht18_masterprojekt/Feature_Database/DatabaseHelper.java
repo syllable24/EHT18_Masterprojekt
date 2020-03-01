@@ -11,8 +11,8 @@ import androidx.annotation.Nullable;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final String DB_NAME = "MedList";
-    public static final int DB_VERSION = 6;
+    public static final String DB_NAME = "Dauermedikationsliste.db";
+    public static final int DB_VERSION = 9;
 
     public static final String TABLE_MED_LIST = "MedList";
     public static final String COL_MED_ID = "MedID";
@@ -51,11 +51,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DB_CREATE_TABLE_ALARMS);
             db.execSQL(DB_CREATE_TABLE_MED_LIST);
             db.execSQL(DB_CREATE_TABLE_MED_EINNAHME);
+
             db.execSQL(DB_CREATE_TABLE_MEDS_TO_TAKE);
+            Log.d("APP-DB-CREATE", "New DB Created");
         }
         catch(SQLException e){
             Log.e("DB", e.getMessage());
         }
+
     }
 
     @Override
