@@ -18,6 +18,9 @@ public class GlobalListHolder {
     }
 
     public static List<Medikament> getMedList() {
+        if (globalMedList == null){
+            throw new RuntimeException("MedList not initialized. Call init() first!");
+        }
         return globalMedList;
     }
 

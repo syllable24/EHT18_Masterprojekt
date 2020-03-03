@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Core.NotificationController;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -94,31 +95,41 @@ public class AlarmController {
     }
 
     /**
-     * Registrieren des wiederholenden Alarms für die übergebene MedikamentEinnahme im Android
-     * Alarm Manager. Der Alarm wird alle 24h wiederholt. Die medEinnahme wird mit dem generiertem
-     * Alarm verlinkt.
-     *
-     * @param medEinnahme
+     * Erneutes Registrieren der, in der DB gespeicherten, Alarme.
      */
-    private void registerIndivAlarm(Medikament.MedEinnahme medEinnahme, int notificationID){
-        long alarmTime = toAlarmTime(medEinnahme.getEinnahmeZeit());
-        long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
-        Date display = new Date(testAlarmTime);
-        Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd hh:mm:ss").format(display));
+    public void reRegisterAlarms(){
+        final String tag = "APP-REGISTER_ALARMS";
+        List<Medikament> medList = GlobalListHolder.getMedList();
+        Map<LocalTime, MedikamentEinnahmeGroupAlarm> alarmMedGroups = new HashMap<>();
 
-        // uniqueID generieren, um den Alarm wieder deaktivieren zu können
-        int alarmID = (int) System.currentTimeMillis();
+        for (Medikament med : medList){
+            for (Medikament.MedEinnahme me : med.getEinnahmeProtokoll()){
 
-        Intent i = new Intent(context, AlarmReceiver.class);
-        i.putExtra(ALARM_INTENT_EXTRA_MED_ID, medEinnahme.getMed().getMedId());
-        i.putExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT, medEinnahme.getEinnahmeZeit().toString());
+                MedikamentEinnahmeGroupAlarm alarmGroup = alarmMedGroups.get(me.getEinnahmeZeit());
 
-        PendingIntent alarmAction = PendingIntent.getBroadcast(context, alarmID, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, testAlarmTime, FULL_DAY_MILLIS, alarmAction);
+                if (alarmGroup == null){
+                    MedikamentEinnahmeGroupAlarm newAlarmGroup = new MedikamentEinnahmeGroupAlarm(me.getEinnahmeZeit());
+                    newAlarmGroup.addAlarm(me.getMed().getMedId());
+                    alarmMedGroups.put(newAlarmGroup.getAlarmTime(), newAlarmGroup);
+                    Log.d(tag, "Created New alarmGroup "  + newAlarmGroup.getAlarmTime());
+                    Log.d(tag, "Added Med: " + med.getBezeichnung() + " ID: " + med.getMedId() + " to AlarmGroup: " + newAlarmGroup.getAlarmTime().toString());
+                }
+                else {
+                    alarmGroup.addAlarm(med.getMedId());
+                    Log.d(tag, "Added Med: " + med.getBezeichnung() + " ID: " + med.getMedId() + " to AlarmGroup: " + alarmGroup.getAlarmTime().toString());
+                }
+            }
+        }
 
-        medEinnahme.linkAlarm(alarmID, notificationID);
+        if (alarmMedGroups.size() == 0){
+            throw new RuntimeException("AlarmMedGroups has no entries!");
+        }
 
-        Log.d("APP-ALARM_TIME", "Alarm um: " + i.getStringExtra(ALARM_INTENT_EXTRA_MED_EINNAHME_ZEIT) + " für: " + i.getLongExtra(ALARM_INTENT_EXTRA_MED_ID, 0) + " gestellt");
+        int alarmID = ALARM_ID_BASE;
+        for(LocalTime key : alarmMedGroups.keySet()){
+            registerIndivAlarm(alarmMedGroups.get(key), alarmID++);
+            Log.d(tag, "Registered indivAlarm for: " + key);
+        }
     }
 
     /**
@@ -127,13 +138,10 @@ public class AlarmController {
      * @param me MedikamentEinnahmeGruppe, für die ein Alarm gestellt werden soll.
      */
     private void registerIndivAlarm(MedikamentEinnahmeGroupAlarm me, int alarmID){
-        long alarmTime = toAlarmTime(me.getAlarmTime()); //long testAlarmTime = System.currentTimeMillis() + 1000 * 15;
+        long alarmTime = toAlarmTime(me.getAlarmTime());
+        // alarmTime = System.currentTimeMillis() + (testAlarmCounter * (1000 * 60)); // Testfall only
+        //testAlarmCounter++;
 
-
-        alarmTime = System.currentTimeMillis() + (testAlarmCounter * (1000 * 60)); // Testfall only
-
-
-        testAlarmCounter++;
         Date display = new Date(alarmTime);
         Log.d("APP-ALARM_TIME_TEST", "testAlarmTime " + new SimpleDateFormat("YYYY.MM.dd HH:mm:ss").format(display));
 

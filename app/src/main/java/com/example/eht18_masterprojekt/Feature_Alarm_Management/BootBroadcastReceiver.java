@@ -3,25 +3,35 @@ package com.example.eht18_masterprojekt.Feature_Alarm_Management;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
+import com.example.eht18_masterprojekt.Feature_Database.DatabaseHelper;
+import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
-    static final String ACTION = "android.intent.action.BOOT_COMPLETED";
+    private Context context;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //TODO: TEST THIS
-        // ReRegister All Med-Alarms after device restart.
-        AlarmController ac = new AlarmController(context);
-        DatabaseAdapter databaseAdapter = new DatabaseAdapter(context);
-        boolean alarmsRegistered = ac.checkAlarmsRegistered(GlobalListHolder.getMedList(), databaseAdapter);
+        this.context = context;
+        AlarmRegisterTask at = new AlarmRegisterTask();
+        at.execute();
+    }
 
-        if (!alarmsRegistered) {
-            ac.registerAlarms(GlobalListHolder.getMedList());
+    private class AlarmRegisterTask extends AsyncTask{
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            DatabaseAdapter da = new DatabaseAdapter(context);
+            da.open();
+            GlobalListHolder.init(da);
+            new AlarmController(context).reRegisterAlarms();
+            da.close();
+            Log.d("APP-BOOT-RECEIVER", "Post-Boot: Alarms ReRegistered");
+            return null;
         }
-
     }
 }
