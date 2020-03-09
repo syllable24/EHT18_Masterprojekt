@@ -45,22 +45,13 @@ public class MainActivityView extends AppCompatActivity {
     private MedListRecyclerViewAdapter adapter;
 
     /**
-     * Wird aufgerufen, wenn eine neue medListe aus einer SMS importiert wurde.
-     * Überschreibt eine bereits gespeicherte MedList, startet die Alarmgenerierung
-     * und aktualisiert die Anzeige der MedList.
+     * Anzeigen und Speichern der importierten MedList.
      */
     private BroadcastReceiver broadcastReceiverMedListImported = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // TODO: AsynchTask?
             updateMedListDisplay(GlobalListHolder.getMedList());
-
-            if (databaseAdapter.isMedListStored()){
-                userInteractOverwriteMedList();
-            }
-            else {
-                startPersistMedList();
-            }
+            startPersistMedList();
         }
     };
 
@@ -84,6 +75,15 @@ public class MainActivityView extends AppCompatActivity {
         }
     };
 
+    /**
+     * Registrieren der Broadcastreceiver
+     */
+    private void registerBroadcastReceivers(){
+        registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
+        registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
+        registerReceiver(broadcastReceiverAlarmsScheduled, alarmsScheduledFilter);
+        broadcastReceiversRegistered = true;
+    }
 
     /**
      * Einlesen der GUI Elemente.
@@ -102,6 +102,11 @@ public class MainActivityView extends AppCompatActivity {
         });
     }
 
+    public void fabImportNewSms_onClick(android.view.View view){
+        Intent smsImportStarter = new Intent(MainActivityView.this, ImportSmsView.class);
+        startActivity(smsImportStarter);
+    }
+
     /**
      * Setzen der MedList. Zuerst wird versucht, eine MedList aus der SQLite DB auszulesen.
      * Falls das nicht möglich ist, wird der SMS Import gestartet.
@@ -114,7 +119,8 @@ public class MainActivityView extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         databaseAdapter.open();
-        //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
+        //databaseAdapter.printDatabaseContents();
+        databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
 
         initActivity();
 
@@ -149,16 +155,6 @@ public class MainActivityView extends AppCompatActivity {
         if (commandRegisterBroadcastReceiver) {
             registerBroadcastReceivers();
         }
-    }
-
-    /**
-     * Registrieren der Broadcastreceiver
-     */
-    private void registerBroadcastReceivers(){
-        registerReceiver(broadcastReceiverMedListImported, medListInitFilter);
-        registerReceiver(broadcastReceiverMedListStored, medListPersistedFilter);
-        registerReceiver(broadcastReceiverAlarmsScheduled, alarmsScheduledFilter);
-        broadcastReceiversRegistered = true;
     }
 
     private void startAlarmScheduling(){

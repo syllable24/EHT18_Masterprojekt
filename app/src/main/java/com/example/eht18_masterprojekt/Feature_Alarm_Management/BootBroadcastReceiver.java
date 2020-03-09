@@ -9,8 +9,6 @@ import android.util.Log;
 
 import com.example.eht18_masterprojekt.Core.GlobalListHolder;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
-import com.example.eht18_masterprojekt.Feature_Database.DatabaseHelper;
-import com.example.eht18_masterprojekt.Feature_Med_List.MainActivityView;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
     private Context context;

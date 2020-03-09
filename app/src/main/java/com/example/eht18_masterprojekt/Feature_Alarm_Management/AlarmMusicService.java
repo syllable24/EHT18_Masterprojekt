@@ -48,7 +48,7 @@ public class AlarmMusicService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel( ALARM_SERVICE_NOTIFICATION_CHANNEL_ID, "AlarmMusicServiceNotificationChannel");
         }
-        else {/*channel ID not used*/}
+        //else {/*channel ID not used*/}
 
         Notification n = getAlarmTriggeredNotification(intent, nc);
         this.startForeground(nc.getCurrentNotificationID(), n);
@@ -109,6 +109,7 @@ public class AlarmMusicService extends Service {
         String medEinnahmeZeit = groupAlarm.getAlarmTime().toString();
 
         DatabaseAdapter da = new DatabaseAdapter(this);
+        da.open();
         List<Medikament> medList = da.retrieveMedikamentListWithEinnahmeDosis(medIDs, medEinnahmeZeit);
         da.close();
 

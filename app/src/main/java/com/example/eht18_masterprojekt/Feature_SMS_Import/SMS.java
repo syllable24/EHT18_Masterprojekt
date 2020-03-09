@@ -12,6 +12,7 @@ import com.example.eht18_masterprojekt.R;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -136,16 +137,10 @@ class SMS {
 
     static class XmlSmsBuilder extends SmsBuilder {
 
-        private final int PZN         = 0;
-        private final int BEZEICHNUNG = 1;
-        private final int ANZAHL      = 2;
-        private final int EINHEIT     = 3;
-        private final int EINNAHME    = 4;
-
-        private final int FRUEH  = 0;
-        private final int MITTAG = 1;
-        private final int ABEND  = 2;
-        private final int NACHT  = 3;
+        private final int BEZEICHNUNG = 0;
+        private final int EINHEIT     = 1;
+        private final int EINNAHME_ZEIT    = 0;
+        private final int EINNAHME_DOSIS    = 1;
 
         private final LocalTime ZEIT_FRUEH  = LocalTime.of(8,0);
         private final LocalTime ZEIT_MITTAG = LocalTime.of(12, 0);
@@ -186,7 +181,7 @@ class SMS {
         }
 
         /**
-         * Einlesen der Medikamente und deren Einnahmezeiten aus übergebener XML-NodeList.
+         * Einlesen der Medikamente, Einnahmezeiten und deren Dosis aus übergebener XML-NodeList.
          *
          * @param medList
          * @return Medikationsliste
@@ -197,28 +192,19 @@ class SMS {
                 for (int i = 0; i < medList.getLength(); i++) {
                     Log.d("MED-INIT", "Starte einlesen von Med " + i + "...");
                     Node xmlMedikament = medList.item(i);
-                    NodeList xmlMedDetails = xmlMedikament.getChildNodes();
+                    NamedNodeMap medAttributes = xmlMedikament.getAttributes();
 
                     Medikament m = new Medikament(
-                             xmlMedDetails.item(BEZEICHNUNG).getTextContent()
-                            ,xmlMedDetails.item(EINHEIT).getTextContent()
-                            ,xmlMedDetails.item(ANZAHL).getTextContent()
+                             medAttributes.item(BEZEICHNUNG).getNodeValue()
+                            ,medAttributes.item(EINHEIT).getNodeValue()
                     );
+                    NodeList xmlMedEinnahmen = xmlMedikament.getChildNodes();
 
-                    NodeList xmlEinnahmeDetails = xmlMedDetails.item(EINNAHME).getChildNodes();
-
-                    // In einer XML-SMS kann ein EinnahmeProtokoll nur diese 4 Einträge haben.
-                    if (xmlEinnahmeDetails.item(FRUEH).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_FRUEH, m.getStueckzahl());
-                    }
-                    if (xmlEinnahmeDetails.item(MITTAG).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_MITTAG, m.getStueckzahl() );
-                    }
-                    if (xmlEinnahmeDetails.item(ABEND).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_ABEND, m.getStueckzahl());
-                    }
-                    if (xmlEinnahmeDetails.item(NACHT).getTextContent().equals("1")) {
-                        m.getEinnahmeProtokoll().addEinnahme(ZEIT_NACHT, m.getStueckzahl());
+                    for(int j = 0; j < xmlMedEinnahmen.getLength(); j++){
+                        Node xmlEinnahme = xmlMedEinnahmen.item(j);
+                        LocalTime einnahmeZeit = LocalTime.parse(xmlEinnahme.getAttributes().item(EINNAHME_ZEIT).getNodeValue());
+                        String einnahmeDosis =  xmlEinnahme.getAttributes().item(EINNAHME_DOSIS).getNodeValue();
+                        m.getEinnahmeProtokoll().addEinnahme(einnahmeZeit, einnahmeDosis);
                     }
                     xmlMedList.add(m);
                     Log.d("MED-INIT", "Med " + m.getBezeichnung() + " eingelesen!");

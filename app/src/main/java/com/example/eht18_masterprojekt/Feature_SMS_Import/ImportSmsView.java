@@ -62,10 +62,9 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         boolean permission = initPermission();
         registerReceiver(br, medListInitFilter);
 
-        if (permission == true){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
+        if (permission){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
             startSmsInit();
         }
-
         //sendSms();
     }
 
@@ -119,7 +118,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
      * eingeholt werden.
      */
     private boolean initPermission(){
-        String[] permissions = {Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS}; // , Manifest.permission.SEND_SMS
+        String[] permissions = {Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS};
 
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED)
              ||  ( ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)) != PackageManager.PERMISSION_GRANTED){
@@ -182,64 +181,40 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             PendingIntent pi= PendingIntent.getActivity(getApplicationContext(), 0, intent,0);
             SmsManager sms=SmsManager.getDefault();
             ArrayList msgParts = sms.divideMessage("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "\n" +
-                    "<SMS \n" +
-                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n " +
-                    "xsi:noNamespaceSchemaLocation=\"SmsTemplate.xsd\">\n" +
-                    "    <Medikamente>\n" +
-                    "    \t<Add>\n" +
-                    "    \t\t<PZN>1234</PZN>\n" +
-                    "    \t\t<Bezeichnung>Aspirin</Bezeichnung>\n" +
-                    "    \t\t<Anzahl>1</Anzahl>\n" +
-                    "    \t\t<Einheit>Tablette</Einheit>\n" +
-                    "    \t\t<Einnahme>\n" +
-                    "    \t\t\t<Frueh>0</Frueh>\n" +
-                    "    \t\t\t<Mittag>1</Mittag>\n" +
-                    "    \t\t\t<Abend>0</Abend>\n" +
-                    "    \t\t\t<Nacht>0</Nacht>\n" +
-                    "    \t\t</Einnahme>\n" +
-                    "    \t</Add>\t\n" +
-                    "    \t<Add>\n" +
-                    "    \t\t<PZN>5678</PZN>\n" +
-                    "    \t\t<Bezeichnung>Paracetamol</Bezeichnung>\n" +
-                    "    \t\t<Anzahl>20</Anzahl>\n" +
-                    "    \t\t<Einheit>mg</Einheit>\n" +
-                    "    \t\t<Einnahme>\n" +
-                    "    \t\t\t<Frueh>1</Frueh>\n" +
-                    "    \t\t\t<Mittag>0</Mittag>\n" +
-                    "    \t\t\t<Abend>0</Abend>\n" +
-                    "    \t\t\t<Nacht>1</Nacht>\n" +
-                    "    \t\t</Einnahme>\n" +
-                    "    \t</Add>\n" +
-                    "    \t<Add>\n" +
-                    "    \t\t<PZN>5432</PZN>\n" +
-                    "    \t\t<Bezeichnung>Ibuprophen</Bezeichnung>\n" +
-                    "    \t\t<Anzahl>10</Anzahl>\n" +
-                    "    \t\t<Einheit>mg</Einheit>\n" +
-                    "    \t\t<Einnahme>\n" +
-                    "    \t\t\t<Frueh>0</Frueh>\n" +
-                    "    \t\t\t<Mittag>1</Mittag>\n" +
-                    "    \t\t\t<Abend>1</Abend>\n" +
-                    "    \t\t\t<Nacht>0</Nacht>\n" +
-                    "    \t\t</Einnahme>\n" +
-                    "    \t</Add>\t\n" +
-                    "    \t<Add>\n" +
-                    "    \t\t<PZN>5434</PZN>\n" +
-                    "    \t\t<Bezeichnung>Salzlösung</Bezeichnung>\n" +
-                    "    \t\t<Anzahl>1,5</Anzahl>\n" +
-                    "    \t\t<Einheit>l</Einheit>\n" +
-                    "    \t\t<Einnahme>\n" +
-                    "    \t\t\t<Frueh>0</Frueh>\n" +
-                    "    \t\t\t<Mittag>0</Mittag>\n" +
-                    "    \t\t\t<Abend>1</Abend>\n" +
-                    "    \t\t\t<Nacht>0</Nacht>\n" +
-                    "    \t\t</Einnahme>\n" +
-                    "    \t</Add>\n" +
-                    "    </Medikamente>\n" +
-                    "    <OrdinationsInformationen>\n" +
-                    "    \t<Name>Dr. Mustermann</Name>\t\n" +
-                    "    </OrdinationsInformationen>\n" +
-                    "</SMS>\n");
+                        "<SMS>\n" +
+                        "\t<Medikamente>\n" +
+                        "\t\t<Medikament bezeichnung=\"Aspirin\" einheit=\"Tablette\">    \t\t    \t\t\n" +
+                        "\t\t\t<Einnahme zeit=\"08:00\" dosis=\"1\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"10:00\" dosis=\"2\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"13:00\" dosis=\"3\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"17:30\" dosis=\"4\"/>\t\t\t    \t\t\n" +
+                        "\t\t</Medikament>\n" +
+                        "\t\t\n" +
+                        "\t\t<Medikament bezeichnung=\"Paracetamol\" einheit=\"mg\">    \t\t    \t\t\n" +
+                        "\t\t\t<Einnahme zeit=\"08:00\" dosis=\"15\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"09:00\" dosis=\"50\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"11:00\" dosis=\"100\"/>\t\t\t\n" +
+                        "\t\t</Medikament>\t\n" +
+                        "\t\t\n" +
+                        "\t\t<Medikament bezeichnung=\"Salzlösung\" einheit=\"ml\">\n" +
+                        "\t\t\t<Einnahme zeit=\"22:00\" dosis=\"1000\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"13:00\" dosis=\"2000\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"09:00\" dosis=\"1500\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"10:30\" dosis=\"250\"/>\t\t\t    \t\t\n" +
+                        "\t\t</Medikament>\n" +
+                        "\t\t\n" +
+                        "\t\t<Medikament bezeichnung=\"Hustensaft\" einheit=\"Löffel\">    \t\t    \t\t\t\t\t\n" +
+                        "\t\t\t<Einnahme zeit=\"17:32\" dosis=\"1,5\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"13:33\" dosis=\"2,3\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"11:40\" dosis=\"1,7\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"10:40\" dosis=\"2,1\"/>\n" +
+                        "\t\t\t<Einnahme zeit=\"09:40\" dosis=\"4\"/>\n" +
+                        "\t\t</Medikament>\t\n" +
+                        "\t</Medikamente>\n" +
+                        "\n" +
+                        "\t<Ordination arzt=\"Dr. Mustermann\"/>\t\t\n" +
+                        "</SMS>"
+            );
 
             sms.sendMultipartTextMessage(destinationAddress, null, msgParts, null, null);
 

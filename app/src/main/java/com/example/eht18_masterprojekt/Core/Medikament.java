@@ -51,6 +51,12 @@ public class Medikament {
         this.einnahmeProtokoll = new MedEinnahmeProtokoll();
     }
 
+    public Medikament(String bezeichnung, String einheit) {
+        this.bezeichnung = bezeichnung;
+        this.einheit = einheit;
+        this.einnahmeProtokoll = new MedEinnahmeProtokoll();
+    }
+
     @NonNull
     @Override
     public String toString() {
