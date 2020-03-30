@@ -20,7 +20,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecyclerViewAdapter.ViewHolder> {
-
     private List<Medikament> medList;
     private Context context;
 
@@ -57,7 +56,6 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
             medikamentTextView = v.findViewById(R.id.tvMedikament);
             layoutMedList = v.findViewById(R.id.layout_medList);
             tableMedEinnahme = v.findViewById(R.id.table_layout_einnahmen);
-
         }
     }
 
@@ -76,7 +74,7 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     }
 
     /**
-     * Setzen der Inhalte eines holder an der Stelle position.
+     * Setzen der Inhalte des übergebenen holders an der übergebenen Stelle position.
      * @param holder
      * @param position
      */
@@ -84,35 +82,25 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     public void onBindViewHolder(@NonNull MedListRecyclerViewAdapter.ViewHolder holder, int position) {
         Medikament med = medList.get(position);
         String bezeichnung = med.getBezeichnung();
-        Medikament.MedEinnahmeProtokoll ez = med.getEinnahmeProtokoll();
+        Medikament.MedEinnahmeProtokoll medEinnahmeProtokoll = med.getEinnahmeProtokoll();
 
         holder.medikamentTextView.setText(bezeichnung);
 
-        // TODO: Med Einnahme Einheit muss in anzeige hinzugefügt werden.
-
-        for (Medikament.MedEinnahme e : ez){
+        // TODO: Sortierung nach Uhrzeit einbauen
+        for (Medikament.MedEinnahme e : medEinnahmeProtokoll){
             TableRow singleEinnahme = new TableRow(context);
             ImageView ivEinnahmeIcon = new ImageView(context);
             TextView tvEinnahmeBeschreibung = new TextView(context);
-            LocalTime einnahmeZeit = e.getEinnahmeZeit();
 
-            if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.mipmap.ic_morning);
-            }
-            else if (einnahmeZeit.compareTo(LocalTime.of(14,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.mipmap.ic_midday);
-            }
-            else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
-                ivEinnahmeIcon.setImageResource(R.mipmap.ic_evening);
-            }
-            else if (einnahmeZeit.compareTo(LocalTime.of(23,59, 59)) < 0){
-                ivEinnahmeIcon.setImageResource(R.mipmap.ic_night);
-            }
+            LocalTime einnahmeZeit = e.getEinnahmeZeit();
+            setEinnahmeIcon(ivEinnahmeIcon, einnahmeZeit);
 
             tvEinnahmeBeschreibung.setText(e.toString());
             tvEinnahmeBeschreibung.setTextSize(24);
+
             singleEinnahme.addView(ivEinnahmeIcon);
             singleEinnahme.addView(tvEinnahmeBeschreibung);
+
             holder.tableMedEinnahme.addView(singleEinnahme);
         }
     }
@@ -121,4 +109,20 @@ public class MedListRecyclerViewAdapter extends RecyclerView.Adapter<MedListRecy
     public int getItemCount() {
         return medList.size();
     }
+
+    private void setEinnahmeIcon(ImageView ivEinnahmeIcon, LocalTime einnahmeZeit){
+        if (einnahmeZeit.compareTo(LocalTime.of(10,0)) < 0){
+            ivEinnahmeIcon.setImageResource(R.mipmap.ic_morning);
+        }
+        else if (einnahmeZeit.compareTo(LocalTime.of(14,0)) < 0){
+            ivEinnahmeIcon.setImageResource(R.mipmap.ic_midday);
+        }
+        else if (einnahmeZeit.compareTo(LocalTime.of(18,0)) < 0){
+            ivEinnahmeIcon.setImageResource(R.mipmap.ic_evening);
+        }
+        else if (einnahmeZeit.compareTo(LocalTime.of(23,59, 59)) < 0){
+            ivEinnahmeIcon.setImageResource(R.mipmap.ic_night);
+        }
+    }
 }
+

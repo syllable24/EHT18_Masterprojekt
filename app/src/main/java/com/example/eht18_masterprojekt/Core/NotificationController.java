@@ -104,8 +104,9 @@ public class NotificationController {
 
             String medBezeichnung = currentMed.getBezeichnung();
             String dosis = currentMed.getEinnahmeProtokoll().getEinnahmeAt(LocalTime.parse(medEinnahmeZeit)).getEinnahmeDosis();
+            String einheit = currentMed.getEinheit();
 
-            content += "Bitte " + dosis + " "  + medBezeichnung + " einnehmen";
+            content += "Bitte " + dosis + " " + einheit + " " + medBezeichnung + " einnehmen";
 
             if (j < meds.size() - 1){
                 content += "<br>";

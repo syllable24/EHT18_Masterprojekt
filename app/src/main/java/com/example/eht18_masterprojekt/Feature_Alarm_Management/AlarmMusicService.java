@@ -62,7 +62,7 @@ public class AlarmMusicService extends Service {
             mediaPlayer.setLooping(true);
         }
 
-        if (mediaPlayer.isPlaying() != true) {
+        if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
             vat = new VolumeAdjusterTask();
             vat.execute();
@@ -93,15 +93,17 @@ public class AlarmMusicService extends Service {
      * @param intent
      */
     private Notification getAlarmTriggeredNotification(Intent intent, NotificationController nc){
+        if(intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP) == null){
+            throw new RuntimeException("Keine MedEinnahmeGroup im Start-Intent");
+        }
+
+        Log.d("APP_ALARM_TRIGGERED","" + intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP));
         MedikamentEinnahmeGroupAlarm groupAlarm = new MedikamentEinnahmeGroupAlarm(intent.getStringExtra(AlarmController.ALARM_INTENT_EXTRA_MED_EINNAHME_GROUP));
 
-        if (groupAlarm == null){
-            throw new RuntimeException("Received empty Group Alarm");
-        }
         if (groupAlarm.getAlarmTime() == null){
             throw new RuntimeException("Received Group Alarm without AlarmTime");
         }
-        if (groupAlarm.getMedsToTakeIds() == null){
+        if (groupAlarm.getMedsToTakeIds() == null || groupAlarm.getMedsToTakeIds().size() == 0){
             throw new RuntimeException("Received Group Alarm without medIDs");
         }
 

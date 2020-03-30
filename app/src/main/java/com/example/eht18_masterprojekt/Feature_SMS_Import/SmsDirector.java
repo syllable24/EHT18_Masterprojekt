@@ -16,13 +16,14 @@ class SmsDirector {
         context = ctx;
         String cleanedRawSms = cleanSms(smsBody);
         SmsType s = SMS.querySmsType(context, cleanedRawSms);
+        Date receivedAt = smsReceivedAt;
+        String address = smsReceivedFrom;
+
         if (s == XML){
-            Date receivedAt = smsReceivedAt;
-            String address = smsReceivedFrom;
-            this.builder = new SMS.XmlSmsBuilder(address,receivedAt, cleanedRawSms);
+            this.builder = new SMS.XmlSmsBuilder(address, receivedAt, cleanedRawSms);
         }
         else if(s == HL7v3){
-            //this.builder = new SMS.Hl7v3SmsBuilder(qSMS);
+            this.builder = new SMS.Hl7v3SmsBuilder(address, receivedAt, cleanedRawSms);
         }
         else if (s == null){
             throw new SmsFormatException("Unknown SMS Format");

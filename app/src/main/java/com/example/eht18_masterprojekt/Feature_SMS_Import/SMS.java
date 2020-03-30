@@ -19,15 +19,26 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import mf.javax.xml.transform.Source;
 import mf.javax.xml.transform.stream.StreamSource;
@@ -85,7 +96,7 @@ class SMS {
         this.receivedAt = receivedAt;
     }
 
-    public Document getBody() {
+    private Document getBody() {
         return body;
     }
 
@@ -93,24 +104,42 @@ class SMS {
         this.body = body;
     }
 
-    public static SmsType querySmsType(Context context, String rawSms){
-        try {
-            Source xmlSource = new StreamSource(new StringReader(rawSms));
-            Source schemaSource = new StreamSource(context.getResources().openRawResource(R.raw.xml_sms_schema));
-            SchemaFactory sf = new XMLSchemaFactory();
-            Schema xmlSchema = sf.newSchema(schemaSource);
+    static SmsType querySmsType(Context context, String rawSms){
+        Map<Integer, SmsType> supportedSmsTypes = new TreeMap<>();
+        supportedSmsTypes.put(R.raw.xml_sms_schema, SmsType.XML);
+        supportedSmsTypes.put(100, SmsType.HL7v3); //placeholder: supportedSmsTypes.add(R.raw.hl7v3_sms_schema);
+        Source xmlSource = new StreamSource(new StringReader(rawSms));
 
-            Validator v = xmlSchema.newValidator();
-            v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
+        for (Integer smsType : supportedSmsTypes.keySet()){
+            try {
+                if (smsType == 100){ // placeholder: xsd schema for HL7v3 CDA
+                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    Document xmlDocument = dBuilder.parse(new InputSource(new StringReader(rawSms)));
+                    XPathFactory xPathFactory = XPathFactory.newInstance();
+                    XPath xpath = xPathFactory.newXPath();
+                    XPathExpression selectMedTableBody = xpath.compile("//component/StructuredBody/section/text//tbody");
+                    NodeList tbody = (NodeList) selectMedTableBody.evaluate(xmlDocument, XPathConstants.NODESET);
+                    if (tbody.getLength() != 0)return SmsType.HL7v3;
+                }
+                else {
+                    Source schemaSource = new StreamSource(context.getResources().openRawResource(smsType));
+                    SchemaFactory sf = new XMLSchemaFactory();
+                    Schema xmlSchema = sf.newSchema(schemaSource);
 
-            return SmsType.XML;
-
-            // TODO: Add query for HL7v3
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            Log.d("SMS-Import","SMS nicht im XML Format!");
+                    Validator v = xmlSchema.newValidator();
+                    v.validate(xmlSource); // Wenn die Validierung nicht funktioniert wird eine SAXException geworfen.
+                    return SmsType.XML;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                Log.d("SMS-Import","SMS nicht im plain XML Format!");
+            } catch(XPathExpressionException e){
+                Log.d("SMS-Import","SMS nicht im HL7v3 CDA Format!");
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -119,19 +148,94 @@ class SMS {
 
         SMS hl7v3Sms;
 
+        Hl7v3SmsBuilder(String smsSender, Date smsReceivedAt, String smsBody) {
+            try {
+                hl7v3Sms = new SMS();
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document xmlDocument = dBuilder.parse(new InputSource(new StringReader(smsBody)));
+
+                hl7v3Sms.setBody(xmlDocument);
+                hl7v3Sms.setSender(smsSender);
+                hl7v3Sms.setReceivedAt(smsReceivedAt);
+            }
+
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (SAXException e) {
+                e.printStackTrace();
+            }
+            catch (javax.xml.parsers.ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+        }
+
         @Override
         public void buildMedikamente() {
+            try {
+                hl7v3Sms.medList = parseMedTableBody();
+            } catch (XPathExpressionException e) {
+                Log.e("MED-INIT", "XPath Error");
+                e.printStackTrace();
+            }
+        }
 
+        private List<Medikament> parseMedTableBody() throws XPathExpressionException {
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xpath = xPathFactory.newXPath();
+            XPathExpression selectMedTableBody = xpath.compile("//component/StructuredBody/section/text//tbody/tr");
+            NodeList tbody = (NodeList) selectMedTableBody.evaluate(hl7v3Sms.getBody(), XPathConstants.NODESET);
+            List<Medikament> importedList = new ArrayList<>();
+
+            for (int i = 0; i < tbody.getLength(); i++){
+                Node entry = tbody.item(i);
+                NodeList content = entry.getChildNodes();
+
+                String medName = content.item(0).getTextContent();
+                String medEinnahmeZeit = content.item(1).getTextContent();
+                String medDosis = content.item(2).getTextContent();
+                String medEinheit = content.item(3).getTextContent();
+
+                Medikament m = new Medikament(medName, medEinheit);
+                if (importedList.contains(m)){
+                    Medikament knownMed = importedList.get(importedList.indexOf(m));
+                    knownMed.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(medEinnahmeZeit), medDosis);
+                }
+                else{
+                    m.getEinnahmeProtokoll().addEinnahme(LocalTime.parse(medEinnahmeZeit), medDosis);
+                    importedList.add(m);
+                }
+            }
+            return importedList;
+        }
+
+        private List<String> parseMedTableHeader() throws XPathExpressionException {
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xpath = xPathFactory.newXPath();
+            XPathExpression selectMedTableHeader = xpath.compile("//component/StructuredBody/section/text//thead");
+            NodeList thead = (NodeList) selectMedTableHeader.evaluate(hl7v3Sms.getBody(), XPathConstants.NODESET); // Darf nur 1 head-definition retournieren
+
+            Node header = thead.item(0);
+            NodeList headerContent = header.getChildNodes();
+            List<String> headerValues = new ArrayList<>();
+
+            for (int i = 0; i < headerContent.getLength(); i++){
+                Node th = headerContent.item(i);
+                headerValues.add(th.getNodeValue());
+                Log.d("HL7v3_MED-INIT", "Med-Header: " + th.getNodeValue() + " eingelesen.");
+            }
+            return headerValues;
         }
 
         @Override
         public void buildOrdinationsInformationen() {
-
+            // TODO: Build OrdiInfos from content of CDA Doc
         }
 
         @Override
         public SMS getSMS() {
-            return null;
+            return hl7v3Sms;
         }
     }
 
@@ -141,11 +245,6 @@ class SMS {
         private final int EINHEIT     = 1;
         private final int EINNAHME_ZEIT    = 0;
         private final int EINNAHME_DOSIS    = 1;
-
-        private final LocalTime ZEIT_FRUEH  = LocalTime.of(8,0);
-        private final LocalTime ZEIT_MITTAG = LocalTime.of(12, 0);
-        private final LocalTime ZEIT_ABEND  = LocalTime.of(16,0);
-        private final LocalTime ZEIT_NACHT  = LocalTime.of(20,0);
 
         private SMS xmlSms;
 

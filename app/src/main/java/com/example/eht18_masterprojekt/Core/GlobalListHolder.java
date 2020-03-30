@@ -1,5 +1,7 @@
 package com.example.eht18_masterprojekt.Core;
 
+import android.util.Log;
+
 import com.example.eht18_masterprojekt.Core.Medikament;
 import com.example.eht18_masterprojekt.Feature_Alarm_Management.MedicationAlarm;
 import com.example.eht18_masterprojekt.Feature_Database.DatabaseAdapter;
@@ -35,4 +37,11 @@ public class GlobalListHolder {
     public static boolean isMedListSet() {
         return medListSet;
     }
+
+    private static void printMedList(){
+        for (Medikament m: globalMedList) {
+            Log.d("APP-MED-LIST", m.toString());
+        }
+    }
+
 }

@@ -28,7 +28,7 @@ public class MedikamentEinnahmeGroupAlarm implements Serializable {
         this.alarmID = Integer.parseInt(content[S_REP_ALARM_ID]);
         this.alarmTime = LocalTime.parse(content[S_REP_ALARM_TIME]);
 
-        for (int i = S_REP_MEDS_TO_TAKE_START; i < content.length - 1; i++){
+        for (int i = S_REP_MEDS_TO_TAKE_START; i < content.length; i++){
             medsToTakeIds.add(Long.parseLong(content[i]));
         }
     }

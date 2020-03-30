@@ -72,6 +72,7 @@ public class MainActivityView extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Toast.makeText(context, "Alarme für importierte SMS gesetzt.", Toast.LENGTH_SHORT).show();
+            databaseAdapter.printRegisteredAlarms();
         }
     };
 
@@ -120,14 +121,18 @@ public class MainActivityView extends AppCompatActivity {
 
         databaseAdapter.open();
         //databaseAdapter.printDatabaseContents();
-        databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
+        //databaseAdapter.emptyDatabase(); // Zum Testen des SMS-Imports
 
         initActivity();
-
         GlobalListHolder.init(databaseAdapter);
 
         if (GlobalListHolder.isMedListSet()){
             initMedListDisplay(GlobalListHolder.getMedList());
+
+            AlarmController ac = new AlarmController(this);
+            if (!ac.checkAlarmsRegistered(GlobalListHolder.getMedList(), databaseAdapter)){
+                ac.reRegisterAlarms();
+            }
         }
         else{
             // Leeren RecyclerView-Adapter am UI Thread initialisieren, damit dieser mittels
@@ -157,6 +162,9 @@ public class MainActivityView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Starten eines ScheduleAlarmTasks.
+     */
     private void startAlarmScheduling(){
         ScheduleAlarmsTask st = new ScheduleAlarmsTask(this, databaseAdapter);
         st.execute();

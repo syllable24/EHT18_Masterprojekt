@@ -65,9 +65,8 @@ public class DatabaseAdapter {
             for (Medikament m : medList) {
                 cvMed.put(COL_MED_BEZEICHNUNG, m.getBezeichnung());
                 cvMed.put(COL_MED_EINHEIT, m.getEinheit());
-                cvMed.put(COL_MED_STUECKZAHL, m.getStueckzahl());
+                cvMed.put(COL_MED_STUECKZAHL, m.getVorratStueckzahl());
                 long medID = db.insertOrThrow(TABLE_MED_LIST, null, cvMed);
-                Log.d("APP-DB_STORE_MED", "INSERT INTO " + TABLE_MED_LIST + "(" + COL_MED_BEZEICHNUNG + ", " + COL_MED_EINHEIT + ", " + COL_MED_STUECKZAHL + ") VALUES('" + cvMed.get(COL_MED_BEZEICHNUNG) + "', '" + cvMed.get(COL_MED_EINHEIT) +  "', " + cvMed.getAsString(COL_MED_STUECKZAHL).replace(",",".") + ");");
                 m.setMedId(medID);
 
                 for (Medikament.MedEinnahme medEinnahme : m.getEinnahmeProtokoll()) {
@@ -84,6 +83,20 @@ public class DatabaseAdapter {
             Log.e("APP-STORE-MED_LIST", e.getMessage());
         }
         return true;
+    }
+
+    public void printRegisteredAlarms(){
+        Cursor c = db.rawQuery("SELECT * FROM " + TABLE_ALARMS + " ORDER BY " + COL_ALARM_ZEIT , null);
+        String msg = "";
+        while(c.moveToNext()){
+            for (int i = 0; i < c.getColumnCount(); i++){
+                msg += c.getColumnName(i) + " " + c.getString(i) + " ";
+            }
+
+            Log.d("APP_REGISTERED_ALARMS", msg);
+            msg = "";
+        }
+        c.close();
     }
 
     /**

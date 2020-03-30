@@ -65,7 +65,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
         if (permission){ // false: Permissions müssen vom User eingegeben werden -> wird in Callback onRequestPermissionResult behandelt.
             startSmsInit();
         }
-        //sendSms();
+        //sendSms("");
     }
 
     @Override
@@ -180,41 +180,7 @@ public class ImportSmsView extends AppCompatActivity implements ActivityCompat.O
             Intent intent=new Intent(getApplicationContext(), MainActivityView.class);
             PendingIntent pi= PendingIntent.getActivity(getApplicationContext(), 0, intent,0);
             SmsManager sms=SmsManager.getDefault();
-            ArrayList msgParts = sms.divideMessage("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<SMS>\n" +
-                        "\t<Medikamente>\n" +
-                        "\t\t<Medikament bezeichnung=\"Aspirin\" einheit=\"Tablette\">    \t\t    \t\t\n" +
-                        "\t\t\t<Einnahme zeit=\"08:00\" dosis=\"1\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"10:00\" dosis=\"2\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"13:00\" dosis=\"3\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"17:30\" dosis=\"4\"/>\t\t\t    \t\t\n" +
-                        "\t\t</Medikament>\n" +
-                        "\t\t\n" +
-                        "\t\t<Medikament bezeichnung=\"Paracetamol\" einheit=\"mg\">    \t\t    \t\t\n" +
-                        "\t\t\t<Einnahme zeit=\"08:00\" dosis=\"15\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"09:00\" dosis=\"50\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"11:00\" dosis=\"100\"/>\t\t\t\n" +
-                        "\t\t</Medikament>\t\n" +
-                        "\t\t\n" +
-                        "\t\t<Medikament bezeichnung=\"Salzlösung\" einheit=\"ml\">\n" +
-                        "\t\t\t<Einnahme zeit=\"22:00\" dosis=\"1000\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"13:00\" dosis=\"2000\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"09:00\" dosis=\"1500\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"10:30\" dosis=\"250\"/>\t\t\t    \t\t\n" +
-                        "\t\t</Medikament>\n" +
-                        "\t\t\n" +
-                        "\t\t<Medikament bezeichnung=\"Hustensaft\" einheit=\"Löffel\">    \t\t    \t\t\t\t\t\n" +
-                        "\t\t\t<Einnahme zeit=\"17:32\" dosis=\"1,5\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"13:33\" dosis=\"2,3\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"11:40\" dosis=\"1,7\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"10:40\" dosis=\"2,1\"/>\n" +
-                        "\t\t\t<Einnahme zeit=\"09:40\" dosis=\"4\"/>\n" +
-                        "\t\t</Medikament>\t\n" +
-                        "\t</Medikamente>\n" +
-                        "\n" +
-                        "\t<Ordination arzt=\"Dr. Mustermann\"/>\t\t\n" +
-                        "</SMS>"
-            );
+            ArrayList msgParts = sms.divideMessage("<?xml version=\"1.0\"?> <ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:cda=\"urn:hl7-org:v3\" xmlns:sdtc=\"urn:hl7-org:sdtc\"> <realmCode code=\"AT\"/> <typeId root=\"2.16.840.1.113883.1.3\" extension=\"POCD_HD000040\"/> <id root=\"2.16.840.1.113883.3.3208.101.1\" extension=\"20130607100315-CCDA-CCD\"/> <code code=\"57828-6\" displayName=\"Dauermedikationsliste\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"/> <title>Dauermedikationsliste</title> <effectiveTime value=\"20200328172200-0600\"/> <confidentialityCode code=\"N\" codeSystem=\"2.16.840.1.113883.5.25\"/> <languageCode code=\"de-AT\"/> <setId root=\"2.16.840.1.113883.4.823.1.12345\" extension=\"1\"/> <versionNumber value=\"1\"/> <recordTarget> <patientRole> <id root=\"2.16.840.1.113883.4.823.1\" extension=\"20130607100800-FakeID\"/> <id root=\"2.16.840.1.113883.9.9.9\" extension=\"Test.Klient@fakemail.com\"/> <addr use=\"HP\"> <streetAddressLine>Radetzkystrasse 11</streetAddressLine> <city>Graz</city> <state>ST</state> <postalCode>8010</postalCode> <country>AT</country> </addr> <telecom value=\"tel:0664123456789\" use=\"HP\"/> <telecom value=\"mailto:Test.Klient@fakemail.com\"></telecom> <patient> <name use=\"L\"> <given>Test</given> <family>Klient</family> </name> <administrativeGenderCode code=\"M\" codeSystem=\"2.16.840.1.113883.5.1\" displayName=\"Male\" codeSystemName=\"AdministrativeGender\"/> <birthTime value=\"19010101\"/> <maritalStatusCode code=\"M\" displayName=\"Married\" codeSystem=\"2.16.840.1.113883.5.2\" codeSystemName=\"MaritalStatus\"/> <raceCode code=\"2106-3\" displayName=\"White\" codeSystem=\"2.16.840.1.113883.6.238\" codeSystemName=\"OMB Standards for Race and Ethnicity\"/> <ethnicGroupCode code=\"2186-5\" displayName=\"Not Hispanic or Latino\" codeSystem=\"2.16.840.1.113883.6.238\" codeSystemName=\"OMB Standards for Race and Ethnicity\"/> <languageCommunication> <languageCode code=\"de\"/> <modeCode code=\"ESP\" displayName=\"Expressed spoken\" codeSystem=\"2.16.840.1.113883.5.60\" codeSystemName=\"LanguageAbilityMode\"/> <proficiencyLevelCode code=\"E\" displayName=\"Excellent\" codeSystem=\"2.16.840.1.113883.5.61\" codeSystemName=\"LanguageAbilityProficiency\"/> </languageCommunication> </patient> </patientRole> </recordTarget> <author> <time value=\"202001011722-0500\"/> <assignedAuthor> <id extension=\"66666\" root=\"2.16.840.1.113883.4.6\"/> <id root=\"2.16.840.1.113883.4.823.1\" extension=\"20130607100800-FakeID\"/> <code code=\"ONESELF\" codeSystem=\"2.16.840.1.113883.5.111\" codeSystemName=\"RoleCode\" displayName=\"self\"/> <addr use=\"HP\"> <streetAddressLine>Radetzkystrasse 15</streetAddressLine> <city>Graz</city> <state>ST</state> <postalCode>8010</postalCode> <country>AT</country> </addr> <telecom value=\"tel:0676 123456789\" use=\"HP\"/> <assignedPerson> <name use=\"L\"> <given>Test</given> <family>Arzt</family> </name> </assignedPerson> </assignedAuthor> </author> <custodian> <assignedCustodian> <representedCustodianOrganization> <id extension=\"44444\" root=\"2.16.840.1.113883.4.6\"/> <name>Testdomain.com</name> <telecom value=\"tel:+1(202)776-7700\" use=\"WP\"/> <addr use=\"WP\"> <streetAddressLine>Radetzkystrasse 20</streetAddressLine> <city>Graz</city> <state>ST</state> <postalCode>8010</postalCode> <country>AT</country> </addr> </representedCustodianOrganization> </assignedCustodian> </custodian> <component> <StructuredBody> <confidentialityCode code=\"N\" codeSystem=\"2.16.840.1.113883.5.25\"/> <languageCode code=\"de-AT\"/> <section> <code code=\"57828-6\" displayName=\"Dauermedikationsliste\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"/> <title>Dauermedikationsliste</title> <text> <table border=\"1\"> <thead> <tr> <th>Medikament</th> <th>Einnahmezeit</th> <th>Dosis</th> <th>Einheit</th> </tr> </thead> <tbody> <tr> <td>Aspirin</td> <td>08:00</td> <td>1</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>09:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>10:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>11:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>12:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>13:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>14:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>15:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>16:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>17:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>18:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>19:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Aspirin</td> <td>20:00</td> <td>2</td> <td>Tablette</td> </tr> <tr> <td>Paracetamol</td> <td>13:00</td> <td>15</td> <td>mg</td> </tr> <tr> <td>Salzlösung</td> <td>13:00</td> <td>2000</td> <td>ml</td> </tr> <tr> <td>Hustensaft</td> <td>14:00</td> <td>1,5</td> <td>Löffel</td> </tr> </tbody> </table> </text> </section> </StructuredBody> </component> </ClinicalDocument>");
 
             sms.sendMultipartTextMessage(destinationAddress, null, msgParts, null, null);
 

@@ -1,6 +1,7 @@
 package com.example.eht18_masterprojekt.Core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
 public class Medikament {
     private String bezeichnung;
     private String einheit;
-    private String stueckzahl;
+    private String vorratStueckzahl;
     private MedEinnahmeProtokoll einnahmeProtokoll;
     private long medId;
 
@@ -21,8 +22,8 @@ public class Medikament {
         return einheit;
     }
     public MedEinnahmeProtokoll getEinnahmeProtokoll() {return einnahmeProtokoll;}
-    public String getStueckzahl() {
-        return stueckzahl;
+    public String getVorratStueckzahl() {
+        return vorratStueckzahl;
     }
     public long getMedId() {return medId;}
 
@@ -36,18 +37,18 @@ public class Medikament {
 
     public void setMedId(long medId) {this.medId = medId;}
 
-    public Medikament(int medID, String bezeichnung, String einheit, String stueckzahl){
+    public Medikament(int medID, String bezeichnung, String einheit, String vorratStueckzahl){
         this.medId = medID;
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;
-        this.stueckzahl = stueckzahl;
+        this.vorratStueckzahl = vorratStueckzahl;
         this.einnahmeProtokoll = new MedEinnahmeProtokoll();
     }
 
     public Medikament(String bezeichnung, String einheit, String stueckzahl) {
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;
-        this.stueckzahl = stueckzahl;
+        this.vorratStueckzahl = stueckzahl;
         this.einnahmeProtokoll = new MedEinnahmeProtokoll();
     }
 
@@ -62,8 +63,6 @@ public class Medikament {
     public String toString() {
         String temp = "";
         temp += getBezeichnung();
-        temp += " ";
-        temp += getStueckzahl();
         temp += " ";
         temp += getEinheit();
         temp += " ";
@@ -138,12 +137,17 @@ public class Medikament {
          */
         public MedEinnahme getEinnahmeAt(LocalTime lt){
             for (MedEinnahme et : einnahmeProtokoll){
-                if(et.getEinnahmeZeit() == lt){
+                if(et.getEinnahmeZeit().equals(lt)){
                     return et;
                 }
             }
             throw new RuntimeException("Med Einnahme für LocalTime: " + lt.toString() + " not found");
         }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return this.bezeichnung.equals(((Medikament) obj).bezeichnung);
     }
 
     public class MedEinnahme {
@@ -204,8 +208,7 @@ public class Medikament {
         @NonNull
         @Override
         public String toString() {
-            return "Um " + einnahmeZeit.toString() + " " + einnahmeDosis;
+            return "Um " + einnahmeZeit.toString() + " " + einnahmeDosis + " " + Medikament.this.getEinheit();
         }
-
     }
 }
